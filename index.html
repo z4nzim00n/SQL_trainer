@@ -19,7 +19,7 @@
         <div class="nav-header">
             <div class="nav-header-top">
                 <h1>🗄️ SQL Practice</h1>
-                <span class="version">v0.001</span>
+                <span class="version">v0.002</span>
             </div>
 
             <div class="settings-bar">
@@ -90,9 +90,14 @@
                         <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off"
                                   placeholder="-- Напиши запрос здесь. Ctrl+Enter выполняет его." disabled></textarea>
                     </div>
+                    <div class="out-tabs" id="outTabs">
+                        <button class="tab active" type="button" data-out="output">▤ Вывод</button>
+                        <button class="tab" type="button" data-out="schema">🗂 Схема БД</button>
+                    </div>
                     <div class="output" id="output">
                         <div class="output-hint">Результат появится здесь.</div>
                     </div>
+                    <div class="schema-view" id="schemaView" hidden></div>
                 </div>
             </div>
 

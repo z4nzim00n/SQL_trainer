@@ -41,13 +41,22 @@ function parseHints(md) {
     return hints.map((h) => ({ title: h.title, body: h.body.trim() }));
 }
 
-const datasets = {
-    pizza: {
-        main: read('data', 'pizza.sql'),
-        alt: read('data', 'pizza.sql') + '\n' + read('data', 'pizza_alt.sql'),
-        schema: read('data', 'pizza_schema.md'),
-    },
-};
+/* Наборы данных находятся автоматически: data/<имя>.sql, data/<имя>_alt.sql (необязательно), data/<имя>_schema.md (необязательно) */
+const datasets = {};
+const dataFiles = readdirSync(join(root, 'data'));
+for (const f of dataFiles.sort()) {
+    const m = f.match(/^([a-z0-9]+)\.sql$/);
+    if (!m) continue;
+    const name = m[1];
+    const main = read('data', f);
+    const altFile = `${name}_alt.sql`;
+    const schemaFile = `${name}_schema.md`;
+    datasets[name] = {
+        main,
+        alt: dataFiles.includes(altFile) ? main + '\n' + read('data', altFile) : main,
+        schema: dataFiles.includes(schemaFile) ? read('data', schemaFile) : '',
+    };
+}
 
 const days = [];
 for (const dayDir of dirs('tasks')) {

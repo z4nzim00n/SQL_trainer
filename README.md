@@ -1,4 +1,4 @@
-# SQL Practice (v0.001)
+# SQL Practice (v0.002)
 
 Тренажёр по SQL для подготовки к экзамену. Запросы выполняются прямо в браузере на настоящем PostgreSQL (PGlite, WebAssembly): ничего ставить не нужно.
 
@@ -14,6 +14,10 @@ python3 -m http.server 8000
 Открой http://localhost:8000. Двойным кликом по `index.html` страница не заработает: браузер не даёт читать `tasks.json` и грузить WebAssembly с `file://`.
 
 Нужен интернет: PGlite подгружается с CDN (jsDelivr, запасной источник esm.sh), шрифты с Google Fonts. Первый запуск скачивает несколько МБ, дальше браузер берёт их из кэша.
+
+Справа внизу две вкладки: «Вывод» и «Схема БД» (граф таблиц с PK/FK и содержимое любой таблицы по клику).
+
+Как добавлять задания и подключать другую нейросеть: см. `AUTHORING.md`.
 
 ## Проверка, что движок работает
 
@@ -35,7 +39,7 @@ python3 -m http.server 8000
 
 ```
 index.html              страница
-css/, js/               интерфейс (app.js), движок БД (engine.js), проверка (checker.js)
+css/, js/               интерфейс (app.js), схема БД (schema.js), движок БД (engine.js), проверка (checker.js)
 vendor/marked.esm.js    разбор Markdown
 data/                   pizza.sql (модель из школы), pizza_alt.sql (скрытые данные), pizza_schema.md
 tasks/dayNN/exNN_name/  задания (исходники)

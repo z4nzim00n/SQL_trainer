@@ -3,6 +3,7 @@ import { marked } from '../vendor/marked.esm.js';
 import { highlightSql } from './highlight.js';
 import { runCheck } from './checker.js';
 import { createEngine } from './engine.js';
+import { createSchemaView } from './schema.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -382,6 +383,7 @@ async function withBusy(label, fn) {
     if (busy || !activeTask || !engine) return;
     busy = true;
     runBtn.disabled = checkBtn.disabled = true;
+    showOutTab('output');
     showMessage(label);
     try { await fn(); } finally {
         busy = false;
@@ -419,6 +421,41 @@ runBtn.addEventListener('click', runQuery);
 checkBtn.addEventListener('click', checkQuery);
 
 /* ============================================
+   ПРАВАЯ НИЖНЯЯ ПАНЕЛЬ: вкладки «Вывод» / «Схема БД»
+   ============================================ */
+const schemaViewEl = $('schemaView');
+let outTab = 'output';
+const schemaView = createSchemaView(schemaViewEl, {
+    run: (dataset, sql) => engine.run(dataset, 'main', sql),
+    resultTable,
+    el,
+});
+
+function schemaDataset() {
+    if (activeTask) return activeTask.meta.dataset;
+    return data && data.datasets ? Object.keys(data.datasets)[0] : null;
+}
+
+function refreshSchema() {
+    if (outTab !== 'schema') return;
+    const dataset = schemaDataset();
+    if (!data || !dataset) schemaView.message('Задания ещё загружаются…');
+    else if (!engine) schemaView.message('PostgreSQL ещё загружается…');
+    else schemaView.show(dataset);
+}
+
+function showOutTab(name) {
+    outTab = name;
+    document.querySelectorAll('#outTabs .tab').forEach((b) => b.classList.toggle('active', b.dataset.out === name));
+    output.hidden = name !== 'output';
+    schemaViewEl.hidden = name !== 'schema';
+    refreshSchema();
+}
+
+document.querySelectorAll('#outTabs .tab').forEach((b) =>
+    b.addEventListener('click', () => showOutTab(b.dataset.out)));
+
+/* ============================================
    SELECT TASK
    ============================================ */
 function selectTask(task, row) {
@@ -434,6 +471,7 @@ function selectTask(task, row) {
     paintEditor();
     setEditorEnabled(!!engine);
     showMessage(engine ? 'Результат появится здесь. Ctrl+Enter выполняет запрос.' : 'PostgreSQL ещё загружается…');
+    refreshSchema();
 }
 
 /* ============================================
@@ -503,6 +541,7 @@ async function start() {
             setNav('');
             setEditorEnabled(true);
             if (activeTask) showMessage('Результат появится здесь. Ctrl+Enter выполняет запрос.');
+            refreshSchema();
             return e;
         })
         .catch((err) => {

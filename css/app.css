@@ -168,3 +168,61 @@
 @media (max-width: 900px) {
     .editor-wrap { flex-basis: 45%; }
 }
+
+/* ---------- вкладки правой нижней панели ---------- */
+.out-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 6px 12px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--code-block-bg);
+    flex: 0 0 auto;
+}
+.output[hidden], .schema-view[hidden] { display: none; }
+.schema-view {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 14px 16px 28px;
+}
+.error-text { color: var(--red); }
+
+/* ---------- граф таблиц ---------- */
+.er-wrap { overflow-x: auto; margin: 8px 0 10px; }
+.er-svg { display: block; font-family: var(--font-code); }
+.er-box { cursor: pointer; outline: none; }
+.er-box .frame { fill: var(--panel-alt); stroke: var(--border); stroke-width: 1.2; }
+.er-box .head { fill: var(--table-header); }
+.er-box .title { fill: var(--text-strong); font-size: 13px; font-weight: 700; }
+.er-box .col { fill: var(--text); font-size: 12px; }
+.er-box .type { fill: var(--muted); font-size: 11px; }
+.er-box .badge-pk { fill: var(--yellow); font-size: 10px; font-weight: 700; }
+.er-box .badge-fk { fill: var(--accent); font-size: 10px; font-weight: 700; }
+.er-box.sel .frame { stroke: var(--accent); stroke-width: 2; }
+.er-edge { fill: none; stroke: var(--muted); stroke-width: 1.4; opacity: .8; }
+.er-edge-dot { fill: var(--muted); }
+.er-arrow { fill: var(--muted); }
+.er-svg.dim .er-box:not(.on) { opacity: .35; }
+.er-svg.dim .er-edge:not(.on), .er-svg.dim .er-edge-dot:not(.on) { opacity: .15; }
+.er-edge.on { stroke: var(--accent); stroke-width: 2; opacity: 1; }
+.er-edge-dot.on { fill: var(--accent); }
+.er-box:focus-visible .frame { stroke: var(--accent); stroke-width: 2; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip {
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: var(--font-code);
+    font-size: calc(var(--fs-ui) - 1px);
+}
+.chip:hover { color: var(--text); background: var(--panel-hover); }
+.chip.active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.table-data-title { margin: 4px 0; font-weight: 700; color: var(--text-strong); }
+
+/* на вкладке «Схема БД» редактору отдаём меньше места */
+.right-body:has(.schema-view:not([hidden])) .editor-wrap { flex-basis: 26%; }
