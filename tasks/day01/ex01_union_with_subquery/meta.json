@@ -1,0 +1,35 @@
+{
+  "title": "UNION dance with subquery",
+  "dataset": "pizza",
+  "ordered": true,
+  "forbidden": [],
+  "required": [],
+  "positive": [
+    {
+      "why": "в обеих частях сортировка по настоящему имени столбца",
+      "sql": "(SELECT name AS object_name FROM person ORDER BY name) UNION ALL (SELECT pizza_name FROM menu ORDER BY pizza_name);"
+    }
+  ],
+  "negative": [
+    {
+      "why": "UNION без ALL удаляет дубли",
+      "sql": "(SELECT name AS object_name FROM person ORDER BY object_name) UNION (SELECT pizza_name FROM menu ORDER BY pizza_name);"
+    },
+    {
+      "why": "нет части с menu",
+      "sql": "SELECT name AS object_name FROM person ORDER BY object_name;"
+    },
+    {
+      "why": "лишний столбец object_id",
+      "sql": "(SELECT id AS object_id, name AS object_name FROM person ORDER BY object_name) UNION ALL (SELECT id, pizza_name FROM menu ORDER BY pizza_name);"
+    },
+    {
+      "why": "порядок частей: сначала menu, потом person",
+      "sql": "(SELECT pizza_name AS object_name FROM menu ORDER BY pizza_name) UNION ALL (SELECT name FROM person ORDER BY name);"
+    },
+    {
+      "why": "общая сортировка в конце: на скрытых данных люди и пиццы перемешиваются",
+      "sql": "SELECT name AS object_name FROM person UNION ALL SELECT pizza_name FROM menu ORDER BY object_name;"
+    }
+  ]
+}

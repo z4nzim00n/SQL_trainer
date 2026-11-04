@@ -1,0 +1,11 @@
+{
+  "name": "sql-trainer",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Тренажёр по SQL: настоящий PostgreSQL в браузере (PGlite)",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "validate": "node tools/validate.mjs"
+  }
+}

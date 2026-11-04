@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="catppuccin">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SQL Practice</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="app">
+
+    <aside class="nav" id="sidebar">
+        <div class="nav-header">
+            <div class="nav-header-top">
+                <h1>🗄️ SQL Practice</h1>
+                <span class="version">v0.001</span>
+            </div>
+
+            <div class="settings-bar">
+                <div class="settings-row">
+                    <span>Тема:</span>
+                    <select id="themeSelect" class="theme-select" title="Выбрать тему">
+                        <option value="gruvbox">☕ Gruvbox</option>
+                        <option value="everforest">🌿 Everforest</option>
+                        <option value="catppuccin">🐈 Catppuccin</option>
+                        <option value="kanagawa">🌊 Kanagawa</option>
+                        <option value="nord">❄️ Nord</option>
+                        <option value="dracula">🧛 Dracula</option>
+                        <option value="dark">🌙 GitHub Dark</option>
+                        <option value="light">☀️ GitHub Light</option>
+                    </select>
+                </div>
+                <div class="settings-row">
+                    <span>Размер текста: <span id="fontVal">15</span>px</span>
+                    <input type="range" id="fontSlider" class="font-slider" min="12" max="26" value="15" step="1">
+                </div>
+            </div>
+        </div>
+
+        <div id="navStatus" class="nav-status">Загружаю задания…</div>
+
+        <nav class="tree" id="tree"></nav>
+    </aside>
+
+    <div class="content-area">
+        <div class="task-bar">
+            <button class="sidebar-toggle-btn" id="sidebarToggle" title="Скрыть/показать меню">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                </svg>
+            </button>
+            <span class="task-bar-title" id="taskBarTitle">Выбери задание слева</span>
+            <button class="layout-toggle" id="layoutToggle" title="Сменить раскладку окон">⬜</button>
+        </div>
+
+        <div class="panels-container" id="panelsContainer">
+
+            <div class="panel" id="panelLeft" style="flex:1 1 0%;">
+                <div class="panel-topbar">
+                    <div class="tabs" id="tabs"></div>
+                </div>
+                <div class="panel-body" id="leftBody">
+                    <div class="panel-empty">
+                        <div class="panel-empty-icon">📋</div>
+                        <div class="panel-empty-text">Выбери задание.<br>Условие появится здесь.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="resizer" id="resizer" title="Потяни для изменения размера"></div>
+
+            <div class="panel" id="panelRight" style="flex:1 1 0%;">
+                <div class="panel-topbar secondary">
+                    <span class="panel-topbar-title">Запрос</span>
+                    <button id="runBtn" type="button" title="Выполнить запрос (Ctrl+Enter)" disabled>▶ Выполнить</button>
+                    <button id="checkBtn" class="btn-primary" type="button" title="Проверить решение" disabled>✔ Проверить</button>
+                    <button id="resetBtn" type="button" title="Очистить редактор" disabled>↺</button>
+                </div>
+                <div class="right-body">
+                    <div class="editor-wrap" id="editorWrap">
+                        <pre id="editorHl" aria-hidden="true"></pre>
+                        <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off"
+                                  placeholder="-- Напиши запрос здесь. Ctrl+Enter выполняет его." disabled></textarea>
+                    </div>
+                    <div class="output" id="output">
+                        <div class="output-hint">Результат появится здесь.</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

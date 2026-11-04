@@ -1,0 +1,39 @@
+{
+  "title": "Duplicates or not duplicates",
+  "dataset": "pizza",
+  "ordered": true,
+  "forbidden": ["DISTINCT", "GROUP BY", "HAVING", "JOIN"],
+  "required": [],
+  "positive": [
+    {
+      "why": "INTERSECT тоже убирает повторы",
+      "sql": "SELECT pizza_name FROM menu INTERSECT SELECT pizza_name FROM menu ORDER BY pizza_name DESC;"
+    },
+    {
+      "why": "запрещённое слово только в комментарии и строке не считается",
+      "sql": "-- без DISTINCT и JOIN\nSELECT pizza_name FROM menu UNION SELECT pizza_name FROM menu ORDER BY pizza_name DESC; /* GROUP BY */"
+    }
+  ],
+  "negative": [
+    {
+      "why": "DISTINCT запрещён (результат при этом верный)",
+      "sql": "SELECT DISTINCT pizza_name FROM menu ORDER BY pizza_name DESC;"
+    },
+    {
+      "why": "GROUP BY запрещён",
+      "sql": "SELECT pizza_name FROM menu GROUP BY pizza_name ORDER BY pizza_name DESC;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями: на основных данных верно, на скрытых нет",
+      "sql": "SELECT * FROM (VALUES ('supreme pizza'), ('sausage pizza'), ('pepperoni pizza'), ('mushroom pizza'), ('cheese pizza')) AS t(pizza_name) ORDER BY pizza_name DESC;"
+    },
+    {
+      "why": "дубликаты не убраны",
+      "sql": "SELECT pizza_name FROM menu ORDER BY pizza_name DESC;"
+    },
+    {
+      "why": "сортировка по возрастанию, а не по убыванию",
+      "sql": "SELECT pizza_name FROM menu UNION SELECT pizza_name FROM menu ORDER BY pizza_name;"
+    }
+  ]
+}

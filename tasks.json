@@ -1,0 +1,198 @@
+{
+ "version": "0.001",
+ "builtAt": "2026-11-04T10:21:45.119Z",
+ "datasets": {
+  "pizza": {
+   "main": "create table person\n( id bigint primary key ,\n  name varchar not null,\n  age integer not null default 10,\n  gender varchar default 'female' not null ,\n  address varchar\n  );\n\nalter table person add constraint ch_gender check ( gender in ('female','male') );\n\ninsert into person values (1, 'Anna', 16, 'female', 'Moscow');\ninsert into person values (2, 'Andrey', 21, 'male', 'Moscow');\ninsert into person values (3, 'Kate', 33, 'female', 'Kazan');\ninsert into person values (4, 'Denis', 13, 'male', 'Kazan');\ninsert into person values (5, 'Elvira', 45, 'female', 'Kazan');\ninsert into person values (6, 'Irina', 21, 'female', 'Saint-Petersburg');\ninsert into person values (7, 'Peter', 24, 'male', 'Saint-Petersburg');\ninsert into person values (8, 'Nataly', 30, 'female', 'Novosibirsk');\ninsert into person values (9, 'Dmitriy', 18, 'male', 'Samara');\n\n\ncreate table pizzeria\n(id bigint primary key ,\n name varchar not null ,\n rating numeric not null default 0);\n\nalter table pizzeria add constraint ch_rating check ( rating between 0 and 5);\n\ninsert into pizzeria values (1,'Pizza Hut', 4.6);\ninsert into pizzeria values (2,'Dominos', 4.3);\ninsert into pizzeria values (3,'DoDo Pizza', 3.2);\ninsert into pizzeria values (4,'Papa Johns', 4.9);\ninsert into pizzeria values (5,'Best Pizza', 2.3);\ninsert into pizzeria values (6,'DinoPizza', 4.2);\n\n\ncreate table person_visits\n(id bigint primary key ,\n person_id bigint not null ,\n pizzeria_id bigint not null ,\n visit_date date not null default current_date,\n constraint uk_person_visits unique (person_id, pizzeria_id, visit_date),\n constraint fk_person_visits_person_id foreign key  (person_id) references person(id),\n constraint fk_person_visits_pizzeria_id foreign key  (pizzeria_id) references pizzeria(id)\n );\n\ninsert into person_visits values (1, 1, 1, '2022-01-01');\ninsert into person_visits values (2, 2, 2, '2022-01-01');\ninsert into person_visits values (3, 2, 1, '2022-01-02');\ninsert into person_visits values (4, 3, 5, '2022-01-03');\ninsert into person_visits values (5, 3, 6, '2022-01-04');\ninsert into person_visits values (6, 4, 5, '2022-01-07');\ninsert into person_visits values (7, 4, 6, '2022-01-08');\ninsert into person_visits values (8, 5, 2, '2022-01-08');\ninsert into person_visits values (9, 5, 6, '2022-01-09');\ninsert into person_visits values (10, 6, 2, '2022-01-09');\ninsert into person_visits values (11, 6, 4, '2022-01-01');\ninsert into person_visits values (12, 7, 1, '2022-01-03');\ninsert into person_visits values (13, 7, 2, '2022-01-05');\ninsert into person_visits values (14, 8, 1, '2022-01-05');\ninsert into person_visits values (15, 8, 2, '2022-01-06');\ninsert into person_visits values (16, 8, 4, '2022-01-07');\ninsert into person_visits values (17, 9, 4, '2022-01-08');\ninsert into person_visits values (18, 9, 5, '2022-01-09');\ninsert into person_visits values (19, 9, 6, '2022-01-10');\n\n\ncreate table menu\n(id bigint primary key ,\n pizzeria_id bigint not null ,\n pizza_name varchar not null ,\n price numeric not null default 1,\n constraint fk_menu_pizzeria_id foreign key (pizzeria_id) references pizzeria(id));\n\ninsert into menu values (1,1,'cheese pizza', 900);\ninsert into menu values (2,1,'pepperoni pizza', 1200);\ninsert into menu values (3,1,'sausage pizza', 1200);\ninsert into menu values (4,1,'supreme pizza', 1200);\n\ninsert into menu values (5,6,'cheese pizza', 950);\ninsert into menu values (6,6,'pepperoni pizza', 800);\ninsert into menu values (7,6,'sausage pizza', 1000);\n\ninsert into menu values (8,2,'cheese pizza', 800);\ninsert into menu values (9,2,'mushroom pizza', 1100);\n\ninsert into menu values (10,3,'cheese pizza', 780);\ninsert into menu values (11,3,'supreme pizza', 850);\n\ninsert into menu values (12,4,'cheese pizza', 700);\ninsert into menu values (13,4,'mushroom pizza', 950);\ninsert into menu values (14,4,'pepperoni pizza', 1000);\ninsert into menu values (15,4,'sausage pizza', 950);\n\ninsert into menu values (16,5,'cheese pizza', 700);\ninsert into menu values (17,5,'pepperoni pizza', 800);\ninsert into menu values (18,5,'supreme pizza', 850);\n\ncreate table person_order\n(\n    id bigint primary key ,\n    person_id  bigint not null ,\n    menu_id bigint not null ,\n    order_date date not null default current_date,\n    constraint fk_order_person_id foreign key (person_id) references person(id),\n    constraint fk_order_menu_id foreign key (menu_id) references menu(id)\n);\n\ninsert into person_order values (1,1, 1, '2022-01-01');\ninsert into person_order values (2,1, 2, '2022-01-01');\n\ninsert into person_order values (3,2, 8, '2022-01-01');\ninsert into person_order values (4,2, 9, '2022-01-01');\n\ninsert into person_order values (5,3, 16, '2022-01-04');\n\ninsert into person_order values (6,4, 16, '2022-01-07');\ninsert into person_order values (7,4, 17, '2022-01-07');\ninsert into person_order values (8,4, 18, '2022-01-07');\ninsert into person_order values (9,4, 6, '2022-01-08');\ninsert into person_order values (10,4, 7, '2022-01-08');\n\ninsert into person_order values (11,5, 6, '2022-01-09');\ninsert into person_order values (12,5, 7, '2022-01-09');\n\ninsert into person_order values (13,6, 13, '2022-01-01');\n\ninsert into person_order values (14,7, 3, '2022-01-03');\ninsert into person_order values (15,7, 9, '2022-01-05');\ninsert into person_order values (16,7, 4, '2022-01-05');\n\ninsert into person_order values (17,8, 8, '2022-01-06');\ninsert into person_order values (18,8, 14, '2022-01-07');\n\ninsert into person_order values (19,9, 18, '2022-01-09');\ninsert into person_order values (20,9, 6, '2022-01-10');\n\n",
+   "alt": "create table person\n( id bigint primary key ,\n  name varchar not null,\n  age integer not null default 10,\n  gender varchar default 'female' not null ,\n  address varchar\n  );\n\nalter table person add constraint ch_gender check ( gender in ('female','male') );\n\ninsert into person values (1, 'Anna', 16, 'female', 'Moscow');\ninsert into person values (2, 'Andrey', 21, 'male', 'Moscow');\ninsert into person values (3, 'Kate', 33, 'female', 'Kazan');\ninsert into person values (4, 'Denis', 13, 'male', 'Kazan');\ninsert into person values (5, 'Elvira', 45, 'female', 'Kazan');\ninsert into person values (6, 'Irina', 21, 'female', 'Saint-Petersburg');\ninsert into person values (7, 'Peter', 24, 'male', 'Saint-Petersburg');\ninsert into person values (8, 'Nataly', 30, 'female', 'Novosibirsk');\ninsert into person values (9, 'Dmitriy', 18, 'male', 'Samara');\n\n\ncreate table pizzeria\n(id bigint primary key ,\n name varchar not null ,\n rating numeric not null default 0);\n\nalter table pizzeria add constraint ch_rating check ( rating between 0 and 5);\n\ninsert into pizzeria values (1,'Pizza Hut', 4.6);\ninsert into pizzeria values (2,'Dominos', 4.3);\ninsert into pizzeria values (3,'DoDo Pizza', 3.2);\ninsert into pizzeria values (4,'Papa Johns', 4.9);\ninsert into pizzeria values (5,'Best Pizza', 2.3);\ninsert into pizzeria values (6,'DinoPizza', 4.2);\n\n\ncreate table person_visits\n(id bigint primary key ,\n person_id bigint not null ,\n pizzeria_id bigint not null ,\n visit_date date not null default current_date,\n constraint uk_person_visits unique (person_id, pizzeria_id, visit_date),\n constraint fk_person_visits_person_id foreign key  (person_id) references person(id),\n constraint fk_person_visits_pizzeria_id foreign key  (pizzeria_id) references pizzeria(id)\n );\n\ninsert into person_visits values (1, 1, 1, '2022-01-01');\ninsert into person_visits values (2, 2, 2, '2022-01-01');\ninsert into person_visits values (3, 2, 1, '2022-01-02');\ninsert into person_visits values (4, 3, 5, '2022-01-03');\ninsert into person_visits values (5, 3, 6, '2022-01-04');\ninsert into person_visits values (6, 4, 5, '2022-01-07');\ninsert into person_visits values (7, 4, 6, '2022-01-08');\ninsert into person_visits values (8, 5, 2, '2022-01-08');\ninsert into person_visits values (9, 5, 6, '2022-01-09');\ninsert into person_visits values (10, 6, 2, '2022-01-09');\ninsert into person_visits values (11, 6, 4, '2022-01-01');\ninsert into person_visits values (12, 7, 1, '2022-01-03');\ninsert into person_visits values (13, 7, 2, '2022-01-05');\ninsert into person_visits values (14, 8, 1, '2022-01-05');\ninsert into person_visits values (15, 8, 2, '2022-01-06');\ninsert into person_visits values (16, 8, 4, '2022-01-07');\ninsert into person_visits values (17, 9, 4, '2022-01-08');\ninsert into person_visits values (18, 9, 5, '2022-01-09');\ninsert into person_visits values (19, 9, 6, '2022-01-10');\n\n\ncreate table menu\n(id bigint primary key ,\n pizzeria_id bigint not null ,\n pizza_name varchar not null ,\n price numeric not null default 1,\n constraint fk_menu_pizzeria_id foreign key (pizzeria_id) references pizzeria(id));\n\ninsert into menu values (1,1,'cheese pizza', 900);\ninsert into menu values (2,1,'pepperoni pizza', 1200);\ninsert into menu values (3,1,'sausage pizza', 1200);\ninsert into menu values (4,1,'supreme pizza', 1200);\n\ninsert into menu values (5,6,'cheese pizza', 950);\ninsert into menu values (6,6,'pepperoni pizza', 800);\ninsert into menu values (7,6,'sausage pizza', 1000);\n\ninsert into menu values (8,2,'cheese pizza', 800);\ninsert into menu values (9,2,'mushroom pizza', 1100);\n\ninsert into menu values (10,3,'cheese pizza', 780);\ninsert into menu values (11,3,'supreme pizza', 850);\n\ninsert into menu values (12,4,'cheese pizza', 700);\ninsert into menu values (13,4,'mushroom pizza', 950);\ninsert into menu values (14,4,'pepperoni pizza', 1000);\ninsert into menu values (15,4,'sausage pizza', 950);\n\ninsert into menu values (16,5,'cheese pizza', 700);\ninsert into menu values (17,5,'pepperoni pizza', 800);\ninsert into menu values (18,5,'supreme pizza', 850);\n\ncreate table person_order\n(\n    id bigint primary key ,\n    person_id  bigint not null ,\n    menu_id bigint not null ,\n    order_date date not null default current_date,\n    constraint fk_order_person_id foreign key (person_id) references person(id),\n    constraint fk_order_menu_id foreign key (menu_id) references menu(id)\n);\n\ninsert into person_order values (1,1, 1, '2022-01-01');\ninsert into person_order values (2,1, 2, '2022-01-01');\n\ninsert into person_order values (3,2, 8, '2022-01-01');\ninsert into person_order values (4,2, 9, '2022-01-01');\n\ninsert into person_order values (5,3, 16, '2022-01-04');\n\ninsert into person_order values (6,4, 16, '2022-01-07');\ninsert into person_order values (7,4, 17, '2022-01-07');\ninsert into person_order values (8,4, 18, '2022-01-07');\ninsert into person_order values (9,4, 6, '2022-01-08');\ninsert into person_order values (10,4, 7, '2022-01-08');\n\ninsert into person_order values (11,5, 6, '2022-01-09');\ninsert into person_order values (12,5, 7, '2022-01-09');\n\ninsert into person_order values (13,6, 13, '2022-01-01');\n\ninsert into person_order values (14,7, 3, '2022-01-03');\ninsert into person_order values (15,7, 9, '2022-01-05');\ninsert into person_order values (16,7, 4, '2022-01-05');\n\ninsert into person_order values (17,8, 8, '2022-01-06');\ninsert into person_order values (18,8, 14, '2022-01-07');\n\ninsert into person_order values (19,9, 18, '2022-01-09');\ninsert into person_order values (20,9, 6, '2022-01-10');\n\n\n-- Скрытый набор данных: те же таблицы, но данные чуть изменены.\n-- Выполняется ПОСЛЕ pizza.sql. Нужен, чтобы нельзя было пройти задание,\n-- подогнав запрос под конкретные строки из основной базы.\n\ninsert into person values (10, 'Zoya', 27, 'female', 'Samara');\ninsert into person values (11, 'Boris', 19, 'male', 'Kazan');\n\ninsert into pizzeria values (7, 'Pizza Loft', 4.0);\n\ninsert into menu values (19, 7, 'margherita pizza', 650);\ninsert into menu values (20, 3, 'margherita pizza', 700);\ninsert into menu values (21, 2, 'supreme pizza', 900);\n\ninsert into person_visits values (20, 10, 3, '2022-01-02');\ninsert into person_visits values (21, 11, 2, '2022-01-07');\n\ninsert into person_order values (21, 10, 10, '2022-01-02');\ninsert into person_order values (22, 11, 21, '2022-01-07');\n\n-- Название с заглавной буквы: при общей сортировке оно встаёт между именами людей,\n-- поэтому ошибка «один ORDER BY на весь UNION ALL» ловится при любых настройках сортировки.\ninsert into menu values (22, 7, 'Four cheese pizza', 800);\n",
+   "schema": "# Схема базы (пиццерии)\n\nПосещения пиццерий и заказы это разные сущности: человек мог зайти в одну пиццерию, а заказ сделать в другой или по телефону.\n\n**person** (клиенты)\n\n| Столбец | Что это |\n| --- | --- |\n| `id` | первичный ключ |\n| `name` | имя |\n| `age` | возраст |\n| `gender` | пол (`female` или `male`) |\n| `address` | адрес |\n\n**pizzeria** (пиццерии)\n\n| Столбец | Что это |\n| --- | --- |\n| `id` | первичный ключ |\n| `name` | название пиццерии |\n| `rating` | средний рейтинг (от 0 до 5) |\n\n**menu** (меню и цены)\n\n| Столбец | Что это |\n| --- | --- |\n| `id` | первичный ключ |\n| `pizzeria_id` | внешний ключ на `pizzeria.id` |\n| `pizza_name` | название пиццы |\n| `price` | цена |\n\n**person_visits** (журнал посещений)\n\n| Столбец | Что это |\n| --- | --- |\n| `id` | первичный ключ |\n| `person_id` | внешний ключ на `person.id` |\n| `pizzeria_id` | внешний ключ на `pizzeria.id` |\n| `visit_date` | дата посещения, например `2022-01-01` |\n\n**person_order** (журнал заказов)\n\n| Столбец | Что это |\n| --- | --- |\n| `id` | первичный ключ |\n| `person_id` | внешний ключ на `person.id` |\n| `menu_id` | внешний ключ на `menu.id` |\n| `order_date` | дата заказа, например `2022-01-01` |\n\n**Связи:** `person_order.person_id` → `person.id`, `person_order.menu_id` → `menu.id`, `menu.pizzeria_id` → `pizzeria.id`, `person_visits.person_id` → `person.id`, `person_visits.pizzeria_id` → `pizzeria.id`.\n"
+  }
+ },
+ "days": [
+  {
+   "id": "day01",
+   "title": "Day 01. Множества и JOIN",
+   "tasks": [
+    {
+     "id": "day01/ex00",
+     "dir": "ex00_union_dance",
+     "title": "Let's make UNION dance",
+     "readme": "# Задание 00. Let's make UNION dance\n\n**Разрешено:** ANSI SQL\n\nНапиши SQL-запрос, который объединит в один общий список идентификаторы меню и названия пицц из таблицы `menu`, а также идентификаторы и имена людей из таблицы `person`.\n\nВ итоговом результате столбцы должны называться `object_id` и `object_name`. Сначала сортировка по `object_id`, затем по `object_name`.\n\n| object_id | object_name |\n| --- | --- |\n| 1 | Anna |\n| 1 | cheese pizza |\n| ... | ... |\n",
+     "theory": "# Задание 00. UNION\n\nОператор `UNION` ставит результаты двух запросов друг под другом, как две таблицы, сложенные стопкой. Чтобы это сработало, в обоих запросах должно быть одинаковое число столбцов, а типы на одних и тех же местах должны совпадать: число с числом, текст с текстом. Здесь подходят пары «номер и название»: у `menu` это `id` и `pizza_name`, у `person` это `id` и `name`.\n\nНазвания столбцов итоговой таблицы берутся из первого запроса, поэтому переименовывать нужно именно там, через `AS`: `SELECT id AS object_id`. Во втором запросе названия повторять не нужно.\n\n`ORDER BY` пишется один раз в самом конце, после последнего запроса, и сортирует весь объединённый результат. Сортировать можно по нескольким столбцам через запятую: сначала по первому, а при равных значениях по второму. В `ORDER BY` используются уже новые имена из первого запроса.\n\nОбычный `UNION` ещё и убирает полностью одинаковые строки, а `UNION ALL` их оставляет. В этом задании полных дублей нет, поэтому подойдёт любой из двух.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Нужны две выборки, которые идут друг под другом: `id` и `pizza_name` из `menu`, затем `id` и `name` из `person`. Склей их оператором `UNION`. Названия столбцов задаёт первый запрос, а `ORDER BY` стоит один раз в самом конце."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT ______ AS object_id, ______ AS object_name FROM menu\nUNION\nSELECT ______, ______ FROM person\nORDER BY ______, ______;\n```\n\nВпиши пропуски: столбцы из таблиц и новые имена для сортировки."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT id AS object_id, pizza_name AS object_name FROM menu\nUNION\nSELECT id, name FROM person\nORDER BY ______;\n```\n\nОсталась сортировка: сначала по номеру, потом по названию, через новые имена столбцов."
+      }
+     ],
+     "solution": "SELECT id AS object_id, pizza_name AS object_name\nFROM menu\nUNION\nSELECT id, name\nFROM person\nORDER BY object_id, object_name;",
+     "solutionCommented": "-- Идея: два списка «номер + название» склеиваем друг под другом через UNION.\nSELECT id AS object_id,            -- имена столбцов результата берутся из первого запроса\n       pizza_name AS object_name\nFROM menu\nUNION                              -- UNION заодно убрал бы полные дубли строк\nSELECT id, name                    -- те же типы на тех же местах: число и текст\nFROM person\nORDER BY object_id, object_name;   -- одна сортировка на весь результат, по новым именам",
+     "meta": {
+      "title": "Let's make UNION dance",
+      "dataset": "pizza",
+      "ordered": true,
+      "forbidden": [],
+      "required": [],
+      "positive": [
+       {
+        "why": "UNION ALL тоже подходит: полных дублей в данных нет",
+        "sql": "SELECT id AS object_id, pizza_name AS object_name FROM menu UNION ALL SELECT id, name FROM person ORDER BY object_id, object_name;"
+       },
+       {
+        "why": "сортировка по номерам столбцов",
+        "sql": "SELECT id AS object_id, pizza_name AS object_name FROM menu UNION SELECT id, name FROM person ORDER BY 1, 2;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "названия столбцов не заданы",
+        "sql": "SELECT id, pizza_name FROM menu UNION SELECT id, name FROM person ORDER BY 1, 2;"
+       },
+       {
+        "why": "нет строк из person",
+        "sql": "SELECT id AS object_id, pizza_name AS object_name FROM menu ORDER BY 1, 2;"
+       },
+       {
+        "why": "сортировка в другом порядке столбцов",
+        "sql": "SELECT id AS object_id, pizza_name AS object_name FROM menu UNION SELECT id, name FROM person ORDER BY object_name, object_id;"
+       }
+      ]
+     }
+    },
+    {
+     "id": "day01/ex01",
+     "dir": "ex01_union_with_subquery",
+     "title": "UNION dance with subquery",
+     "readme": "# Задание 01. UNION dance with subquery\n\n**Разрешено:** ANSI SQL\n\nИзмени запрос из задания 00 так:\n\n- удали столбец `object_id`;\n- измени порядок сортировки: сначала данные из таблицы `person` (по `object_name`), затем из таблицы `menu` (тоже по `object_name`);\n- сохрани дублирующиеся строки.\n\n| object_name |\n| --- |\n| Andrey |\n| Anna |\n| ... |\n| cheese pizza |\n| cheese pizza |\n| ... |\n",
+     "theory": "# Задание 01. UNION ALL и сортировка частей\n\nСохранить дублирующиеся строки позволяет `UNION ALL`: он просто складывает результаты друг под другом и ничего не выбрасывает. Обычный `UNION` удалил бы повторы, а в меню название `cheese pizza` встречается много раз.\n\nОбщий `ORDER BY` в конце отсортировал бы весь список целиком и перемешал людей с пиццами. Нужна своя сортировка у каждой части. Для этого каждый `SELECT` вместе с его `ORDER BY` заключается в скобки: скобки превращают его в отдельный маленький запрос, у которого может быть собственная сортировка.\n\nВнутри скобок `ORDER BY` видит только столбцы этого запроса. Если во второй части столбец называется `pizza_name`, то и сортировать нужно по `pizza_name`, а не по `object_name`: новое имя придумано в первой части, и вторая о нём ничего не знает.\n\nПорядок частей задаёт порядок строк в результате: первой идёт часть с `person`, второй часть с `menu`. Название столбца результата, как и раньше, берётся из первого запроса.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Нужны два отдельных списка: сначала имена людей, потом названия пицц, и у каждого своя сортировка. Склей их через `UNION ALL`, а каждую часть заключи в скобки, чтобы у неё был свой `ORDER BY`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\n(SELECT ______ AS object_name FROM ______ ORDER BY ______)\nUNION ALL\n(SELECT ______ FROM ______ ORDER BY ______);\n```\n\nВ первой части столбец называется `object_name`, а во второй `pizza_name`: сортируй по тому имени, которое есть в этой самой части."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\n(SELECT name AS object_name FROM person ORDER BY object_name)\nUNION ALL\n(SELECT pizza_name FROM menu ORDER BY ______);\n```\n\nВо второй части сортировка идёт по настоящему имени столбца, а не по новому."
+      }
+     ],
+     "solution": "(SELECT name AS object_name\n FROM person\n ORDER BY object_name)\nUNION ALL\n(SELECT pizza_name\n FROM menu\n ORDER BY pizza_name);",
+     "solutionCommented": "-- Идея: UNION ALL склеивает два отдельно отсортированных списка и сохраняет дубли.\n(SELECT name AS object_name        -- имя столбца результата задаёт первая часть\n FROM person\n ORDER BY object_name)             -- скобки нужны, чтобы у части была своя сортировка\nUNION ALL                          -- ALL: без него повторы cheese pizza пропали бы\n(SELECT pizza_name\n FROM menu\n ORDER BY pizza_name);             -- здесь object_name неизвестен, сортируем по настоящему имени",
+     "meta": {
+      "title": "UNION dance with subquery",
+      "dataset": "pizza",
+      "ordered": true,
+      "forbidden": [],
+      "required": [],
+      "positive": [
+       {
+        "why": "в обеих частях сортировка по настоящему имени столбца",
+        "sql": "(SELECT name AS object_name FROM person ORDER BY name) UNION ALL (SELECT pizza_name FROM menu ORDER BY pizza_name);"
+       }
+      ],
+      "negative": [
+       {
+        "why": "UNION без ALL удаляет дубли",
+        "sql": "(SELECT name AS object_name FROM person ORDER BY object_name) UNION (SELECT pizza_name FROM menu ORDER BY pizza_name);"
+       },
+       {
+        "why": "нет части с menu",
+        "sql": "SELECT name AS object_name FROM person ORDER BY object_name;"
+       },
+       {
+        "why": "лишний столбец object_id",
+        "sql": "(SELECT id AS object_id, name AS object_name FROM person ORDER BY object_name) UNION ALL (SELECT id, pizza_name FROM menu ORDER BY pizza_name);"
+       },
+       {
+        "why": "порядок частей: сначала menu, потом person",
+        "sql": "(SELECT pizza_name AS object_name FROM menu ORDER BY pizza_name) UNION ALL (SELECT name FROM person ORDER BY name);"
+       },
+       {
+        "why": "общая сортировка в конце: на скрытых данных люди и пиццы перемешиваются",
+        "sql": "SELECT name AS object_name FROM person UNION ALL SELECT pizza_name FROM menu ORDER BY object_name;"
+       }
+      ]
+     }
+    },
+    {
+     "id": "day01/ex02",
+     "dir": "ex02_duplicates",
+     "title": "Duplicates or not duplicates",
+     "readme": "# Задание 02. Duplicates or not duplicates\n\n**Разрешено:** ANSI SQL\n\n**Запрещено:** `DISTINCT`, `GROUP BY`, `HAVING`, все виды `JOIN`\n\nНапиши SQL-запрос, который:\n\n- возвращает уникальные названия пицц из таблицы `menu`;\n- сортирует результат по столбцу `pizza_name` по убыванию.\n\nПеред началом работы обязательно ознакомься с разделом «Запрещено».\n",
+     "theory": "# Задание 02. Уникальные значения без DISTINCT\n\nОбычно уникальные значения получают через `DISTINCT`, но здесь он запрещён, как и `GROUP BY` с `JOIN`. Выручают операторы множеств: `UNION` и `INTERSECT` сами убирают повторяющиеся строки в результате.\n\nЕсли склеить через `UNION` два одинаковых запроса, то каждая строка встретится в склейке дважды, а `UNION` оставит из них одну. Значит, достаточно взять названия пицц из `menu` и склеить с тем же самым запросом. Работает и `INTERSECT`: пересечение набора с самим собой тоже содержит каждое значение один раз.\n\nСортировка пишется один раз в конце: `ORDER BY pizza_name DESC`. Слово `DESC` означает «по убыванию», без него сортировка идёт по возрастанию.\n\nЗапрет проверяется по тексту запроса, поэтому слова `DISTINCT`, `GROUP BY`, `HAVING` и `JOIN` не должны встречаться в коде вообще, даже в виде `NATURAL JOIN` или `LEFT JOIN`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Какой оператор множеств сам убирает повторы? Подумай, что получится, если склеить с его помощью запрос с самим собой. `ORDER BY` стоит один раз в самом конце."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT pizza_name FROM menu\n______\nSELECT pizza_name FROM menu\nORDER BY pizza_name ______;\n```\n\nВ первый пропуск идёт оператор множеств, во второй слово, которое включает сортировку по убыванию."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT pizza_name FROM menu\nUNION\nSELECT pizza_name FROM menu\nORDER BY pizza_name ______;\n```\n\nОсталось слово для сортировки по убыванию."
+      }
+     ],
+     "solution": "SELECT pizza_name\nFROM menu\nUNION\nSELECT pizza_name\nFROM menu\nORDER BY pizza_name DESC;",
+     "solutionCommented": "-- Идея: UNION сам убирает повторы, поэтому склеиваем запрос с самим собой.\nSELECT pizza_name\nFROM menu\nUNION                              -- каждое название встретится дважды, UNION оставит одно\nSELECT pizza_name\nFROM menu\nORDER BY pizza_name DESC;          -- DESC: по убыванию",
+     "meta": {
+      "title": "Duplicates or not duplicates",
+      "dataset": "pizza",
+      "ordered": true,
+      "forbidden": [
+       "DISTINCT",
+       "GROUP BY",
+       "HAVING",
+       "JOIN"
+      ],
+      "required": [],
+      "positive": [
+       {
+        "why": "INTERSECT тоже убирает повторы",
+        "sql": "SELECT pizza_name FROM menu INTERSECT SELECT pizza_name FROM menu ORDER BY pizza_name DESC;"
+       },
+       {
+        "why": "запрещённое слово только в комментарии и строке не считается",
+        "sql": "-- без DISTINCT и JOIN\nSELECT pizza_name FROM menu UNION SELECT pizza_name FROM menu ORDER BY pizza_name DESC; /* GROUP BY */"
+       }
+      ],
+      "negative": [
+       {
+        "why": "DISTINCT запрещён (результат при этом верный)",
+        "sql": "SELECT DISTINCT pizza_name FROM menu ORDER BY pizza_name DESC;"
+       },
+       {
+        "why": "GROUP BY запрещён",
+        "sql": "SELECT pizza_name FROM menu GROUP BY pizza_name ORDER BY pizza_name DESC;"
+       },
+       {
+        "why": "ответ вписан готовыми значениями: на основных данных верно, на скрытых нет",
+        "sql": "SELECT * FROM (VALUES ('supreme pizza'), ('sausage pizza'), ('pepperoni pizza'), ('mushroom pizza'), ('cheese pizza')) AS t(pizza_name) ORDER BY pizza_name DESC;"
+       },
+       {
+        "why": "дубликаты не убраны",
+        "sql": "SELECT pizza_name FROM menu ORDER BY pizza_name DESC;"
+       },
+       {
+        "why": "сортировка по возрастанию, а не по убыванию",
+        "sql": "SELECT pizza_name FROM menu UNION SELECT pizza_name FROM menu ORDER BY pizza_name;"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}
