@@ -2,7 +2,7 @@
 
 `WHERE` оставляет только те строки, для которых условие истинно. Он выполняется **до** `SELECT`, поэтому видит только столбцы таблицы, а не новые имена из `AS`.
 
-```sql-run
+```sql-pizza
 SELECT name, age
 FROM person
 WHERE age > 20;
@@ -18,13 +18,13 @@ WHERE age > 20;
 
 Текст и даты пишутся в **одинарных** кавычках.
 
-```sql-run
+```sql-pizza
 SELECT name, address
 FROM person
 WHERE address = 'Kazan';
 ```
 
-```sql-run
+```sql-pizza
 SELECT *
 FROM person_visits
 WHERE visit_date >= '2022-01-07' AND visit_date <= '2022-01-09';
@@ -38,7 +38,7 @@ WHERE visit_date >= '2022-01-07' AND visit_date <= '2022-01-09';
 
 У `AND` приоритет выше, чем у `OR`. Поэтому в сложных условиях **ставь скобки**, иначе результат будет не тем, что задумал.
 
-```sql-run
+```sql-pizza
 SELECT name, age, gender
 FROM person
 WHERE gender = 'female' AND (age < 20 OR age > 40);
@@ -48,7 +48,7 @@ WHERE gender = 'female' AND (age < 20 OR age > 40);
 
 ## IN: значение из списка
 
-```sql-run
+```sql-pizza
 SELECT name, address
 FROM person
 WHERE address IN ('Moscow', 'Samara');
@@ -60,7 +60,7 @@ WHERE address IN ('Moscow', 'Samara');
 
 `BETWEEN a AND b` включает **обе** границы: это то же, что `>= a AND <= b`.
 
-```sql-run
+```sql-pizza
 SELECT name, age
 FROM person
 WHERE age BETWEEN 18 AND 30;
@@ -73,13 +73,13 @@ WHERE age BETWEEN 18 AND 30;
 | `%` | любое количество любых символов (в том числе ноль) |
 | `_` | ровно один любой символ |
 
-```sql-run
+```sql-pizza
 SELECT pizza_name
 FROM menu
 WHERE pizza_name LIKE '%cheese%';
 ```
 
-```sql-run
+```sql-pizza
 SELECT name
 FROM person
 WHERE name LIKE 'A%';
@@ -91,13 +91,13 @@ WHERE name LIKE 'A%';
 
 `NULL` это не ноль и не пустая строка, а «нет значения». Сравнивать его через `=` нельзя: `NULL = NULL` даёт не истину, а `NULL`, и строка не проходит `WHERE`. Для проверки есть отдельные операторы:
 
-```sql-run
+```sql-pizza
 SELECT name, address
 FROM person
 WHERE address IS NULL;
 ```
 
-```sql-run
+```sql-pizza
 SELECT name, address
 FROM person
 WHERE address IS NOT NULL;
@@ -117,17 +117,17 @@ WHERE address IS NOT NULL;
 | `FALSE OR NULL` | `NULL` |
 | `NOT NULL` | `NULL` |
 
-```sql-run
+```sql-pizza
 SELECT TRUE AND NULL AS and_true_null, FALSE AND NULL AS and_false_null, TRUE OR NULL AS or_true_null;
 ```
 
 Особенно коварен `NOT IN`: если в списке встретится хоть один `NULL`, он не вернёт ни одной строки.
 
-```sql-run
+```sql-pizza
 SELECT 1 AS found WHERE 1 NOT IN (2, 3);
 ```
 
-```sql-run
+```sql-pizza
 SELECT 1 AS found WHERE 1 NOT IN (2, 3, NULL);
 ```
 
@@ -137,6 +137,6 @@ SELECT 1 AS found WHERE 1 NOT IN (2, 3, NULL);
 
 Сравнение, которое умеет работать с `NULL`: считает два `NULL` равными.
 
-```sql-run
+```sql-pizza
 SELECT NULL = NULL AS plain_equal, NULL IS NOT DISTINCT FROM NULL AS null_safe_equal;
 ```

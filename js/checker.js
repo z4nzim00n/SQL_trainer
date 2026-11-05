@@ -141,6 +141,9 @@ export function compareResults(user, ref, meta = {}) {
 export async function runCheck({ run, task, sql }) {
     const meta = task.meta || {};
     const dataset = meta.dataset;
+    /* Задания на DML/DDL: meta.setup выполняется до решения, meta.verify после него.
+       Сравнивается результат verify-запроса (состояние базы после решения). */
+    const compose = (body) => [meta.setup, body, meta.verify].filter((x) => x && x.trim()).join('\n;\n');
 
     if (!sql || !sql.trim()) {
         return { status: 'error', headline: 'Запрос пустой', details: ['Напиши запрос в редакторе.'], userResult: null };
@@ -150,7 +153,7 @@ export async function runCheck({ run, task, sql }) {
     let shown = null;
 
     for (const variant of VARIANTS) {
-        const user = await run(dataset, variant, sql);
+        const user = await run(dataset, variant, compose(sql));
         if (variant === 'main') shown = user;
 
         if (user.error) {
@@ -160,12 +163,12 @@ export async function runCheck({ run, task, sql }) {
             return {
                 status: 'fail',
                 headline: 'Запрос не вернул таблицу',
-                details: ['Нужен запрос SELECT, который возвращает строки.'],
+                details: [meta.verify ? 'После твоего запроса проверочный запрос ничего не вернул.' : 'Нужен запрос SELECT, который возвращает строки.'],
                 userResult: null,
             };
         }
 
-        const ref = await run(dataset, variant, task.solution);
+        const ref = await run(dataset, variant, compose(task.solution));
         if (ref.error) {
             return { status: 'error', headline: 'Ошибка в эталонном решении задания', details: [ref.error], userResult: shown };
         }

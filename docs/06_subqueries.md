@@ -6,7 +6,7 @@
 
 Если подзапрос возвращает ровно **одну строку и один столбец**, его можно использовать как обычное число или текст.
 
-```sql-run
+```sql-pizza
 SELECT pizza_name, price
 FROM menu
 WHERE price > (SELECT AVG(price) FROM menu)
@@ -19,13 +19,13 @@ ORDER BY price;
 
 Подзапрос возвращает **один столбец**, внешний запрос проверяет, входит ли значение в этот список.
 
-```sql-run
+```sql-pizza
 SELECT name
 FROM person
 WHERE id IN (SELECT person_id FROM person_order);
 ```
 
-```sql-run
+```sql-pizza
 SELECT pizza_name, price
 FROM menu
 WHERE pizzeria_id IN (SELECT id FROM pizzeria WHERE rating >= 4.5);
@@ -39,7 +39,7 @@ WHERE pizzeria_id IN (SELECT id FROM pizzeria WHERE rating >= 4.5);
 
 `EXISTS` отвечает «да/нет»: вернул ли подзапрос хотя бы одну строку. Обычно подзапрос связывают с внешней строкой через условие. Такой подзапрос называется **коррелированным**: он зависит от строки внешнего запроса и вычисляется для каждой.
 
-```sql-run
+```sql-pizza
 SELECT person.name
 FROM person
 WHERE EXISTS (
@@ -53,7 +53,7 @@ WHERE EXISTS (
 
 `NOT EXISTS` даёт обратное: строк нет.
 
-```sql-run
+```sql-pizza
 SELECT pizzeria.name
 FROM pizzeria
 WHERE NOT EXISTS (
@@ -65,7 +65,7 @@ WHERE NOT EXISTS (
 
 Это пиццерии, где никто не был. Тот же результат даёт `NOT IN`:
 
-```sql-run
+```sql-pizza
 SELECT name
 FROM pizzeria
 WHERE id NOT IN (SELECT pizzeria_id FROM person_visits);
@@ -77,7 +77,7 @@ WHERE id NOT IN (SELECT pizzeria_id FROM person_visits);
 
 `> ANY (подзапрос)` значит «больше хотя бы одного из списка», `> ALL (подзапрос)` «больше каждого из списка».
 
-```sql-run
+```sql-pizza
 SELECT pizza_name, price
 FROM menu
 WHERE price > ALL (SELECT price FROM menu WHERE pizza_name = 'cheese pizza');
@@ -89,7 +89,7 @@ WHERE price > ALL (SELECT price FROM menu WHERE pizza_name = 'cheese pizza');
 
 Подзапрос в `FROM` работает как временная таблица. **Псевдоним обязателен.**
 
-```sql-run
+```sql-pizza
 SELECT m.pizza_name, m.price
 FROM (SELECT pizza_name, price FROM menu WHERE price > 800) AS m
 ORDER BY m.price;
@@ -101,7 +101,7 @@ ORDER BY m.price;
 
 Скалярный подзапрос можно поставить прямо в список столбцов. Он вычисляется для каждой строки.
 
-```sql-run
+```sql-pizza
 SELECT name,
        (SELECT COUNT(*) FROM person_order WHERE person_order.person_id = person.id) AS orders_count
 FROM person
@@ -114,7 +114,7 @@ ORDER BY orders_count DESC, name;
 
 `WITH` даёт подзапросу имя, и дальше его можно использовать как таблицу. Это делает длинные запросы читаемыми.
 
-```sql-run
+```sql-pizza
 WITH expensive AS (
     SELECT pizzeria_id, pizza_name, price
     FROM menu
@@ -128,7 +128,7 @@ ORDER BY expensive.price, pizzeria.name;
 
 Можно объявить несколько через запятую, и следующие видят предыдущие. С `WITH RECURSIVE` строят обходы иерархий, но в учебных заданиях это редкость.
 
-```sql-run
+```sql-pizza
 WITH RECURSIVE counter(n) AS (
     SELECT 1
     UNION ALL

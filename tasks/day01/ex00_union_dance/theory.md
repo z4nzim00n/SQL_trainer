@@ -8,38 +8,22 @@
 
 Обычный `UNION` ещё и убирает полностью одинаковые строки, а `UNION ALL` их оставляет. В этом задании полных дублей нет, поэтому подойдёт любой из двух.
 
-## Примеры
+## Примеры на маленьких таблицах
 
-`UNION` склеивает два запроса: названия столбцов берутся из первого, а `ORDER BY` стоит один раз в конце. Пример на других таблицах (не из задания):
+Две крошечные таблицы `a` и `b`. `UNION` складывает их друг под другом и убирает повторы:
 
 ```sql-run
-SELECT id AS object_id, address AS object_name
-FROM person
-WHERE id < 3
+SELECT id, val FROM a
 UNION
-SELECT id, name
-FROM pizzeria
-WHERE id < 3
+SELECT id, val FROM b
+ORDER BY id, val;
+```
+
+`AS` даёт столбцу новое имя в результате, названия берутся из первого запроса:
+
+```sql-run
+SELECT id AS object_id, val AS object_name FROM a
+UNION
+SELECT id, val FROM b
 ORDER BY object_id, object_name;
-```
-
-`AS` даёт столбцу новое имя только в результате, исходная таблица не меняется:
-
-```sql-run
-SELECT name AS pizzeria_name, rating AS stars
-FROM pizzeria;
-```
-
-Разница между `UNION` и `UNION ALL`: первый убирает повторяющиеся строки, второй оставляет всё.
-
-```sql-run
-SELECT address FROM person WHERE address = 'Kazan'
-UNION
-SELECT address FROM person WHERE address = 'Kazan';
-```
-
-```sql-run
-SELECT address FROM person WHERE address = 'Kazan'
-UNION ALL
-SELECT address FROM person WHERE address = 'Kazan';
 ```

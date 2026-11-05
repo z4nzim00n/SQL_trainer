@@ -1,0 +1,527 @@
+{
+ "::": {
+  "title": "CAST: сменить тип",
+  "text": "`CAST(x AS тип)` или `x::тип` превращает значение в другой тип (число в текст и т. п.).",
+  "sql": "SELECT age, CAST(age AS text) || ' years' AS age_text, age::numeric / 4 AS quarter\nFROM students;"
+ },
+ "ALL": {
+  "title": "ANY / ALL: сравнение со списком",
+  "text": "`> ANY (...)` больше хотя бы одного значения из списка, `> ALL (...)` больше каждого.",
+  "sql": "SELECT name, age\nFROM students\nWHERE age > ALL (SELECT age FROM students WHERE city = 'Berlin');"
+ },
+ "AND": {
+  "title": "AND: оба условия",
+  "text": "`AND` требует, чтобы выполнились оба условия сразу.",
+  "sql": "SELECT name, age, city\nFROM students\nWHERE age > 19 AND city = 'Berlin';"
+ },
+ "ANY": {
+  "title": "ANY / ALL: сравнение со списком",
+  "text": "`> ANY (...)` больше хотя бы одного значения из списка, `> ALL (...)` больше каждого.",
+  "sql": "SELECT name, age\nFROM students\nWHERE age > ALL (SELECT age FROM students WHERE city = 'Berlin');"
+ },
+ "AS": {
+  "title": "AS: новое имя",
+  "text": "`AS` даёт столбцу (или таблице) другое имя в результате. Сама таблица не меняется.",
+  "sql": "SELECT title AS product_name, price AS cost\nFROM products;"
+ },
+ "ASC": {
+  "title": "ORDER BY: сортировка",
+  "text": "`ORDER BY` сортирует результат. `ASC` по возрастанию (по умолчанию), `DESC` по убыванию. Можно несколько столбцов через запятую.",
+  "sql": "SELECT name, age\nFROM students\nORDER BY age DESC;"
+ },
+ "AVG": {
+  "title": "AVG: среднее",
+  "text": "Среднее значение, `NULL` игнорируются.",
+  "sql": "SELECT AVG(price) AS avg_price\nFROM products;"
+ },
+ "BEGIN": {
+  "title": "Транзакция: BEGIN, COMMIT, ROLLBACK",
+  "text": "Транзакция объединяет команды: либо выполнятся все (`COMMIT`), либо ни одна (`ROLLBACK`). Пока нет `COMMIT`, другие сессии изменений не видят.",
+  "sql": "SELECT 'в тренажёре каждый запрос и так выполняется в откатываемой транзакции' AS note;"
+ },
+ "BETWEEN": {
+  "title": "BETWEEN: диапазон",
+  "text": "`BETWEEN a AND b` включает обе границы: то же, что `>= a AND <= b`.",
+  "sql": "SELECT name, age\nFROM students\nWHERE age BETWEEN 20 AND 22;"
+ },
+ "CASE": {
+  "title": "CASE: условие в запросе",
+  "text": "`CASE` работает как if / else и возвращает значение. Проверяет `WHEN` сверху вниз, первое подходящее срабатывает.",
+  "sql": "SELECT name, age,\n       CASE WHEN age < 21 THEN 'young' ELSE 'adult' END AS age_group\nFROM students;"
+ },
+ "CAST": {
+  "title": "CAST: сменить тип",
+  "text": "`CAST(x AS тип)` или `x::тип` превращает значение в другой тип (число в текст и т. п.).",
+  "sql": "SELECT age, CAST(age AS text) || ' years' AS age_text, age::numeric / 4 AS quarter\nFROM students;"
+ },
+ "CHECK": {
+  "title": "CHECK: проверка значения",
+  "text": "`CHECK (условие)` не даёт вставить значение, которое не проходит условие.",
+  "sql": "CREATE TABLE t2 (age integer CHECK (age BETWEEN 0 AND 120));\nINSERT INTO t2 VALUES (30);\nSELECT * FROM t2;"
+ },
+ "COALESCE": {
+  "title": "COALESCE: первое не NULL",
+  "text": "Возвращает первое значение из списка, которое не `NULL`. Так подставляют значение по умолчанию.",
+  "sql": "SELECT name, COALESCE(city, 'unknown') AS city\nFROM students;"
+ },
+ "COMMENT": {
+  "title": "COMMENT: описание объекта",
+  "text": "`COMMENT ON TABLE ... IS '...'` хранит описание таблицы или столбца в самой базе.",
+  "sql": "COMMENT ON TABLE students IS 'People who study';\nSELECT obj_description('students'::regclass) AS comment;"
+ },
+ "COMMIT": {
+  "title": "Транзакция: BEGIN, COMMIT, ROLLBACK",
+  "text": "Транзакция объединяет команды: либо выполнятся все (`COMMIT`), либо ни одна (`ROLLBACK`). Пока нет `COMMIT`, другие сессии изменений не видят.",
+  "sql": "SELECT 'в тренажёре каждый запрос и так выполняется в откатываемой транзакции' AS note;"
+ },
+ "CONCAT": {
+  "title": "CONCAT: склеить текст",
+  "text": "`CONCAT(a, b, c)` склеивает значения и сам превращает числа в текст, `NULL` считает пустой строкой. Оператор `||` делает то же, но с `NULL` даёт `NULL`.",
+  "sql": "SELECT CONCAT(name, ' (age:', age, ')') AS info, name || ' ' || city AS with_pipes\nFROM students;"
+ },
+ "COUNT": {
+  "title": "COUNT: сколько",
+  "text": "`COUNT(*)` считает строки, `COUNT(столбец)` только значения не `NULL`, `COUNT(DISTINCT столбец)` разные значения.",
+  "sql": "SELECT COUNT(*) AS all_rows, COUNT(note) AS with_note, COUNT(DISTINCT category) AS categories\nFROM products;"
+ },
+ "CREATE FUNCTION": {
+  "title": "FUNCTION: функция",
+  "text": "Своя функция, которую потом вызывают в запросе. Пишется на SQL или на `plpgsql`.",
+  "sql": "CREATE FUNCTION double_it(x integer) RETURNS integer AS $$ SELECT x * 2 $$ LANGUAGE sql;\nSELECT double_it(21) AS answer;"
+ },
+ "CREATE INDEX": {
+  "title": "INDEX: индекс",
+  "text": "Индекс ускоряет поиск и соединения по столбцу, но замедляет вставку. Сам результат запросов не меняет.",
+  "sql": "CREATE INDEX idx_students_city ON students (city);\nSELECT indexname FROM pg_indexes\nWHERE schemaname = current_schema() AND tablename = 'students'\nORDER BY indexname;"
+ },
+ "CREATE SEQUENCE": {
+  "title": "SEQUENCE: последовательность",
+  "text": "Объект, который выдаёт 1, 2, 3... Через `nextval('имя')` берут следующее число, часто для автоматических `id`.",
+  "sql": "CREATE SEQUENCE seq_demo START 1;\nSELECT nextval('seq_demo') AS first, nextval('seq_demo') AS second;"
+ },
+ "CREATE TABLE": {
+  "title": "CREATE TABLE: создать таблицу",
+  "text": "Создаёт новую таблицу с описанием столбцов, типов и ограничений.",
+  "sql": "CREATE TABLE pets (\n    id integer PRIMARY KEY,\n    name varchar NOT NULL\n);\nINSERT INTO pets VALUES (1, 'Rex');\nSELECT * FROM pets;"
+ },
+ "CREATE TRIGGER": {
+  "title": "TRIGGER: триггер",
+  "text": "Триггер сам вызывает функцию при `INSERT`, `UPDATE` или `DELETE` в таблице (например, чтобы вести журнал изменений).",
+  "sql": "CREATE TABLE log_t (msg varchar);\nCREATE FUNCTION fn_log() RETURNS trigger AS $$ BEGIN INSERT INTO log_t VALUES ('added ' || NEW.title); RETURN NEW; END $$ LANGUAGE plpgsql;\nCREATE TRIGGER trg_log AFTER INSERT ON courses FOR EACH ROW EXECUTE FUNCTION fn_log();\nINSERT INTO courses VALUES (20, 'Chess');\nSELECT * FROM log_t;"
+ },
+ "CREATE VIEW": {
+  "title": "VIEW: представление",
+  "text": "Представление это сохранённый запрос, который выглядит как таблица. Данные не хранятся, запрос выполняется при каждом обращении.",
+  "sql": "CREATE VIEW young_students AS\nSELECT name, age FROM students WHERE age < 21;\nSELECT * FROM young_students;"
+ },
+ "CROSS JOIN": {
+  "title": "CROSS JOIN: все пары",
+  "text": "Каждая строка первой таблицы в паре с каждой строкой второй (декартово произведение). Условие не нужно. Строк получится 3 × 3 = 9.",
+  "sql": "SELECT courses.title, a.val\nFROM courses\nCROSS JOIN a\nWHERE a.id < 3\nORDER BY courses.title, a.val;"
+ },
+ "CTE": {
+  "title": "WITH: именованный подзапрос (CTE)",
+  "text": "`WITH имя AS (запрос)` создаёт временную «таблицу», которую можно использовать ниже в запросе.",
+  "sql": "WITH adults AS (\n    SELECT name, age FROM students WHERE age >= 21\n)\nSELECT name FROM adults\nORDER BY name;"
+ },
+ "DEFAULT": {
+  "title": "DEFAULT: значение по умолчанию",
+  "text": "Если при вставке значение не указано, подставится `DEFAULT`.",
+  "sql": "CREATE TABLE t4 (id integer, status varchar DEFAULT 'new');\nINSERT INTO t4 (id) VALUES (1);\nSELECT * FROM t4;"
+ },
+ "DELETE": {
+  "title": "DELETE: удалить строки",
+  "text": "`DELETE FROM таблица WHERE ...`. Без `WHERE` удалятся все строки.",
+  "sql": "DELETE FROM sales\nWHERE shop = 'East'\nRETURNING *;"
+ },
+ "DENSE_RANK": {
+  "title": "RANK и DENSE_RANK",
+  "text": "Ранг строки. Равные значения получают одинаковый ранг: `RANK` затем пропускает номера (1, 1, 3), `DENSE_RANK` нет (1, 1, 2).",
+  "sql": "SELECT item, qty, RANK() OVER (ORDER BY qty DESC) AS rnk, DENSE_RANK() OVER (ORDER BY qty DESC) AS dense_rnk\nFROM sales\nORDER BY qty DESC, id;"
+ },
+ "DESC": {
+  "title": "ORDER BY: сортировка",
+  "text": "`ORDER BY` сортирует результат. `ASC` по возрастанию (по умолчанию), `DESC` по убыванию. Можно несколько столбцов через запятую.",
+  "sql": "SELECT name, age\nFROM students\nORDER BY age DESC;"
+ },
+ "DISTINCT": {
+  "title": "DISTINCT: убрать повторы",
+  "text": "`DISTINCT` оставляет только разные строки результата. Повтор считается по всем выбранным столбцам вместе.",
+  "sql": "SELECT DISTINCT category\nFROM products;"
+ },
+ "DROP": {
+  "title": "DROP: удалить объект",
+  "text": "`DROP TABLE`, `DROP VIEW`, `DROP INDEX` и т. д. удаляют объект целиком.",
+  "sql": "CREATE VIEW tmp_view AS SELECT 1 AS x;\nDROP VIEW tmp_view;\nSELECT COUNT(*) AS views_left FROM pg_views WHERE schemaname = current_schema() AND viewname = 'tmp_view';"
+ },
+ "EXCEPT": {
+  "title": "EXCEPT: разность",
+  "text": "Строки первого запроса, которых нет во втором. Порядок запросов важен. Повторы убираются.",
+  "sql": "SELECT id, val FROM a\nEXCEPT\nSELECT id, val FROM b\nORDER BY id;"
+ },
+ "EXCEPT ALL": {
+  "title": "EXCEPT ALL: разность с повторами",
+  "text": "Как `EXCEPT`, но вычитает по количеству повторов: если строка в первом запросе 2 раза, а во втором 1, останется 1.",
+  "sql": "SELECT id, val FROM a\nEXCEPT ALL\nSELECT id, val FROM b\nORDER BY id;"
+ },
+ "EXISTS": {
+  "title": "EXISTS: есть ли строки",
+  "text": "`EXISTS` истинно, если подзапрос вернул хотя бы одну строку. Что стоит после `SELECT` внутри, неважно.",
+  "sql": "SELECT name\nFROM students\nWHERE EXISTS (\n    SELECT 1 FROM courses\n    WHERE courses.id = students.course_id\n);"
+ },
+ "EXPLAIN": {
+  "title": "EXPLAIN: план запроса",
+  "text": "`EXPLAIN` показывает, как база будет выполнять запрос (читать таблицу целиком или по индексу). `EXPLAIN ANALYZE` ещё и выполняет его и показывает реальное время.",
+  "sql": "EXPLAIN SELECT * FROM students WHERE id = 3;"
+ },
+ "EXPLAIN ANALYZE": {
+  "title": "EXPLAIN: план запроса",
+  "text": "`EXPLAIN` показывает, как база будет выполнять запрос (читать таблицу целиком или по индексу). `EXPLAIN ANALYZE` ещё и выполняет его и показывает реальное время.",
+  "sql": "EXPLAIN SELECT * FROM students WHERE id = 3;"
+ },
+ "EXTRACT": {
+  "title": "EXTRACT: часть даты",
+  "text": "`EXTRACT(YEAR FROM дата)` достаёт год, месяц (`MONTH`), день (`DAY`), день недели (`DOW`).",
+  "sql": "SELECT added, EXTRACT(MONTH FROM added) AS month\nFROM products;"
+ },
+ "FOREIGN KEY": {
+  "title": "FOREIGN KEY: внешний ключ",
+  "text": "Значение столбца должно существовать в другой таблице (в её первичном ключе). Так связывают таблицы.",
+  "sql": "SELECT conname, contype\nFROM pg_constraint\nWHERE conrelid = 'students'::regclass AND contype = 'f';"
+ },
+ "FROM": {
+  "title": "FROM: из какой таблицы",
+  "text": "После `FROM` пишется таблица, из которой берутся строки.",
+  "sql": "SELECT title, price\nFROM products;"
+ },
+ "FULL JOIN": {
+  "title": "FULL JOIN: все строки обеих таблиц",
+  "text": "Остаются все строки обеих таблиц, где пары нет, подставляется `NULL`.",
+  "sql": "SELECT students.name, courses.title\nFROM students\nFULL JOIN courses ON students.course_id = courses.id\nORDER BY students.name, courses.title;"
+ },
+ "FUNCTION": {
+  "title": "FUNCTION: функция",
+  "text": "Своя функция, которую потом вызывают в запросе. Пишется на SQL или на `plpgsql`.",
+  "sql": "CREATE FUNCTION double_it(x integer) RETURNS integer AS $$ SELECT x * 2 $$ LANGUAGE sql;\nSELECT double_it(21) AS answer;"
+ },
+ "GENERATE_SERIES": {
+  "title": "generate_series: ряд значений",
+  "text": "Генерирует последовательность чисел или дат от начала до конца с шагом.",
+  "sql": "SELECT generate_series('2024-01-01'::date, '2024-01-05'::date, '1 day'::interval)::date AS day;"
+ },
+ "GROUP BY": {
+  "title": "GROUP BY: по группам",
+  "text": "Собирает строки с одинаковыми значениями в группы, агрегаты считаются для каждой группы.",
+  "sql": "SELECT category, COUNT(*) AS items\nFROM products\nGROUP BY category\nORDER BY category;"
+ },
+ "HAVING": {
+  "title": "HAVING: фильтр групп",
+  "text": "`WHERE` отбирает строки до группировки, `HAVING` отбирает готовые группы после неё (здесь можно писать агрегаты).",
+  "sql": "SELECT category, COUNT(*) AS items\nFROM products\nGROUP BY category\nHAVING COUNT(*) > 1;"
+ },
+ "ILIKE": {
+  "title": "ILIKE: поиск без учёта регистра",
+  "text": "Как `LIKE`, но регистр букв не важен (есть только в PostgreSQL).",
+  "sql": "SELECT name\nFROM students\nWHERE name ILIKE 'a%';"
+ },
+ "IN": {
+  "title": "IN: значение из списка",
+  "text": "`IN` проверяет, входит ли значение в список (или в результат подзапроса). Короче цепочки `OR`.",
+  "sql": "SELECT name, city\nFROM students\nWHERE city IN ('Paris', 'Rome');"
+ },
+ "INDEX": {
+  "title": "INDEX: индекс",
+  "text": "Индекс ускоряет поиск и соединения по столбцу, но замедляет вставку. Сам результат запросов не меняет.",
+  "sql": "CREATE INDEX idx_students_city ON students (city);\nSELECT indexname FROM pg_indexes\nWHERE schemaname = current_schema() AND tablename = 'students'\nORDER BY indexname;"
+ },
+ "INNER JOIN": {
+  "title": "JOIN: соединение таблиц",
+  "text": "`JOIN` приклеивает к строке одной таблицы подходящие строки другой. `ON` задаёт, какие строки подходят. Строки без пары пропадают (у Eve нет курса).",
+  "sql": "SELECT students.name, courses.title\nFROM students\nJOIN courses ON students.course_id = courses.id\nORDER BY students.name;"
+ },
+ "INSERT": {
+  "title": "INSERT: добавить строки",
+  "text": "`INSERT INTO таблица (столбцы) VALUES (...)` добавляет строки. `RETURNING` покажет, что добавилось. В тренажёре всё откатывается.",
+  "sql": "INSERT INTO courses (id, title)\nVALUES (10, 'History')\nRETURNING *;"
+ },
+ "INTERSECT": {
+  "title": "INTERSECT: пересечение",
+  "text": "Оставляет только строки, которые есть в обоих результатах (без повторов).",
+  "sql": "SELECT id, val FROM a\nINTERSECT\nSELECT id, val FROM b\nORDER BY id;"
+ },
+ "INTERSECT ALL": {
+  "title": "INTERSECT ALL: пересечение с повторами",
+  "text": "Как `INTERSECT`, но учитывает, сколько раз строка встречается (берётся меньшее число).",
+  "sql": "SELECT id, val FROM a\nINTERSECT ALL\nSELECT id, val FROM b\nORDER BY id;"
+ },
+ "IS NOT NULL": {
+  "title": "NULL: «значения нет»",
+  "text": "`NULL` это не ноль и не пустая строка, а отсутствие значения. Сравнивать через `=` нельзя, нужно `IS NULL` или `IS NOT NULL`.",
+  "sql": "SELECT name, city\nFROM students\nWHERE city IS NULL;"
+ },
+ "IS NULL": {
+  "title": "NULL: «значения нет»",
+  "text": "`NULL` это не ноль и не пустая строка, а отсутствие значения. Сравнивать через `=` нельзя, нужно `IS NULL` или `IS NOT NULL`.",
+  "sql": "SELECT name, city\nFROM students\nWHERE city IS NULL;"
+ },
+ "JOIN": {
+  "title": "JOIN: соединение таблиц",
+  "text": "`JOIN` приклеивает к строке одной таблицы подходящие строки другой. `ON` задаёт, какие строки подходят. Строки без пары пропадают (у Eve нет курса).",
+  "sql": "SELECT students.name, courses.title\nFROM students\nJOIN courses ON students.course_id = courses.id\nORDER BY students.name;"
+ },
+ "LAG": {
+  "title": "LAG и LEAD",
+  "text": "Значение из предыдущей (`LAG`) или следующей (`LEAD`) строки окна.",
+  "sql": "SELECT sale_date, qty, LAG(qty) OVER (ORDER BY sale_date, id) AS previous_qty\nFROM sales\nORDER BY sale_date, id;"
+ },
+ "LEAD": {
+  "title": "LAG и LEAD",
+  "text": "Значение из предыдущей (`LAG`) или следующей (`LEAD`) строки окна.",
+  "sql": "SELECT sale_date, qty, LAG(qty) OVER (ORDER BY sale_date, id) AS previous_qty\nFROM sales\nORDER BY sale_date, id;"
+ },
+ "LEFT JOIN": {
+  "title": "LEFT JOIN: все строки левой таблицы",
+  "text": "Остаются все строки левой таблицы. Если пары справа нет, там будет `NULL`.",
+  "sql": "SELECT students.name, courses.title\nFROM students\nLEFT JOIN courses ON students.course_id = courses.id\nORDER BY students.name;"
+ },
+ "LENGTH": {
+  "title": "LENGTH: длина строки",
+  "text": "Возвращает число символов.",
+  "sql": "SELECT name, LENGTH(name) AS len\nFROM students;"
+ },
+ "LIKE": {
+  "title": "LIKE: поиск по шаблону",
+  "text": "`%` значит любое количество любых символов, `_` ровно один символ. `LIKE` учитывает регистр.",
+  "sql": "SELECT name\nFROM students\nWHERE name LIKE '%e%';"
+ },
+ "LIMIT": {
+  "title": "LIMIT: первые N строк",
+  "text": "`LIMIT n` берёт первые `n` строк. Без `ORDER BY` непонятно, какие строки «первые».",
+  "sql": "SELECT name, age\nFROM students\nORDER BY age DESC\nLIMIT 2;"
+ },
+ "LOWER": {
+  "title": "UPPER и LOWER",
+  "text": "Переводят текст в верхний или нижний регистр.",
+  "sql": "SELECT name, UPPER(name) AS up, LOWER(name) AS low\nFROM students;"
+ },
+ "MATERIALIZED VIEW": {
+  "title": "MATERIALIZED VIEW: материализованное представление",
+  "text": "В отличие от обычного, хранит готовый результат. Он не меняется сам: чтобы обновить, нужен `REFRESH MATERIALIZED VIEW`.",
+  "sql": "CREATE MATERIALIZED VIEW mv_big AS\nSELECT id, title FROM products WHERE price > 5;\nINSERT INTO products VALUES (6, 'Tent', 'travel', 99.00, '2024-04-01', NULL);\nSELECT COUNT(*) AS before_refresh FROM mv_big;"
+ },
+ "MAX": {
+  "title": "MIN и MAX",
+  "text": "Минимальное и максимальное значение (работают и с текстом, и с датами).",
+  "sql": "SELECT MIN(price) AS cheapest, MAX(price) AS most_expensive\nFROM products;"
+ },
+ "MIN": {
+  "title": "MIN и MAX",
+  "text": "Минимальное и максимальное значение (работают и с текстом, и с датами).",
+  "sql": "SELECT MIN(price) AS cheapest, MAX(price) AS most_expensive\nFROM products;"
+ },
+ "NATURAL JOIN": {
+  "title": "NATURAL JOIN: по одинаковым именам",
+  "text": "Соединяет таблицы автоматически по всем столбцам с одинаковыми именами. Условие `ON` не пишется. Опасно, если одинаковых имён больше, чем нужно.",
+  "sql": "SELECT *\nFROM a\nNATURAL JOIN b;"
+ },
+ "NEXTVAL": {
+  "title": "SEQUENCE: последовательность",
+  "text": "Объект, который выдаёт 1, 2, 3... Через `nextval('имя')` берут следующее число, часто для автоматических `id`.",
+  "sql": "CREATE SEQUENCE seq_demo START 1;\nSELECT nextval('seq_demo') AS first, nextval('seq_demo') AS second;"
+ },
+ "NOT": {
+  "title": "NOT: отрицание",
+  "text": "`NOT` переворачивает условие.",
+  "sql": "SELECT name, city\nFROM students\nWHERE NOT city = 'Berlin';"
+ },
+ "NOT EXISTS": {
+  "title": "NOT EXISTS: нет связанных строк",
+  "text": "Истинно, если подзапрос не вернул ни одной строки. Надёжнее `NOT IN`, когда возможен `NULL`.",
+  "sql": "SELECT title\nFROM courses\nWHERE NOT EXISTS (\n    SELECT 1 FROM students\n    WHERE students.course_id = courses.id\n);"
+ },
+ "NOT IN": {
+  "title": "NOT IN: нет в списке",
+  "text": "`NOT IN` берёт значения, которых нет в списке. Осторожно: если в списке есть `NULL`, результат будет пустым.",
+  "sql": "SELECT name, course_id\nFROM students\nWHERE course_id NOT IN (1);"
+ },
+ "NOT NULL": {
+  "title": "NOT NULL: значение обязательно",
+  "text": "Столбец нельзя оставить пустым.",
+  "sql": "SELECT column_name, is_nullable\nFROM information_schema.columns\nWHERE table_schema = current_schema() AND table_name = 'courses'\nORDER BY column_name;"
+ },
+ "NULL": {
+  "title": "NULL: «значения нет»",
+  "text": "`NULL` это не ноль и не пустая строка, а отсутствие значения. Сравнивать через `=` нельзя, нужно `IS NULL` или `IS NOT NULL`.",
+  "sql": "SELECT name, city\nFROM students\nWHERE city IS NULL;"
+ },
+ "NULLIF": {
+  "title": "NULLIF: сделать NULL",
+  "text": "`NULLIF(a, b)` возвращает `NULL`, если `a = b`, иначе `a`. Защита от деления на ноль: `x / NULLIF(y, 0)`.",
+  "sql": "SELECT 10 / NULLIF(0, 0) AS safe;"
+ },
+ "OFFSET": {
+  "title": "OFFSET: пропустить строки",
+  "text": "`OFFSET m` пропускает первые `m` строк. Обычно ставится вместе с `LIMIT` и `ORDER BY`.",
+  "sql": "SELECT name, age\nFROM students\nORDER BY age DESC\nLIMIT 2 OFFSET 2;"
+ },
+ "ON": {
+  "title": "JOIN: соединение таблиц",
+  "text": "`JOIN` приклеивает к строке одной таблицы подходящие строки другой. `ON` задаёт, какие строки подходят. Строки без пары пропадают (у Eve нет курса).",
+  "sql": "SELECT students.name, courses.title\nFROM students\nJOIN courses ON students.course_id = courses.id\nORDER BY students.name;"
+ },
+ "OR": {
+  "title": "OR: хотя бы одно условие",
+  "text": "`OR` пропускает строку, если выполнено хотя бы одно условие. С `AND` ставь скобки: у `AND` приоритет выше.",
+  "sql": "SELECT name, city\nFROM students\nWHERE city = 'Berlin' OR city = 'Rome';"
+ },
+ "ORDER BY": {
+  "title": "ORDER BY: сортировка",
+  "text": "`ORDER BY` сортирует результат. `ASC` по возрастанию (по умолчанию), `DESC` по убыванию. Можно несколько столбцов через запятую.",
+  "sql": "SELECT name, age\nFROM students\nORDER BY age DESC;"
+ },
+ "OVER": {
+  "title": "ROW_NUMBER и OVER: оконные функции",
+  "text": "Оконная функция считает значение для каждой строки, не схлопывая строки. `PARTITION BY` делит на группы, `ORDER BY` задаёт порядок внутри группы.",
+  "sql": "SELECT shop, item, qty,\n       ROW_NUMBER() OVER (PARTITION BY shop ORDER BY qty DESC) AS rn\nFROM sales\nORDER BY shop, rn;"
+ },
+ "PARTITION BY": {
+  "title": "ROW_NUMBER и OVER: оконные функции",
+  "text": "Оконная функция считает значение для каждой строки, не схлопывая строки. `PARTITION BY` делит на группы, `ORDER BY` задаёт порядок внутри группы.",
+  "sql": "SELECT shop, item, qty,\n       ROW_NUMBER() OVER (PARTITION BY shop ORDER BY qty DESC) AS rn\nFROM sales\nORDER BY shop, rn;"
+ },
+ "PRIMARY KEY": {
+  "title": "PRIMARY KEY: первичный ключ",
+  "text": "Уникальный идентификатор строки: значения не повторяются и не `NULL`.",
+  "sql": "CREATE TABLE t1 (id integer PRIMARY KEY, name varchar);\nINSERT INTO t1 VALUES (1, 'x');\nSELECT * FROM t1;"
+ },
+ "RANK": {
+  "title": "RANK и DENSE_RANK",
+  "text": "Ранг строки. Равные значения получают одинаковый ранг: `RANK` затем пропускает номера (1, 1, 3), `DENSE_RANK` нет (1, 1, 2).",
+  "sql": "SELECT item, qty, RANK() OVER (ORDER BY qty DESC) AS rnk, DENSE_RANK() OVER (ORDER BY qty DESC) AS dense_rnk\nFROM sales\nORDER BY qty DESC, id;"
+ },
+ "REFERENCES": {
+  "title": "FOREIGN KEY: внешний ключ",
+  "text": "Значение столбца должно существовать в другой таблице (в её первичном ключе). Так связывают таблицы.",
+  "sql": "SELECT conname, contype\nFROM pg_constraint\nWHERE conrelid = 'students'::regclass AND contype = 'f';"
+ },
+ "REFRESH": {
+  "title": "MATERIALIZED VIEW: материализованное представление",
+  "text": "В отличие от обычного, хранит готовый результат. Он не меняется сам: чтобы обновить, нужен `REFRESH MATERIALIZED VIEW`.",
+  "sql": "CREATE MATERIALIZED VIEW mv_big AS\nSELECT id, title FROM products WHERE price > 5;\nINSERT INTO products VALUES (6, 'Tent', 'travel', 99.00, '2024-04-01', NULL);\nSELECT COUNT(*) AS before_refresh FROM mv_big;"
+ },
+ "RETURNING": {
+  "title": "RETURNING: вернуть изменённое",
+  "text": "Добавляется к `INSERT`, `UPDATE` или `DELETE` и показывает затронутые строки.",
+  "sql": "DELETE FROM sales\nWHERE qty = 1\nRETURNING id, item, qty;"
+ },
+ "RIGHT JOIN": {
+  "title": "RIGHT JOIN: все строки правой таблицы",
+  "text": "Зеркало `LEFT JOIN`: остаются все строки правой таблицы (у курса Art нет студентов).",
+  "sql": "SELECT students.name, courses.title\nFROM students\nRIGHT JOIN courses ON students.course_id = courses.id\nORDER BY courses.title, students.name;"
+ },
+ "ROLLBACK": {
+  "title": "Транзакция: BEGIN, COMMIT, ROLLBACK",
+  "text": "Транзакция объединяет команды: либо выполнятся все (`COMMIT`), либо ни одна (`ROLLBACK`). Пока нет `COMMIT`, другие сессии изменений не видят.",
+  "sql": "SELECT 'в тренажёре каждый запрос и так выполняется в откатываемой транзакции' AS note;"
+ },
+ "ROUND": {
+  "title": "ROUND: округление",
+  "text": "`ROUND(x, n)` округляет до `n` знаков после запятой.",
+  "sql": "SELECT price, ROUND(price / 3, 2) AS third\nFROM products;"
+ },
+ "ROW_NUMBER": {
+  "title": "ROW_NUMBER и OVER: оконные функции",
+  "text": "Оконная функция считает значение для каждой строки, не схлопывая строки. `PARTITION BY` делит на группы, `ORDER BY` задаёт порядок внутри группы.",
+  "sql": "SELECT shop, item, qty,\n       ROW_NUMBER() OVER (PARTITION BY shop ORDER BY qty DESC) AS rn\nFROM sales\nORDER BY shop, rn;"
+ },
+ "SELECT": {
+  "title": "SELECT: выбрать столбцы",
+  "text": "`SELECT` перечисляет, какие столбцы показать. `*` значит «все столбцы». Таблица при этом не меняется.",
+  "sql": "SELECT name, city\nFROM students;"
+ },
+ "SEQUENCE": {
+  "title": "SEQUENCE: последовательность",
+  "text": "Объект, который выдаёт 1, 2, 3... Через `nextval('имя')` берут следующее число, часто для автоматических `id`.",
+  "sql": "CREATE SEQUENCE seq_demo START 1;\nSELECT nextval('seq_demo') AS first, nextval('seq_demo') AS second;"
+ },
+ "SUBSTRING": {
+  "title": "SUBSTRING: часть строки",
+  "text": "`SUBSTRING(s FROM 1 FOR 3)` берёт 3 символа, начиная с первого.",
+  "sql": "SELECT name, SUBSTRING(name FROM 1 FOR 2) AS first_two\nFROM students;"
+ },
+ "SUM": {
+  "title": "SUM: сумма",
+  "text": "Складывает значения (NULL игнорируются).",
+  "sql": "SELECT SUM(qty) AS total_qty\nFROM sales;"
+ },
+ "TO_CHAR": {
+  "title": "TO_CHAR: красивый формат",
+  "text": "Превращает дату или число в текст по шаблону.",
+  "sql": "SELECT added, TO_CHAR(added, 'DD.MM.YYYY') AS formatted\nFROM products;"
+ },
+ "TRANSACTION": {
+  "title": "Транзакция: BEGIN, COMMIT, ROLLBACK",
+  "text": "Транзакция объединяет команды: либо выполнятся все (`COMMIT`), либо ни одна (`ROLLBACK`). Пока нет `COMMIT`, другие сессии изменений не видят.",
+  "sql": "SELECT 'в тренажёре каждый запрос и так выполняется в откатываемой транзакции' AS note;"
+ },
+ "TRIGGER": {
+  "title": "TRIGGER: триггер",
+  "text": "Триггер сам вызывает функцию при `INSERT`, `UPDATE` или `DELETE` в таблице (например, чтобы вести журнал изменений).",
+  "sql": "CREATE TABLE log_t (msg varchar);\nCREATE FUNCTION fn_log() RETURNS trigger AS $$ BEGIN INSERT INTO log_t VALUES ('added ' || NEW.title); RETURN NEW; END $$ LANGUAGE plpgsql;\nCREATE TRIGGER trg_log AFTER INSERT ON courses FOR EACH ROW EXECUTE FUNCTION fn_log();\nINSERT INTO courses VALUES (20, 'Chess');\nSELECT * FROM log_t;"
+ },
+ "UNION": {
+  "title": "UNION: объединение без повторов",
+  "text": "Склеивает результаты двух запросов друг под другом и убирает повторы. Число и типы столбцов должны совпадать, названия берутся из первого запроса.",
+  "sql": "SELECT id, val FROM a\nUNION\nSELECT id, val FROM b\nORDER BY id;"
+ },
+ "UNION ALL": {
+  "title": "UNION ALL: объединение с повторами",
+  "text": "Как `UNION`, но повторяющиеся строки сохраняются.",
+  "sql": "SELECT id, val FROM a\nUNION ALL\nSELECT id, val FROM b\nORDER BY id;"
+ },
+ "UNIQUE": {
+  "title": "UNIQUE: без повторов",
+  "text": "Значения (или комбинации значений) в столбцах не могут повторяться.",
+  "sql": "CREATE TABLE t3 (code varchar UNIQUE);\nINSERT INTO t3 VALUES ('A'), ('B');\nSELECT * FROM t3 ORDER BY code;"
+ },
+ "UPDATE": {
+  "title": "UPDATE: изменить строки",
+  "text": "`UPDATE таблица SET столбец = значение WHERE ...`. Без `WHERE` изменятся все строки.",
+  "sql": "UPDATE products\nSET price = price * 2\nWHERE category = 'office'\nRETURNING id, title, price;"
+ },
+ "UPPER": {
+  "title": "UPPER и LOWER",
+  "text": "Переводят текст в верхний или нижний регистр.",
+  "sql": "SELECT name, UPPER(name) AS up, LOWER(name) AS low\nFROM students;"
+ },
+ "USING": {
+  "title": "USING: короткий ON",
+  "text": "`USING (столбец)` соединяет по столбцу с одинаковым именем в обеих таблицах, в результате он выводится один раз.",
+  "sql": "SELECT *\nFROM a\nJOIN b USING (id, val);"
+ },
+ "VALUES": {
+  "title": "VALUES: таблица из значений",
+  "text": "`VALUES` создаёт маленькую таблицу прямо в запросе.",
+  "sql": "SELECT *\nFROM (VALUES (1, 'x'), (2, 'y')) AS t(id, letter);"
+ },
+ "VIEW": {
+  "title": "VIEW: представление",
+  "text": "Представление это сохранённый запрос, который выглядит как таблица. Данные не хранятся, запрос выполняется при каждом обращении.",
+  "sql": "CREATE VIEW young_students AS\nSELECT name, age FROM students WHERE age < 21;\nSELECT * FROM young_students;"
+ },
+ "WHERE": {
+  "title": "WHERE: оставить нужные строки",
+  "text": "`WHERE` пропускает только строки, для которых условие верно. Работает до `SELECT`, поэтому видит только столбцы таблицы.",
+  "sql": "SELECT name, age\nFROM students\nWHERE age > 20;"
+ },
+ "WITH": {
+  "title": "WITH: именованный подзапрос (CTE)",
+  "text": "`WITH имя AS (запрос)` создаёт временную «таблицу», которую можно использовать ниже в запросе.",
+  "sql": "WITH adults AS (\n    SELECT name, age FROM students WHERE age >= 21\n)\nSELECT name FROM adults\nORDER BY name;"
+ },
+ "||": {
+  "title": "CONCAT: склеить текст",
+  "text": "`CONCAT(a, b, c)` склеивает значения и сам превращает числа в текст, `NULL` считает пустой строкой. Оператор `||` делает то же, но с `NULL` даёт `NULL`.",
+  "sql": "SELECT CONCAT(name, ' (age:', age, ')') AS info, name || ' ' || city AS with_pipes\nFROM students;"
+ }
+}

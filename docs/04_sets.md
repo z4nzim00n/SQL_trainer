@@ -22,7 +22,7 @@
 
 Все строки обоих запросов, повторы убраны.
 
-```sql-run
+```sql-pizza
 SELECT id AS object_id, name AS object_name
 FROM person
 UNION
@@ -33,7 +33,7 @@ ORDER BY object_id, object_name;
 
 `UNION ALL` не удаляет повторы и работает быстрее (не нужно искать дубли).
 
-```sql-run
+```sql-pizza
 SELECT pizza_name FROM menu WHERE price < 800
 UNION ALL
 SELECT pizza_name FROM menu WHERE price < 900
@@ -46,7 +46,7 @@ ORDER BY pizza_name;
 
 Общий `ORDER BY` в конце сортирует всё сразу. Если части нужно упорядочить по-разному, каждую берут в скобки со своим `ORDER BY`:
 
-```sql-run
+```sql-pizza
 (SELECT name AS object_name FROM person ORDER BY name)
 UNION ALL
 (SELECT pizza_name FROM menu ORDER BY pizza_name);
@@ -54,7 +54,7 @@ UNION ALL
 
 Порядок частей в результате соответствует порядку запросов. Строгая гарантия порядка при `UNION ALL` не прописана в стандарте, но на практике PostgreSQL выдаёт части по очереди. Если порядок критичен, добавь служебный столбец и отсортируй по нему:
 
-```sql-run
+```sql-pizza
 SELECT 1 AS part, name AS object_name FROM person
 UNION ALL
 SELECT 2, pizza_name FROM menu
@@ -67,7 +67,7 @@ ORDER BY part, object_name;
 
 Только строки, которые есть **в обоих** результатах.
 
-```sql-run
+```sql-pizza
 SELECT person_id FROM person_visits WHERE visit_date = '2022-01-06'
 INTERSECT
 SELECT person_id FROM person_order WHERE order_date = '2022-01-06';
@@ -79,7 +79,7 @@ SELECT person_id FROM person_order WHERE order_date = '2022-01-06';
 
 Строки первого результата, которых нет во втором. **Порядок запросов важен**: `A EXCEPT B` и `B EXCEPT A` дают разное. В Oracle то же называется `MINUS`.
 
-```sql-run
+```sql-pizza
 SELECT id FROM person
 EXCEPT
 SELECT person_id FROM person_order;
@@ -91,13 +91,13 @@ SELECT person_id FROM person_order;
 
 `INTERSECT ALL` и `EXCEPT ALL` учитывают, сколько раз строка встречается. Если в первом запросе значение есть 3 раза, а во втором 1 раз, то `EXCEPT ALL` оставит его 2 раза, а обычный `EXCEPT` убрал бы совсем.
 
-```sql-run
+```sql-pizza
 SELECT x FROM (VALUES (1), (1), (1), (2)) AS a(x)
 EXCEPT ALL
 SELECT x FROM (VALUES (1)) AS b(x);
 ```
 
-```sql-run
+```sql-pizza
 SELECT x FROM (VALUES (1), (1), (1), (2)) AS a(x)
 EXCEPT
 SELECT x FROM (VALUES (1)) AS b(x);

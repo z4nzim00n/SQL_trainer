@@ -61,14 +61,64 @@ for (const [name, sets] of Object.entries(data.datasets)) {
     }
 }
 
-/* Тот же контракт, что у браузерного движка: run(dataset, variant, sql) */
+/* Делит скрипт на отдельные команды (учитывает строки, комментарии и $$-блоки) */
+function splitStatements(sql) {
+    const out = [];
+    let cur = '';
+    let i = 0;
+    while (i < sql.length) {
+        const c = sql[i];
+        const n = sql[i + 1];
+        if (c === '-' && n === '-') {
+            const e = sql.indexOf('\n', i);
+            const end = e < 0 ? sql.length : e;
+            cur += sql.slice(i, end);
+            i = end;
+        } else if (c === '/' && n === '*') {
+            const e = sql.indexOf('*/', i + 2);
+            const end = e < 0 ? sql.length : e + 2;
+            cur += sql.slice(i, end);
+            i = end;
+        } else if (c === "'" || c === '"') {
+            let j = i + 1;
+            while (j < sql.length) {
+                if (sql[j] === c) { if (sql[j + 1] === c) { j += 2; continue; } break; }
+                j++;
+            }
+            cur += sql.slice(i, j + 1);
+            i = j + 1;
+        } else if (c === '$') {
+            const m = sql.slice(i).match(/^\$[A-Za-z_0-9]*\$/);
+            if (m) {
+                const e = sql.indexOf(m[0], i + m[0].length);
+                const end = e < 0 ? sql.length : e + m[0].length;
+                cur += sql.slice(i, end);
+                i = end;
+            } else { cur += c; i++; }
+        } else if (c === ';') {
+            if (cur.trim()) out.push(cur.trim());
+            cur = '';
+            i++;
+        } else { cur += c; i++; }
+    }
+    if (cur.trim()) out.push(cur.trim());
+    return out.filter((st) => st.replace(/--[^\n]*|\/\*[\s\S]*?\*\//g, '').trim());
+}
+
+const MARK = '@@@RESULT@@@';
+
+/* Тот же контракт, что у браузерного движка: run(dataset, variant, sql); результат = последняя таблица */
 async function run(dataset, variant, sql) {
-    const r = psql(`BEGIN;\nSET LOCAL search_path TO ${dataset}_${variant};\n${sql}\n;\nROLLBACK;`);
+    const stmts = splitStatements(sql).map((st) => `\\echo ${MARK}\n${st};`).join('\n');
+    const r = psql(`BEGIN;\nSET LOCAL search_path TO ${dataset}_${variant};\n${stmts}\n\\echo ${MARK}\nROLLBACK;`);
     if (r.status !== 0) {
         const m = (r.stderr || '').match(/ERROR:\s*([\s\S]*?)(?:\nLINE|\n?$)/);
         return { error: (m ? m[1] : r.stderr).trim() };
     }
-    const table = parseCsv(r.stdout);
+    const chunks = r.stdout.split(MARK).map((c) => c.replace(/^\r?\n/, '')).filter((c) => c.trim());
+    const last = chunks[chunks.length - 1];
+    if (!last) return { columns: [], rows: [], noResult: true };
+    const table = parseCsv(last);
     if (!table.length) return { columns: [], rows: [], noResult: true };
     const [columns, ...rows] = table;
     return { columns, rows: rows.map((row) => row.map((c) => (c === NULL_MARK ? null : normalizeCell(c)))) };
@@ -81,6 +131,7 @@ const bad = (msg) => { failed++; console.log(`  ✗ ${msg}`); };
 for (const day of data.days) {
     for (const task of day.tasks) {
         console.log(`${task.id}  ${task.title}`);
+        if (task.meta.manual) { ok('ручное задание: автопроверки нет'); continue; }
 
         const v = await runCheck({ run, task, sql: task.solution });
         if (v.status === 'pass') ok('эталон проходит свою проверку');
@@ -112,11 +163,14 @@ for (const day of data.days) {
 /* Примеры ```sql-run в теории и энциклопедии должны выполняться без ошибок на обоих наборах данных */
 console.log('Примеры sql-run');
 const blocks = [];
-const collect = (where, md, dataset) => {
-    for (const m of md.matchAll(/```sql-run\n([\s\S]*?)```/g)) blocks.push({ where, sql: m[1].trim(), dataset });
+/* ```sql-run выполняется на учебных мини-таблицах (demo), ```sql-pizza на базе пиццерий */
+const collect = (where, md) => {
+    for (const m of md.matchAll(/```(sql-run|sql-pizza)\n([\s\S]*?)```/g)) blocks.push({ where, sql: m[2].trim(), dataset: m[1] === 'sql-run' ? 'demo' : 'pizza' });
 };
-for (const a of data.wiki || []) collect(a.id, a.md, Object.keys(data.datasets)[0]);
-for (const day of data.days) for (const t of day.tasks) { collect(t.id + ' readme', t.readme, t.meta.dataset); collect(t.id + ' theory', t.theory, t.meta.dataset); }
+for (const a of data.wiki || []) collect(a.id, a.md);
+for (const day of data.days) for (const t of day.tasks) { collect(t.id + ' readme', t.readme); collect(t.id + ' theory', t.theory); }
+for (const g of Object.values(data.glossary || {})) if (g.sql) blocks.push({ where: 'glossary ' + g.title, sql: g.sql, dataset: 'demo' });
+for (const [k, g] of Object.entries(data.glossary || {})) if (g.sql) blocks.push({ where: 'glossary ' + k, sql: g.sql, dataset: 'demo' });
 let runOk = 0;
 for (const b of blocks) {
     for (const variant of ['main', 'alt']) {

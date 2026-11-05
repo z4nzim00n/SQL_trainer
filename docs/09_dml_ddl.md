@@ -10,7 +10,7 @@ INSERT INTO pizzeria (id, name, rating) VALUES (100, 'Test Pizza', 4.0);
 
 Можно вставить несколько строк сразу и вернуть вставленное через `RETURNING`:
 
-```sql-run
+```sql-pizza
 INSERT INTO pizzeria (id, name, rating)
 VALUES (100, 'Test Pizza', 4.0), (101, 'Another Pizza', 3.5)
 RETURNING *;
@@ -25,7 +25,7 @@ SELECT 200 + id, pizzeria_id, pizza_name, price FROM menu WHERE price < 800;
 
 ## UPDATE: изменить строки
 
-```sql-run
+```sql-pizza
 UPDATE menu
 SET price = price * 1.1
 WHERE pizza_name = 'cheese pizza'
@@ -36,7 +36,7 @@ RETURNING id, pizza_name, price;
 
 ## DELETE: удалить строки
 
-```sql-run
+```sql-pizza
 DELETE FROM person_visits
 WHERE visit_date < '2022-01-05'
 RETURNING *;

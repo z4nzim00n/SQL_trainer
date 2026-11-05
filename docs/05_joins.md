@@ -26,7 +26,7 @@ JOIN таблица_B ON условие_связи;
 
 Только строки, у которых **нашлась пара** с обеих сторон. Слово `INNER` можно не писать: просто `JOIN`.
 
-```sql-run
+```sql-pizza
 SELECT person.name, person_order.order_date
 FROM person_order
 JOIN person ON person_order.person_id = person.id
@@ -49,7 +49,7 @@ ORDER BY person_order.order_date, person.name;
 
 **Все** строки левой таблицы, и к ним пара из правой, если она есть. Если пары нет, столбцы правой будут `NULL`.
 
-```sql-run
+```sql-pizza
 SELECT person.name, person_order.order_date
 FROM person
 LEFT JOIN person_order ON person_order.person_id = person.id
@@ -64,7 +64,7 @@ ORDER BY person.name;
 
 Оставляем только те строки левой таблицы, у которых **нет пары**:
 
-```sql-run
+```sql-pizza
 SELECT person.name
 FROM person
 LEFT JOIN person_order ON person_order.person_id = person.id
@@ -79,7 +79,7 @@ WHERE person_order.id IS NULL;
 
 Зеркало `LEFT JOIN`: сохраняются все строки правой таблицы. На практике почти всегда переписывают через `LEFT JOIN`, поменяв таблицы местами: так читается проще.
 
-```sql-run
+```sql-pizza
 SELECT pizzeria.name, person_visits.visit_date
 FROM person_visits
 RIGHT JOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id
@@ -90,7 +90,7 @@ ORDER BY pizzeria.name;
 
 {{venn:right_only}}
 
-```sql-run
+```sql-pizza
 SELECT pizzeria.name
 FROM person_visits
 RIGHT JOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id
@@ -103,7 +103,7 @@ WHERE person_visits.id IS NULL;
 
 Сохраняются все строки **обеих** таблиц. Где пары нет, подставляется `NULL` со стороны, где её не нашлось.
 
-```sql-run
+```sql-pizza
 SELECT person.name, person_order.order_date
 FROM person
 FULL JOIN person_order ON person_order.person_id = person.id
@@ -114,7 +114,7 @@ ORDER BY person.name;
 
 {{venn:full_only}}
 
-```sql-run
+```sql-pizza
 SELECT person.name, person_order.id AS order_id
 FROM person
 FULL JOIN person_order ON person_order.person_id = person.id
@@ -125,7 +125,7 @@ WHERE person.id IS NULL OR person_order.id IS NULL;
 
 Все возможные пары «строка из A × строка из B» (декартово произведение). Условие не нужно. Если в A 9 строк, а в B 5, получится 45.
 
-```sql-run
+```sql-pizza
 SELECT person.name, pizzeria.name AS pizzeria_name
 FROM person
 CROSS JOIN pizzeria
@@ -140,7 +140,7 @@ ORDER BY person.name, pizzeria_name;
 
 Соединяет по **всем столбцам с одинаковыми именами**, условие `ON` не пишется. Опасно: в нашей базе в каждой таблице есть `id`, поэтому «естественное» соединение будет искать равенство `id` и вернёт странный или пустой результат. Лечится переименованием столбцов в подзапросе:
 
-```sql-run
+```sql-pizza
 SELECT *
 FROM person_order
 NATURAL JOIN (SELECT id AS menu_id, pizza_name, price FROM menu) AS m;
@@ -152,7 +152,7 @@ NATURAL JOIN (SELECT id AS menu_id, pizza_name, price FROM menu) AS m;
 
 Сокращение для `ON`, когда столбцы называются одинаково. В результате такой столбец выводится один раз.
 
-```sql-run
+```sql-pizza
 SELECT *
 FROM person_order
 JOIN (SELECT id AS menu_id, pizza_name FROM menu) AS m USING (menu_id);
@@ -162,7 +162,7 @@ JOIN (SELECT id AS menu_id, pizza_name FROM menu) AS m USING (menu_id);
 
 `JOIN` можно добавлять друг за другом. Каждое следующее соединение привязывается к уже собранному результату.
 
-```sql-run
+```sql-pizza
 SELECT person.name, menu.pizza_name, pizzeria.name AS pizzeria_name
 FROM person_order
 JOIN person ON person_order.person_id = person.id
@@ -175,7 +175,7 @@ ORDER BY person.name, menu.pizza_name, pizzeria.name;
 
 Одну таблицу берут дважды под разными псевдонимами. Например, пары людей из одного города:
 
-```sql-run
+```sql-pizza
 SELECT a.name AS person_1, b.name AS person_2, a.address
 FROM person AS a
 JOIN person AS b ON a.address = b.address AND a.id < b.id
@@ -191,14 +191,14 @@ ORDER BY a.address, a.name;
 - условие в `ON` решает, **какие пары** считаются подходящими, но все строки левой таблицы всё равно останутся;
 - условие в `WHERE` удаляет **готовые строки** результата, и вместе с ними пропадут левые строки без пары.
 
-```sql-run
+```sql-pizza
 SELECT person.name, person_order.order_date
 FROM person
 LEFT JOIN person_order ON person_order.person_id = person.id AND person_order.order_date = '2022-01-01'
 ORDER BY person.name;
 ```
 
-```sql-run
+```sql-pizza
 SELECT person.name, person_order.order_date
 FROM person
 LEFT JOIN person_order ON person_order.person_id = person.id

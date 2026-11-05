@@ -11,14 +11,14 @@ SELECT столбцы
 FROM таблица;
 ```
 
-```sql-run
+```sql-pizza
 SELECT name, age
 FROM person;
 ```
 
 Звёздочка `*` означает «все столбцы». Для быстрого взгляда на таблицу удобно, в готовых решениях лучше перечислять столбцы явно.
 
-```sql-run
+```sql-pizza
 SELECT *
 FROM pizzeria;
 ```
@@ -46,7 +46,7 @@ LIMIT ...;      -- ограничить число строк
 
 `AS` переименовывает столбец в результате. Исходная таблица не меняется.
 
-```sql-run
+```sql-pizza
 SELECT name AS person_name, age AS years
 FROM person;
 ```
@@ -55,7 +55,7 @@ FROM person;
 
 **Псевдонимы таблиц** укорачивают запись, особенно в `JOIN`. Они обязательны, когда одну таблицу нужно взять дважды:
 
-```sql-run
+```sql-pizza
 SELECT p.name, p.age
 FROM person AS p;
 ```
@@ -66,14 +66,14 @@ FROM person AS p;
 
 В `SELECT` можно считать:
 
-```sql-run
+```sql-pizza
 SELECT pizza_name, price, price * 0.9 AS price_with_discount, price + 50 AS price_plus_50
 FROM menu;
 ```
 
 Есть арифметика `+ - * /` и остаток `%`. Целочисленное деление округляет вниз: `7 / 2` даёт `3`, а `7 / 2.0` даёт `3.5`.
 
-```sql-run
+```sql-pizza
 SELECT 7 / 2 AS int_division, 7 / 2.0 AS decimal_division, 7 % 2 AS remainder;
 ```
 
@@ -83,12 +83,12 @@ SELECT 7 / 2 AS int_division, 7 / 2.0 AS decimal_division, 7 % 2 AS remainder;
 
 `DISTINCT` оставляет только уникальные строки результата. Уникальность считается по **всей строке** (по всем выбранным столбцам вместе).
 
-```sql-run
+```sql-pizza
 SELECT DISTINCT pizza_name
 FROM menu;
 ```
 
-```sql-run
+```sql-pizza
 SELECT DISTINCT pizzeria_id, pizza_name
 FROM menu;
 ```
@@ -99,7 +99,7 @@ FROM menu;
 
 Без `ORDER BY` порядок строк **не гарантирован**: база вправе вернуть их как угодно. Если порядок важен, пиши `ORDER BY`.
 
-```sql-run
+```sql-pizza
 SELECT name, age
 FROM person
 ORDER BY age DESC;
@@ -110,7 +110,7 @@ ORDER BY age DESC;
 - Можно сортировать по номеру столбца в `SELECT`: `ORDER BY 2`.
 - Можно сортировать по выражению: `ORDER BY price * 2`.
 
-```sql-run
+```sql-pizza
 SELECT name, age, address
 FROM person
 ORDER BY address ASC, age DESC;
@@ -124,14 +124,14 @@ ORDER BY address ASC, age DESC;
 
 `LIMIT n` берёт первые `n` строк, `OFFSET m` пропускает `m` строк сначала. Пара часто нужна для «топ-3» и постраничного вывода. Без `ORDER BY` они бессмысленны: непонятно, какие строки «первые».
 
-```sql-run
+```sql-pizza
 SELECT name, age
 FROM person
 ORDER BY age DESC
 LIMIT 3;
 ```
 
-```sql-run
+```sql-pizza
 SELECT name, age
 FROM person
 ORDER BY age DESC

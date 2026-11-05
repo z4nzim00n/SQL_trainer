@@ -11,12 +11,12 @@
 | `AVG(x)` | среднее |
 | `MIN(x)`, `MAX(x)` | минимум и максимум (работают и с текстом, и с датами) |
 
-```sql-run
+```sql-pizza
 SELECT COUNT(*) AS rows_count, MIN(price) AS cheapest, MAX(price) AS most_expensive, ROUND(AVG(price), 2) AS average_price
 FROM menu;
 ```
 
-```sql-run
+```sql-pizza
 SELECT COUNT(*) AS all_rows, COUNT(DISTINCT pizza_name) AS different_pizzas
 FROM menu;
 ```
@@ -27,7 +27,7 @@ FROM menu;
 
 `GROUP BY` разбивает строки на группы с одинаковым значением и считает агрегат **для каждой группы**.
 
-```sql-run
+```sql-pizza
 SELECT pizzeria_id, COUNT(*) AS pizzas, MIN(price) AS cheapest
 FROM menu
 GROUP BY pizzeria_id
@@ -38,7 +38,7 @@ ORDER BY pizzeria_id;
 
 Группировать можно по нескольким столбцам:
 
-```sql-run
+```sql-pizza
 SELECT person_id, order_date, COUNT(*) AS orders_that_day
 FROM person_order
 GROUP BY person_id, order_date
@@ -49,7 +49,7 @@ ORDER BY person_id, order_date;
 
 `WHERE` фильтрует строки **до** группировки, `HAVING` фильтрует готовые группы **после**. В `WHERE` агрегаты писать нельзя.
 
-```sql-run
+```sql-pizza
 SELECT pizzeria_id, COUNT(*) AS pizzas
 FROM menu
 GROUP BY pizzeria_id
@@ -59,7 +59,7 @@ ORDER BY pizzeria_id;
 
 Совмещение: сначала `WHERE` отбирает строки, потом группировка, потом `HAVING`.
 
-```sql-run
+```sql-pizza
 SELECT pizzeria_id, ROUND(AVG(price), 2) AS avg_price
 FROM menu
 WHERE price > 700
@@ -72,7 +72,7 @@ ORDER BY avg_price DESC;
 
 Часто имя нужно из другой таблицы: сначала `JOIN`, потом `GROUP BY` по столбцам этой таблицы.
 
-```sql-run
+```sql-pizza
 SELECT pizzeria.name, COUNT(*) AS visits
 FROM person_visits
 JOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id
@@ -82,7 +82,7 @@ ORDER BY visits DESC, pizzeria.name;
 
 Чтобы в результате остались и группы с нулём (пиццерии без визитов), нужен `LEFT JOIN`, а считать надо столбец правой таблицы:
 
-```sql-run
+```sql-pizza
 SELECT pizzeria.name, COUNT(person_visits.id) AS visits
 FROM pizzeria
 LEFT JOIN person_visits ON person_visits.pizzeria_id = pizzeria.id
@@ -98,7 +98,7 @@ ORDER BY visits DESC, pizzeria.name;
 
 ## Агрегат с условием: FILTER и CASE
 
-```sql-run
+```sql-pizza
 SELECT COUNT(*) AS everyone,
        COUNT(*) FILTER (WHERE gender = 'female') AS women,
        COUNT(*) FILTER (WHERE age >= 21) AS adults_21_plus
@@ -107,14 +107,14 @@ FROM person;
 
 Универсальный вариант (работает везде) через `CASE`:
 
-```sql-run
+```sql-pizza
 SELECT SUM(CASE WHEN gender = 'female' THEN 1 ELSE 0 END) AS women
 FROM person;
 ```
 
 ## Объединение значений в строку
 
-```sql-run
+```sql-pizza
 SELECT address, STRING_AGG(name, ', ' ORDER BY name) AS people
 FROM person
 GROUP BY address

@@ -8,32 +8,22 @@
 
 Запрет проверяется по тексту запроса, поэтому слова `DISTINCT`, `GROUP BY`, `HAVING` и `JOIN` не должны встречаться в коде вообще, даже в виде `NATURAL JOIN` или `LEFT JOIN`.
 
-## Примеры
+## Примеры на маленьких таблицах
 
-`DISTINCT` убирает повторы (в этом задании он запрещён, но полезно видеть, что он делает):
-
-```sql-run
-SELECT address FROM person;
-```
+`UNION` убирает повторы, даже если склеить таблицу саму с собой:
 
 ```sql-run
-SELECT DISTINCT address FROM person;
-```
-
-`UNION` тоже убирает повторы. Склейка запроса с самим собой оставляет каждое значение один раз:
-
-```sql-run
-SELECT address FROM person
+SELECT val FROM a
 UNION
-SELECT address FROM person
-ORDER BY address DESC;
+SELECT val FROM a
+ORDER BY val DESC;
 ```
 
-`INTERSECT` берёт пересечение, и повторов в нём тоже нет:
+`INTERSECT` тоже даёт строки без повторов:
 
 ```sql-run
-SELECT address FROM person
+SELECT val FROM a
 INTERSECT
-SELECT address FROM person
-ORDER BY address DESC;
+SELECT val FROM a
+ORDER BY val DESC;
 ```

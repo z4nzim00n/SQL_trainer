@@ -8,35 +8,20 @@
 
 Порядок частей задаёт порядок строк в результате: первой идёт часть с `person`, второй часть с `menu`. Название столбца результата, как и раньше, берётся из первого запроса.
 
-## Примеры
+## Примеры на маленьких таблицах
 
-Скобки дают каждой части свою сортировку. Здесь сначала идут пиццерии по названию, потом люди по возрасту (пример не из задания):
+`UNION ALL` ничего не выбрасывает (в таблице `a` есть повторяющаяся строка `3, blue`):
 
 ```sql-run
-(SELECT name AS object_name FROM pizzeria ORDER BY name)
+SELECT val FROM a
 UNION ALL
-(SELECT name FROM person WHERE age < 20 ORDER BY age DESC);
+SELECT val FROM b;
 ```
 
-Без скобок общий `ORDER BY` сортирует всё вместе и перемешивает части:
+Скобки дают каждой части свою сортировку:
 
 ```sql-run
-SELECT name AS object_name FROM pizzeria
+(SELECT val FROM a ORDER BY val)
 UNION ALL
-SELECT name FROM person WHERE age < 20
-ORDER BY object_name;
-```
-
-`UNION ALL` сохраняет повторы, `UNION` их удаляет. Сравни число строк:
-
-```sql-run
-SELECT address FROM person
-UNION ALL
-SELECT address FROM person;
-```
-
-```sql-run
-SELECT address FROM person
-UNION
-SELECT address FROM person;
+(SELECT val FROM b ORDER BY val DESC);
 ```

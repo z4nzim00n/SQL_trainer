@@ -9,7 +9,7 @@
 
 ## Нумерация и ранги
 
-```sql-run
+```sql-pizza
 SELECT pizzeria_id, pizza_name, price,
        ROW_NUMBER() OVER (PARTITION BY pizzeria_id ORDER BY price DESC) AS row_number
 FROM menu
@@ -22,7 +22,7 @@ ORDER BY pizzeria_id, row_number;
 | `RANK()` | одинаковый ранг, затем пропуск: 1, 1, 3 |
 | `DENSE_RANK()` | одинаковый ранг без пропусков: 1, 1, 2 |
 
-```sql-run
+```sql-pizza
 SELECT name, age,
        RANK() OVER (ORDER BY age DESC) AS rank,
        DENSE_RANK() OVER (ORDER BY age DESC) AS dense_rank
@@ -34,7 +34,7 @@ ORDER BY age DESC, name;
 
 Обычный агрегат с `OVER` добавляется к каждой строке.
 
-```sql-run
+```sql-pizza
 SELECT pizzeria_id, pizza_name, price,
        ROUND(AVG(price) OVER (PARTITION BY pizzeria_id), 2) AS avg_in_pizzeria,
        price - ROUND(AVG(price) OVER (PARTITION BY pizzeria_id), 2) AS diff_from_avg
@@ -44,7 +44,7 @@ ORDER BY pizzeria_id, price;
 
 Нарастающий итог получается, если добавить `ORDER BY` внутрь `OVER`:
 
-```sql-run
+```sql-pizza
 SELECT order_date, id,
        COUNT(*) OVER (ORDER BY order_date, id) AS running_orders
 FROM person_order
@@ -55,7 +55,7 @@ ORDER BY order_date, id;
 
 `LAG` берёт значение из предыдущей строки, `LEAD` из следующей.
 
-```sql-run
+```sql-pizza
 SELECT visit_date, person_id,
        LAG(visit_date) OVER (PARTITION BY person_id ORDER BY visit_date) AS previous_visit
 FROM person_visits
@@ -66,7 +66,7 @@ ORDER BY person_id, visit_date;
 
 Оконную функцию нельзя поставить прямо в `WHERE`. Её оборачивают в подзапрос:
 
-```sql-run
+```sql-pizza
 SELECT *
 FROM (
     SELECT pizzeria_id, pizza_name, price,

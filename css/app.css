@@ -327,3 +327,38 @@
 .venn .vline { fill: none; stroke: var(--muted); stroke-width: 1.6; }
 .venn .vlabel { fill: var(--text-strong); font: 700 13px var(--font-code); text-anchor: middle; }
 .join-card { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+
+/* ---------- мини-таблицы над примером ---------- */
+.example-tables { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.example-tables-title { color: var(--muted); font-size: calc(var(--fs-ui) - 1px); margin-bottom: 6px; }
+.example-tables-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+.example-table-name { font-family: var(--font-code); font-weight: 700; color: var(--text-strong); margin-bottom: 3px; font-size: calc(var(--fs-base) - 2px); }
+.example-table .result-table-wrap { margin: 0; }
+.example-table .result-table { font-size: calc(var(--fs-base) - 3px); }
+
+/* ---------- слова из словаря ---------- */
+.document code.term {
+    cursor: pointer;
+    border-bottom: 1px dashed var(--accent);
+    color: var(--accent);
+}
+.document code.term:hover { background: var(--accent-soft); }
+.term-overlay {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(0, 0, 0, .55);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.term-card {
+    width: min(760px, 100%); max-height: 88vh; overflow-y: auto;
+    background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md);
+    padding: 16px 20px 20px; box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
+}
+.term-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.term-head h3 { margin: 0; color: var(--text-strong); }
+.term-close { padding: 2px 10px; }
+.wiki-btn { font-weight: 700; }
+.example-table .result-table td, .example-table .result-table th { padding: 3px 10px; }
+
+.term-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 4px 12px; }
+.term-bar-label { color: var(--muted); font-size: calc(var(--fs-ui) - 1px); margin-right: 4px; }
+.wiki-btn-top { margin-left: auto; width: auto; padding: 4px 12px; }

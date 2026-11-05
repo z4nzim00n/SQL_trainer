@@ -121,17 +121,21 @@ function setNav(msg, kind) {
 /* ============================================
    MARKDOWN
    ============================================ */
-function renderMd(md, dataset) {
+function renderMd(md, dataset, noTerms) {
     const box = document.createElement('div');
     box.className = 'document';
     box.innerHTML = marked.parse(md, { gfm: true, async: false });
     box.querySelectorAll('pre code').forEach((code) => {
         const lang = code.className || '';
-        if (/language-sql-run/.test(lang)) return;
+        if (/language-sql-(run|pizza)/.test(lang)) return;
         if (!lang || /language-sql/.test(lang)) code.innerHTML = highlightSql(code.textContent);
     });
+    /* ```sql-run: пример на учебных мини-таблицах (они показываются над примером), ```sql-pizza: на базе пиццерий */
     box.querySelectorAll('pre > code.language-sql-run').forEach((code) => {
-        code.closest('pre').replaceWith(exampleBlock(code.textContent.trim(), dataset));
+        code.closest('pre').replaceWith(exampleBlock(code.textContent.trim(), 'demo', true));
+    });
+    box.querySelectorAll('pre > code.language-sql-pizza').forEach((code) => {
+        code.closest('pre').replaceWith(exampleBlock(code.textContent.trim(), dataset && dataset !== 'demo' ? dataset : 'pizza', false));
     });
     box.querySelectorAll('table').forEach((t) => {
         if (t.closest('.result-table-wrap')) return;
@@ -140,12 +144,78 @@ function renderMd(md, dataset) {
         t.replaceWith(wrap);
         wrap.appendChild(t);
     });
+    if (!noTerms) linkTerms(box);
     return box;
 }
 
-/* Пример с кнопкой «Показать пример»: ```sql-run в Markdown. Выполняется на основном наборе данных. */
-function exampleBlock(sql, dataset) {
+/* Слова из словаря (docs/glossary.json) в обратных кавычках становятся кликабельными */
+function linkTerms(box) {
+    const glossary = (data && data.glossary) || {};
+    box.querySelectorAll('code').forEach((code) => {
+        if (code.closest('pre')) return;
+        const key = code.textContent.trim().toUpperCase();
+        if (!glossary[key]) return;
+        code.classList.add('term');
+        code.title = 'Нажми: что это и пример';
+        code.tabIndex = 0;
+        const open = () => openTerm(key);
+        code.addEventListener('click', open);
+        code.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); });
+    });
+}
+
+let termOverlay = null;
+function closeTerm() {
+    if (termOverlay) { termOverlay.remove(); termOverlay = null; }
+}
+function openTerm(key) {
+    const entry = data.glossary[key];
+    if (!entry) return;
+    closeTerm();
+    termOverlay = el('div', 'term-overlay');
+    const card = el('div', 'term-card');
+    const head = el('div', 'term-head');
+    head.appendChild(el('h3', '', entry.title || key));
+    const x = el('button', 'term-close', '✕');
+    x.type = 'button';
+    x.addEventListener('click', closeTerm);
+    head.appendChild(x);
+    card.appendChild(head);
+    card.appendChild(renderMd(entry.text || '', 'pizza', true));
+    if (entry.sql) card.appendChild(exampleBlock(entry.sql.trim(), 'demo', true, true));
+    termOverlay.appendChild(card);
+    termOverlay.addEventListener('click', (e) => { if (e.target === termOverlay) closeTerm(); });
+    document.body.appendChild(termOverlay);
+}
+window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTerm(); });
+
+/* Блок примера: исходные мини-таблицы, код, кнопка «Показать пример» и результат */
+function exampleBlock(sql, dataset, withTables, autoRun) {
     const ex = el('div', 'example');
+    if (withTables) {
+        const names = ((data && data.datasets && data.datasets[dataset] && data.datasets[dataset].tables) || [])
+            .filter((t) => new RegExp('(^|[^A-Za-z0-9_])' + t + '($|[^A-Za-z0-9_])', 'i').test(sql));
+        if (names.length) {
+            const box = el('div', 'example-tables');
+            box.appendChild(el('div', 'example-tables-title', 'Таблицы для примера'));
+            const row = el('div', 'example-tables-row');
+            box.appendChild(row);
+            ex.appendChild(box);
+            const fill = async () => {
+                for (const name of names) {
+                    const cell = el('div', 'example-table');
+                    cell.appendChild(el('div', 'example-table-name', name));
+                    const res = await engine.run(dataset, 'main', `SELECT * FROM ${name} ORDER BY 1, 2`);
+                    if (res.error) cell.appendChild(el('div', 'output-hint', res.error));
+                    else cell.appendChild(resultTable(res, true));
+                    row.appendChild(cell);
+                }
+            };
+            if (engine) fill();
+            else if (enginePromise) enginePromise.then(fill).catch(() => {});
+            else row.appendChild(el('div', 'output-hint', 'Загружаю…'));
+        }
+    }
     const pre = el('pre');
     const code = el('code');
     code.innerHTML = highlightSql(sql);
@@ -160,7 +230,7 @@ function exampleBlock(sql, dataset) {
     bar.append(run, copy);
     ex.append(pre, bar, out);
 
-    run.addEventListener('click', async () => {
+    const doRun = async () => {
         out.hidden = false;
         if (!engine) { out.replaceChildren(el('div', 'output-hint', 'PostgreSQL ещё загружается, попробуй через несколько секунд.')); return; }
         out.replaceChildren(el('div', 'output-hint', 'Выполняю…'));
@@ -168,19 +238,21 @@ function exampleBlock(sql, dataset) {
         out.replaceChildren();
         if (res.error) out.appendChild(verdictBox('error', 'PostgreSQL вернул ошибку', [res.error]));
         else if (res.noResult) out.appendChild(el('div', 'output-hint', 'Запрос выполнился, таблицы с результатом нет.'));
-        else out.appendChild(resultTable(res));
+        else { out.appendChild(el('div', 'result-meta', 'Результат:')); out.appendChild(resultTable(res)); }
         run.textContent = '↻ Выполнить ещё раз';
-    });
+    };
+    run.addEventListener('click', doRun);
     copy.addEventListener('click', async () => {
         try { await navigator.clipboard.writeText(sql); copy.textContent = '✓ Скопировано'; }
         catch (e) { copy.textContent = 'Не удалось'; }
         setTimeout(() => { copy.textContent = '⧉ Копировать'; }, 1500);
     });
+    if (autoRun) { if (engine) doRun(); else if (enginePromise) enginePromise.then(doRun).catch(() => {}); }
     return ex;
 }
 
 function defaultDataset() {
-    return data && data.datasets ? Object.keys(data.datasets)[0] : 'pizza';
+    return data && data.datasets && !data.datasets.pizza ? Object.keys(data.datasets)[0] : 'pizza';
 }
 
 function el(tag, className, text) {
@@ -282,7 +354,22 @@ function renderLeft(keepScroll) {
     const wrap = el('div');
 
     if (leftTab === 'readme') wrap.appendChild(renderMd(task.readme, task.meta.dataset));
-    else if (leftTab === 'theory') wrap.appendChild(renderMd(task.theory, task.meta.dataset));
+    else if (leftTab === 'theory') {
+        const doc = renderMd(task.theory, task.meta.dataset);
+        const terms = [...new Set([...doc.querySelectorAll('code.term')].map((c) => c.textContent.trim().toUpperCase()))];
+        if (terms.length) {
+            const bar = el('div', 'term-bar');
+            bar.appendChild(el('span', 'term-bar-label', 'Нажми на слово, чтобы увидеть пример на маленьких таблицах:'));
+            for (const t of terms) {
+                const b = el('button', 'chip', t);
+                b.type = 'button';
+                b.addEventListener('click', () => openTerm(t));
+                bar.appendChild(b);
+            }
+            wrap.appendChild(bar);
+        }
+        wrap.appendChild(doc);
+    }
     else if (leftTab === 'hints') renderHints(wrap, task);
     else if (leftTab === 'solution') renderSolution(wrap, task);
 
@@ -382,19 +469,22 @@ function setEditorEnabled(on) {
     const ready = on && !!activeTask;
     editor.disabled = !ready;
     runBtn.disabled = !ready;
-    checkBtn.disabled = !ready;
+    checkBtn.disabled = !ready || isManual();
 }
+
+/* Ручные задания (два окна psql, транзакции): автопроверки нет, ученик сам отмечает выполнение */
+function isManual() { return !!(activeTask && activeTask.meta && activeTask.meta.manual); }
 
 /* ============================================
    OUTPUT: таблица и вердикт
    ============================================ */
 const MAX_ROWS = 200;
 
-function resultTable(res) {
+function resultTable(res, compact) {
     const frag = document.createDocumentFragment();
     const shown = res.rows.slice(0, MAX_ROWS);
     const more = res.rows.length - shown.length;
-    frag.appendChild(el('div', 'result-meta',
+    if (!compact) frag.appendChild(el('div', 'result-meta',
         `Строк: ${res.rows.length}` + (more > 0 ? ` (показаны первые ${MAX_ROWS})` : '') + `, столбцов: ${res.columns.length}`));
     const wrap = el('div', 'result-table-wrap');
     const table = el('table', 'result-table');
@@ -441,7 +531,8 @@ async function withBusy(label, fn) {
     showMessage(label);
     try { await fn(); } finally {
         busy = false;
-        runBtn.disabled = checkBtn.disabled = false;
+        runBtn.disabled = false;
+        checkBtn.disabled = isManual();
     }
 }
 
@@ -531,6 +622,8 @@ const wiki = createWiki({
     el,
 });
 
+$('wikiBtnTop').addEventListener('click', () => $('wikiBtn').click());
+
 /* ============================================
    SELECT TASK
    ============================================ */
@@ -548,7 +641,20 @@ function selectTask(task, row) {
     paintEditor();
     setEditorEnabled(!!engine);
     showMessage(engine ? 'Результат появится здесь. Ctrl+Enter выполняет запрос.' : 'PostgreSQL ещё загружается…');
+    if (isManual()) showManualNote(task);
     refreshSchema();
+}
+
+function showManualNote(task) {
+    output.replaceChildren();
+    output.appendChild(verdictBox('error', 'Ручное задание', [
+        'Это задание делается в двух окнах psql, поэтому автопроверки нет: в браузере одно соединение с базой.',
+        'Выполни шаги в терминале по условию, сверься с вкладкой «Решение» и отметь выполнение кнопкой ниже.',
+    ]));
+    const done = el('button', 'btn-primary', solved[task.id] ? '✅ Выполнено' : '✔ Отметить как выполненное');
+    done.type = 'button';
+    done.addEventListener('click', () => { markSolved(task); done.textContent = '✅ Выполнено'; });
+    output.appendChild(done);
 }
 
 /* ============================================
@@ -572,6 +678,7 @@ async function runSelfTest() {
     for (const day of data.days) {
         for (const task of day.tasks) {
             log('head', `${task.id}  ${task.title}`);
+            if (task.meta.manual) continue;
             const run = engine.run;
             let v = await runCheck({ run, task, sql: task.solution });
             check(v.status === 'pass', 'эталон проходит', `эталон НЕ проходит: ${v.headline} ${v.details.join(' | ')}`);
@@ -603,6 +710,7 @@ async function start() {
         const res = await fetch('tasks.json', { cache: 'no-cache' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         data = await res.json();
+        $('wikiBtnTop').hidden = !(data.wiki && data.wiki.length);
     } catch (e) {
         setNav('Не удалось загрузить tasks.json: ' + e.message +
             '. Открой страницу через http (например, python3 -m http.server), а не двойным кликом по файлу.', 'error');
@@ -619,7 +727,7 @@ async function start() {
             engine = e;
             setNav('');
             setEditorEnabled(true);
-            if (activeTask) showMessage('Результат появится здесь. Ctrl+Enter выполняет запрос.');
+            if (activeTask && !isManual()) showMessage('Результат появится здесь. Ctrl+Enter выполняет запрос.');
             refreshSchema();
             return e;
         })
