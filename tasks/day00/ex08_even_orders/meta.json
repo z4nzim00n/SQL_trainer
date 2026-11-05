@@ -1,0 +1,31 @@
+{
+  "title": "Чётные заказы",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "функция MOD вместо %",
+      "sql": "SELECT * FROM person_order WHERE MOD(id, 2) = 0 ORDER BY id;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "нечётные вместо чётных",
+      "sql": "SELECT * FROM person_order WHERE id % 2 = 1 ORDER BY id;"
+    },
+    {
+      "why": "нет сортировки по id (по убыванию)",
+      "sql": "SELECT * FROM person_order WHERE id % 2 = 0 ORDER BY id DESC;"
+    },
+    {
+      "why": "не все столбцы",
+      "sql": "SELECT id, person_id FROM person_order WHERE id % 2 = 0 ORDER BY id;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями (id)",
+      "sql": "SELECT * FROM person_order WHERE id IN (2, 4, 6, 8, 10, 12, 14, 16, 18, 20) ORDER BY id;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

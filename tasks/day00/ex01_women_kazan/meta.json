@@ -1,0 +1,31 @@
+{
+  "title": "Женщины из Казани",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "два условия можно писать в обратном порядке",
+      "sql": "SELECT name, age FROM person WHERE gender = 'female' AND address = 'Kazan' ORDER BY name ASC;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "OR вместо AND: попали все женщины и все казанцы",
+      "sql": "SELECT name, age FROM person WHERE address = 'Kazan' OR gender = 'female' ORDER BY name;"
+    },
+    {
+      "why": "нет сортировки по имени",
+      "sql": "SELECT name, age FROM person WHERE address = 'Kazan' AND gender = 'female' ORDER BY age;"
+    },
+    {
+      "why": "сортировка по убыванию, а нужна по возрастанию",
+      "sql": "SELECT name, age FROM person WHERE address = 'Kazan' AND gender = 'female' ORDER BY name DESC;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('Elvira', 45), ('Kate', 33)) AS t(name, age);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

@@ -1,0 +1,33 @@
+{
+  "title": "Подзапрос в FROM",
+  "ordered": true,
+  "forbidden": [
+    "JOIN"
+  ],
+  "positive": [
+    {
+      "why": "отбор по датам двумя сравнениями",
+      "sql": "SELECT (SELECT name FROM person WHERE person.id = pv.person_id) AS person_name, (SELECT name FROM pizzeria WHERE pizzeria.id = pv.pizzeria_id) AS pizzeria_name FROM (SELECT person_id, pizzeria_id FROM person_visits WHERE visit_date >= '2022-01-07' AND visit_date <= '2022-01-09') AS pv ORDER BY person_name, pizzeria_name DESC;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "запрещённый JOIN",
+      "sql": "SELECT person.name AS person_name, pizzeria.name AS pizzeria_name FROM person_visits JOIN person ON person.id = person_visits.person_id JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-09' ORDER BY person_name, pizzeria_name DESC;"
+    },
+    {
+      "why": "пиццерии отсортированы по возрастанию, а нужно по убыванию",
+      "sql": "SELECT (SELECT name FROM person WHERE person.id = pv.person_id) AS person_name, (SELECT name FROM pizzeria WHERE pizzeria.id = pv.pizzeria_id) AS pizzeria_name FROM (SELECT person_id, pizzeria_id FROM person_visits WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-09') AS pv ORDER BY person_name, pizzeria_name;"
+    },
+    {
+      "why": "неверный диапазон дат (по 8-е)",
+      "sql": "SELECT (SELECT name FROM person WHERE person.id = pv.person_id) AS person_name, (SELECT name FROM pizzeria WHERE pizzeria.id = pv.pizzeria_id) AS pizzeria_name FROM (SELECT person_id, pizzeria_id FROM person_visits WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-08') AS pv ORDER BY person_name, pizzeria_name DESC;"
+    },
+    {
+      "why": "выбраны id вместо имён",
+      "sql": "SELECT person_id AS person_name, pizzeria_id AS pizzeria_name FROM (SELECT person_id, pizzeria_id FROM person_visits WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-09') AS pv ORDER BY person_name, pizzeria_name DESC;"
+    }
+  ],
+  "dataset": "pizza",
+  "required": []
+}

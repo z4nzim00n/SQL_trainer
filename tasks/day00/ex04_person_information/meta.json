@@ -1,0 +1,31 @@
+{
+  "title": "Информация о человеке одной строкой",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "то же через оператор ||, число приведено к тексту",
+      "sql": "SELECT name || ' (age:' || age::text || ',gender:''' || gender || ''',address:''' || address || ''')' AS person_information FROM person ORDER BY person_information;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "нет кавычек вокруг пола и адреса",
+      "sql": "SELECT CONCAT(name, ' (age:', age, ',gender:', gender, ',address:', address, ')') AS person_information FROM person ORDER BY person_information;"
+    },
+    {
+      "why": "другое название столбца",
+      "sql": "SELECT CONCAT(name, ' (age:', age, ',gender:''', gender, ''',address:''', address, ''')') AS info FROM person ORDER BY info;"
+    },
+    {
+      "why": "нет сортировки по этому столбцу (сортировка по возрасту)",
+      "sql": "SELECT CONCAT(name, ' (age:', age, ',gender:''', gender, ''',address:''', address, ''')') AS person_information FROM person ORDER BY age, name;"
+    },
+    {
+      "why": "сортировка по убыванию",
+      "sql": "SELECT CONCAT(name, ' (age:', age, ',gender:''', gender, ''',address:''', address, ''')') AS person_information FROM person ORDER BY person_information DESC;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

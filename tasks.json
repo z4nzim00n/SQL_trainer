@@ -1,6 +1,6 @@
 {
  "version": "0.004",
- "builtAt": "2026-11-05T20:00:13.832Z",
+ "builtAt": "2026-11-05T20:27:29.607Z",
  "datasets": {
   "demo": {
    "main": "-- Учебные мини-таблицы для примеров в теории и энциклопедии.\n-- Никак не связаны с пиццериями: маленькие таблицы, чтобы результат примера было видно целиком.\n\n-- Для операторов множеств (UNION, INTERSECT, EXCEPT): есть повторы и пересечение\ncreate table a (id integer, val varchar);\ninsert into a values (1, 'red');\ninsert into a values (2, 'green');\ninsert into a values (3, 'blue');\ninsert into a values (3, 'blue');\n\ncreate table b (id integer, val varchar);\ninsert into b values (2, 'green');\ninsert into b values (3, 'blue');\ninsert into b values (4, 'yellow');\n\n-- Для JOIN: у Eve нет курса (NULL), у курса Art нет студентов\ncreate table courses (id integer primary key, title varchar not null);\ninsert into courses values (1, 'Math');\ninsert into courses values (2, 'Music');\ninsert into courses values (3, 'Art');\n\ncreate table students (\n    id integer primary key,\n    name varchar not null,\n    age integer not null,\n    city varchar,\n    course_id integer references courses (id)\n);\ninsert into students values (1, 'Ann', 20, 'Berlin', 1);\ninsert into students values (2, 'Bob', 22, 'Paris', 1);\ninsert into students values (3, 'Cleo', 19, 'Berlin', 2);\ninsert into students values (4, 'Dan', 25, null, 2);\ninsert into students values (5, 'Eve', 21, 'Rome', null);\n\n-- Для WHERE, типов, CASE, DML: есть NULL в note\ncreate table products (\n    id integer primary key,\n    title varchar not null,\n    category varchar not null,\n    price numeric(8, 2) not null,\n    added date not null,\n    note varchar\n);\ninsert into products values (1, 'Pen', 'office', 1.50, '2024-01-10', 'blue ink');\ninsert into products values (2, 'Notebook', 'office', 4.00, '2024-01-15', null);\ninsert into products values (3, 'Mug', 'home', 7.25, '2024-02-01', 'ceramic');\ninsert into products values (4, 'Lamp', 'home', 19.90, '2024-02-20', null);\ninsert into products values (5, 'Backpack', 'travel', 35.00, '2024-03-05', 'waterproof');\n\n-- Для агрегатов и оконных функций\ncreate table sales (\n    id integer primary key,\n    shop varchar not null,\n    item varchar not null,\n    qty integer not null,\n    price numeric(8, 2) not null,\n    sale_date date not null\n);\ninsert into sales values (1, 'North', 'Pen', 10, 1.50, '2024-05-01');\ninsert into sales values (2, 'North', 'Mug', 2, 7.25, '2024-05-01');\ninsert into sales values (3, 'North', 'Pen', 5, 1.50, '2024-05-02');\ninsert into sales values (4, 'South', 'Lamp', 1, 19.90, '2024-05-01');\ninsert into sales values (5, 'South', 'Pen', 8, 1.50, '2024-05-02');\ninsert into sales values (6, 'South', 'Mug', 3, 7.25, '2024-05-03');\ninsert into sales values (7, 'East', 'Lamp', 2, 19.90, '2024-05-03');\n",
@@ -17,7 +17,7 @@
   },
   "pizza": {
    "main": "create table person\n( id bigint primary key ,\n  name varchar not null,\n  age integer not null default 10,\n  gender varchar default 'female' not null ,\n  address varchar\n  );\n\nalter table person add constraint ch_gender check ( gender in ('female','male') );\n\ninsert into person values (1, 'Anna', 16, 'female', 'Moscow');\ninsert into person values (2, 'Andrey', 21, 'male', 'Moscow');\ninsert into person values (3, 'Kate', 33, 'female', 'Kazan');\ninsert into person values (4, 'Denis', 13, 'male', 'Kazan');\ninsert into person values (5, 'Elvira', 45, 'female', 'Kazan');\ninsert into person values (6, 'Irina', 21, 'female', 'Saint-Petersburg');\ninsert into person values (7, 'Peter', 24, 'male', 'Saint-Petersburg');\ninsert into person values (8, 'Nataly', 30, 'female', 'Novosibirsk');\ninsert into person values (9, 'Dmitriy', 18, 'male', 'Samara');\n\n\ncreate table pizzeria\n(id bigint primary key ,\n name varchar not null ,\n rating numeric not null default 0);\n\nalter table pizzeria add constraint ch_rating check ( rating between 0 and 5);\n\ninsert into pizzeria values (1,'Pizza Hut', 4.6);\ninsert into pizzeria values (2,'Dominos', 4.3);\ninsert into pizzeria values (3,'DoDo Pizza', 3.2);\ninsert into pizzeria values (4,'Papa Johns', 4.9);\ninsert into pizzeria values (5,'Best Pizza', 2.3);\ninsert into pizzeria values (6,'DinoPizza', 4.2);\n\n\ncreate table person_visits\n(id bigint primary key ,\n person_id bigint not null ,\n pizzeria_id bigint not null ,\n visit_date date not null default current_date,\n constraint uk_person_visits unique (person_id, pizzeria_id, visit_date),\n constraint fk_person_visits_person_id foreign key  (person_id) references person(id),\n constraint fk_person_visits_pizzeria_id foreign key  (pizzeria_id) references pizzeria(id)\n );\n\ninsert into person_visits values (1, 1, 1, '2022-01-01');\ninsert into person_visits values (2, 2, 2, '2022-01-01');\ninsert into person_visits values (3, 2, 1, '2022-01-02');\ninsert into person_visits values (4, 3, 5, '2022-01-03');\ninsert into person_visits values (5, 3, 6, '2022-01-04');\ninsert into person_visits values (6, 4, 5, '2022-01-07');\ninsert into person_visits values (7, 4, 6, '2022-01-08');\ninsert into person_visits values (8, 5, 2, '2022-01-08');\ninsert into person_visits values (9, 5, 6, '2022-01-09');\ninsert into person_visits values (10, 6, 2, '2022-01-09');\ninsert into person_visits values (11, 6, 4, '2022-01-01');\ninsert into person_visits values (12, 7, 1, '2022-01-03');\ninsert into person_visits values (13, 7, 2, '2022-01-05');\ninsert into person_visits values (14, 8, 1, '2022-01-05');\ninsert into person_visits values (15, 8, 2, '2022-01-06');\ninsert into person_visits values (16, 8, 4, '2022-01-07');\ninsert into person_visits values (17, 9, 4, '2022-01-08');\ninsert into person_visits values (18, 9, 5, '2022-01-09');\ninsert into person_visits values (19, 9, 6, '2022-01-10');\n\n\ncreate table menu\n(id bigint primary key ,\n pizzeria_id bigint not null ,\n pizza_name varchar not null ,\n price numeric not null default 1,\n constraint fk_menu_pizzeria_id foreign key (pizzeria_id) references pizzeria(id));\n\ninsert into menu values (1,1,'cheese pizza', 900);\ninsert into menu values (2,1,'pepperoni pizza', 1200);\ninsert into menu values (3,1,'sausage pizza', 1200);\ninsert into menu values (4,1,'supreme pizza', 1200);\n\ninsert into menu values (5,6,'cheese pizza', 950);\ninsert into menu values (6,6,'pepperoni pizza', 800);\ninsert into menu values (7,6,'sausage pizza', 1000);\n\ninsert into menu values (8,2,'cheese pizza', 800);\ninsert into menu values (9,2,'mushroom pizza', 1100);\n\ninsert into menu values (10,3,'cheese pizza', 780);\ninsert into menu values (11,3,'supreme pizza', 850);\n\ninsert into menu values (12,4,'cheese pizza', 700);\ninsert into menu values (13,4,'mushroom pizza', 950);\ninsert into menu values (14,4,'pepperoni pizza', 1000);\ninsert into menu values (15,4,'sausage pizza', 950);\n\ninsert into menu values (16,5,'cheese pizza', 700);\ninsert into menu values (17,5,'pepperoni pizza', 800);\ninsert into menu values (18,5,'supreme pizza', 850);\n\ncreate table person_order\n(\n    id bigint primary key ,\n    person_id  bigint not null ,\n    menu_id bigint not null ,\n    order_date date not null default current_date,\n    constraint fk_order_person_id foreign key (person_id) references person(id),\n    constraint fk_order_menu_id foreign key (menu_id) references menu(id)\n);\n\ninsert into person_order values (1,1, 1, '2022-01-01');\ninsert into person_order values (2,1, 2, '2022-01-01');\n\ninsert into person_order values (3,2, 8, '2022-01-01');\ninsert into person_order values (4,2, 9, '2022-01-01');\n\ninsert into person_order values (5,3, 16, '2022-01-04');\n\ninsert into person_order values (6,4, 16, '2022-01-07');\ninsert into person_order values (7,4, 17, '2022-01-07');\ninsert into person_order values (8,4, 18, '2022-01-07');\ninsert into person_order values (9,4, 6, '2022-01-08');\ninsert into person_order values (10,4, 7, '2022-01-08');\n\ninsert into person_order values (11,5, 6, '2022-01-09');\ninsert into person_order values (12,5, 7, '2022-01-09');\n\ninsert into person_order values (13,6, 13, '2022-01-01');\n\ninsert into person_order values (14,7, 3, '2022-01-03');\ninsert into person_order values (15,7, 9, '2022-01-05');\ninsert into person_order values (16,7, 4, '2022-01-05');\n\ninsert into person_order values (17,8, 8, '2022-01-06');\ninsert into person_order values (18,8, 14, '2022-01-07');\n\ninsert into person_order values (19,9, 18, '2022-01-09');\ninsert into person_order values (20,9, 6, '2022-01-10');\n\n",
-   "alt": "create table person\n( id bigint primary key ,\n  name varchar not null,\n  age integer not null default 10,\n  gender varchar default 'female' not null ,\n  address varchar\n  );\n\nalter table person add constraint ch_gender check ( gender in ('female','male') );\n\ninsert into person values (1, 'Anna', 16, 'female', 'Moscow');\ninsert into person values (2, 'Andrey', 21, 'male', 'Moscow');\ninsert into person values (3, 'Kate', 33, 'female', 'Kazan');\ninsert into person values (4, 'Denis', 13, 'male', 'Kazan');\ninsert into person values (5, 'Elvira', 45, 'female', 'Kazan');\ninsert into person values (6, 'Irina', 21, 'female', 'Saint-Petersburg');\ninsert into person values (7, 'Peter', 24, 'male', 'Saint-Petersburg');\ninsert into person values (8, 'Nataly', 30, 'female', 'Novosibirsk');\ninsert into person values (9, 'Dmitriy', 18, 'male', 'Samara');\n\n\ncreate table pizzeria\n(id bigint primary key ,\n name varchar not null ,\n rating numeric not null default 0);\n\nalter table pizzeria add constraint ch_rating check ( rating between 0 and 5);\n\ninsert into pizzeria values (1,'Pizza Hut', 4.6);\ninsert into pizzeria values (2,'Dominos', 4.3);\ninsert into pizzeria values (3,'DoDo Pizza', 3.2);\ninsert into pizzeria values (4,'Papa Johns', 4.9);\ninsert into pizzeria values (5,'Best Pizza', 2.3);\ninsert into pizzeria values (6,'DinoPizza', 4.2);\n\n\ncreate table person_visits\n(id bigint primary key ,\n person_id bigint not null ,\n pizzeria_id bigint not null ,\n visit_date date not null default current_date,\n constraint uk_person_visits unique (person_id, pizzeria_id, visit_date),\n constraint fk_person_visits_person_id foreign key  (person_id) references person(id),\n constraint fk_person_visits_pizzeria_id foreign key  (pizzeria_id) references pizzeria(id)\n );\n\ninsert into person_visits values (1, 1, 1, '2022-01-01');\ninsert into person_visits values (2, 2, 2, '2022-01-01');\ninsert into person_visits values (3, 2, 1, '2022-01-02');\ninsert into person_visits values (4, 3, 5, '2022-01-03');\ninsert into person_visits values (5, 3, 6, '2022-01-04');\ninsert into person_visits values (6, 4, 5, '2022-01-07');\ninsert into person_visits values (7, 4, 6, '2022-01-08');\ninsert into person_visits values (8, 5, 2, '2022-01-08');\ninsert into person_visits values (9, 5, 6, '2022-01-09');\ninsert into person_visits values (10, 6, 2, '2022-01-09');\ninsert into person_visits values (11, 6, 4, '2022-01-01');\ninsert into person_visits values (12, 7, 1, '2022-01-03');\ninsert into person_visits values (13, 7, 2, '2022-01-05');\ninsert into person_visits values (14, 8, 1, '2022-01-05');\ninsert into person_visits values (15, 8, 2, '2022-01-06');\ninsert into person_visits values (16, 8, 4, '2022-01-07');\ninsert into person_visits values (17, 9, 4, '2022-01-08');\ninsert into person_visits values (18, 9, 5, '2022-01-09');\ninsert into person_visits values (19, 9, 6, '2022-01-10');\n\n\ncreate table menu\n(id bigint primary key ,\n pizzeria_id bigint not null ,\n pizza_name varchar not null ,\n price numeric not null default 1,\n constraint fk_menu_pizzeria_id foreign key (pizzeria_id) references pizzeria(id));\n\ninsert into menu values (1,1,'cheese pizza', 900);\ninsert into menu values (2,1,'pepperoni pizza', 1200);\ninsert into menu values (3,1,'sausage pizza', 1200);\ninsert into menu values (4,1,'supreme pizza', 1200);\n\ninsert into menu values (5,6,'cheese pizza', 950);\ninsert into menu values (6,6,'pepperoni pizza', 800);\ninsert into menu values (7,6,'sausage pizza', 1000);\n\ninsert into menu values (8,2,'cheese pizza', 800);\ninsert into menu values (9,2,'mushroom pizza', 1100);\n\ninsert into menu values (10,3,'cheese pizza', 780);\ninsert into menu values (11,3,'supreme pizza', 850);\n\ninsert into menu values (12,4,'cheese pizza', 700);\ninsert into menu values (13,4,'mushroom pizza', 950);\ninsert into menu values (14,4,'pepperoni pizza', 1000);\ninsert into menu values (15,4,'sausage pizza', 950);\n\ninsert into menu values (16,5,'cheese pizza', 700);\ninsert into menu values (17,5,'pepperoni pizza', 800);\ninsert into menu values (18,5,'supreme pizza', 850);\n\ncreate table person_order\n(\n    id bigint primary key ,\n    person_id  bigint not null ,\n    menu_id bigint not null ,\n    order_date date not null default current_date,\n    constraint fk_order_person_id foreign key (person_id) references person(id),\n    constraint fk_order_menu_id foreign key (menu_id) references menu(id)\n);\n\ninsert into person_order values (1,1, 1, '2022-01-01');\ninsert into person_order values (2,1, 2, '2022-01-01');\n\ninsert into person_order values (3,2, 8, '2022-01-01');\ninsert into person_order values (4,2, 9, '2022-01-01');\n\ninsert into person_order values (5,3, 16, '2022-01-04');\n\ninsert into person_order values (6,4, 16, '2022-01-07');\ninsert into person_order values (7,4, 17, '2022-01-07');\ninsert into person_order values (8,4, 18, '2022-01-07');\ninsert into person_order values (9,4, 6, '2022-01-08');\ninsert into person_order values (10,4, 7, '2022-01-08');\n\ninsert into person_order values (11,5, 6, '2022-01-09');\ninsert into person_order values (12,5, 7, '2022-01-09');\n\ninsert into person_order values (13,6, 13, '2022-01-01');\n\ninsert into person_order values (14,7, 3, '2022-01-03');\ninsert into person_order values (15,7, 9, '2022-01-05');\ninsert into person_order values (16,7, 4, '2022-01-05');\n\ninsert into person_order values (17,8, 8, '2022-01-06');\ninsert into person_order values (18,8, 14, '2022-01-07');\n\ninsert into person_order values (19,9, 18, '2022-01-09');\ninsert into person_order values (20,9, 6, '2022-01-10');\n\n\n-- Скрытый набор данных: те же таблицы, но данные чуть изменены.\n-- Выполняется ПОСЛЕ pizza.sql. Нужен, чтобы нельзя было пройти задание,\n-- подогнав запрос под конкретные строки из основной базы.\n\ninsert into person values (110, 'Zoya', 27, 'female', 'Samara');\ninsert into person values (111, 'Boris', 19, 'male', 'Kazan');\n\ninsert into pizzeria values (107, 'Pizza Loft', 4.0);\n\ninsert into menu values (119, 107, 'margherita pizza', 650);\ninsert into menu values (120, 3, 'margherita pizza', 700);\ninsert into menu values (121, 2, 'supreme pizza', 900);\n\ninsert into person_visits values (120, 110, 3, '2022-01-02');\ninsert into person_visits values (121, 111, 2, '2022-01-07');\n\ninsert into person_order values (121, 110, 10, '2022-01-02');\ninsert into person_order values (122, 111, 121, '2022-01-07');\n\n-- Название с заглавной буквы: при общей сортировке оно встаёт между именами людей,\n-- поэтому ошибка «один ORDER BY на весь UNION ALL» ловится при любых настройках сортировки.\ninsert into menu values (122, 107, 'Four cheese pizza', 800);\n",
+   "alt": "create table person\n( id bigint primary key ,\n  name varchar not null,\n  age integer not null default 10,\n  gender varchar default 'female' not null ,\n  address varchar\n  );\n\nalter table person add constraint ch_gender check ( gender in ('female','male') );\n\ninsert into person values (1, 'Anna', 16, 'female', 'Moscow');\ninsert into person values (2, 'Andrey', 21, 'male', 'Moscow');\ninsert into person values (3, 'Kate', 33, 'female', 'Kazan');\ninsert into person values (4, 'Denis', 13, 'male', 'Kazan');\ninsert into person values (5, 'Elvira', 45, 'female', 'Kazan');\ninsert into person values (6, 'Irina', 21, 'female', 'Saint-Petersburg');\ninsert into person values (7, 'Peter', 24, 'male', 'Saint-Petersburg');\ninsert into person values (8, 'Nataly', 30, 'female', 'Novosibirsk');\ninsert into person values (9, 'Dmitriy', 18, 'male', 'Samara');\n\n\ncreate table pizzeria\n(id bigint primary key ,\n name varchar not null ,\n rating numeric not null default 0);\n\nalter table pizzeria add constraint ch_rating check ( rating between 0 and 5);\n\ninsert into pizzeria values (1,'Pizza Hut', 4.6);\ninsert into pizzeria values (2,'Dominos', 4.3);\ninsert into pizzeria values (3,'DoDo Pizza', 3.2);\ninsert into pizzeria values (4,'Papa Johns', 4.9);\ninsert into pizzeria values (5,'Best Pizza', 2.3);\ninsert into pizzeria values (6,'DinoPizza', 4.2);\n\n\ncreate table person_visits\n(id bigint primary key ,\n person_id bigint not null ,\n pizzeria_id bigint not null ,\n visit_date date not null default current_date,\n constraint uk_person_visits unique (person_id, pizzeria_id, visit_date),\n constraint fk_person_visits_person_id foreign key  (person_id) references person(id),\n constraint fk_person_visits_pizzeria_id foreign key  (pizzeria_id) references pizzeria(id)\n );\n\ninsert into person_visits values (1, 1, 1, '2022-01-01');\ninsert into person_visits values (2, 2, 2, '2022-01-01');\ninsert into person_visits values (3, 2, 1, '2022-01-02');\ninsert into person_visits values (4, 3, 5, '2022-01-03');\ninsert into person_visits values (5, 3, 6, '2022-01-04');\ninsert into person_visits values (6, 4, 5, '2022-01-07');\ninsert into person_visits values (7, 4, 6, '2022-01-08');\ninsert into person_visits values (8, 5, 2, '2022-01-08');\ninsert into person_visits values (9, 5, 6, '2022-01-09');\ninsert into person_visits values (10, 6, 2, '2022-01-09');\ninsert into person_visits values (11, 6, 4, '2022-01-01');\ninsert into person_visits values (12, 7, 1, '2022-01-03');\ninsert into person_visits values (13, 7, 2, '2022-01-05');\ninsert into person_visits values (14, 8, 1, '2022-01-05');\ninsert into person_visits values (15, 8, 2, '2022-01-06');\ninsert into person_visits values (16, 8, 4, '2022-01-07');\ninsert into person_visits values (17, 9, 4, '2022-01-08');\ninsert into person_visits values (18, 9, 5, '2022-01-09');\ninsert into person_visits values (19, 9, 6, '2022-01-10');\n\n\ncreate table menu\n(id bigint primary key ,\n pizzeria_id bigint not null ,\n pizza_name varchar not null ,\n price numeric not null default 1,\n constraint fk_menu_pizzeria_id foreign key (pizzeria_id) references pizzeria(id));\n\ninsert into menu values (1,1,'cheese pizza', 900);\ninsert into menu values (2,1,'pepperoni pizza', 1200);\ninsert into menu values (3,1,'sausage pizza', 1200);\ninsert into menu values (4,1,'supreme pizza', 1200);\n\ninsert into menu values (5,6,'cheese pizza', 950);\ninsert into menu values (6,6,'pepperoni pizza', 800);\ninsert into menu values (7,6,'sausage pizza', 1000);\n\ninsert into menu values (8,2,'cheese pizza', 800);\ninsert into menu values (9,2,'mushroom pizza', 1100);\n\ninsert into menu values (10,3,'cheese pizza', 780);\ninsert into menu values (11,3,'supreme pizza', 850);\n\ninsert into menu values (12,4,'cheese pizza', 700);\ninsert into menu values (13,4,'mushroom pizza', 950);\ninsert into menu values (14,4,'pepperoni pizza', 1000);\ninsert into menu values (15,4,'sausage pizza', 950);\n\ninsert into menu values (16,5,'cheese pizza', 700);\ninsert into menu values (17,5,'pepperoni pizza', 800);\ninsert into menu values (18,5,'supreme pizza', 850);\n\ncreate table person_order\n(\n    id bigint primary key ,\n    person_id  bigint not null ,\n    menu_id bigint not null ,\n    order_date date not null default current_date,\n    constraint fk_order_person_id foreign key (person_id) references person(id),\n    constraint fk_order_menu_id foreign key (menu_id) references menu(id)\n);\n\ninsert into person_order values (1,1, 1, '2022-01-01');\ninsert into person_order values (2,1, 2, '2022-01-01');\n\ninsert into person_order values (3,2, 8, '2022-01-01');\ninsert into person_order values (4,2, 9, '2022-01-01');\n\ninsert into person_order values (5,3, 16, '2022-01-04');\n\ninsert into person_order values (6,4, 16, '2022-01-07');\ninsert into person_order values (7,4, 17, '2022-01-07');\ninsert into person_order values (8,4, 18, '2022-01-07');\ninsert into person_order values (9,4, 6, '2022-01-08');\ninsert into person_order values (10,4, 7, '2022-01-08');\n\ninsert into person_order values (11,5, 6, '2022-01-09');\ninsert into person_order values (12,5, 7, '2022-01-09');\n\ninsert into person_order values (13,6, 13, '2022-01-01');\n\ninsert into person_order values (14,7, 3, '2022-01-03');\ninsert into person_order values (15,7, 9, '2022-01-05');\ninsert into person_order values (16,7, 4, '2022-01-05');\n\ninsert into person_order values (17,8, 8, '2022-01-06');\ninsert into person_order values (18,8, 14, '2022-01-07');\n\ninsert into person_order values (19,9, 18, '2022-01-09');\ninsert into person_order values (20,9, 6, '2022-01-10');\n\n\n-- Скрытый набор данных: те же таблицы, но данные чуть изменены.\n-- Выполняется ПОСЛЕ pizza.sql. Нужен, чтобы нельзя было пройти задание,\n-- подогнав запрос под конкретные строки из основной базы.\n\ninsert into person values (110, 'Zoya', 27, 'female', 'Samara');\ninsert into person values (111, 'Boris', 19, 'male', 'Kazan');\n\ninsert into pizzeria values (107, 'Pizza Loft', 4.0);\n\ninsert into menu values (119, 107, 'margherita pizza', 650);\ninsert into menu values (120, 3, 'margherita pizza', 700);\ninsert into menu values (121, 2, 'supreme pizza', 900);\n\ninsert into person_visits values (120, 110, 3, '2022-01-02');\ninsert into person_visits values (121, 111, 2, '2022-01-07');\n\ninsert into person_order values (121, 110, 10, '2022-01-02');\ninsert into person_order values (122, 111, 121, '2022-01-07');\n\n-- Название с заглавной буквы: при общей сортировке оно встаёт между именами людей,\n-- поэтому ошибка «один ORDER BY на весь UNION ALL» ловится при любых настройках сортировки.\ninsert into menu values (122, 107, 'Four cheese pizza', 800);\n\n-- Скрытые данные для заданий Day 00 (идентификаторы 1000-1099).\ninsert into person values (1000, 'Lena', 40, 'female', 'Kazan');\ninsert into person values (1001, 'Oleg', 17, 'male', 'Kazan');\ninsert into person values (1002, 'Denise', 29, 'female', 'Samara');\ninsert into person values (1003, 'Timur', 20, 'male', 'Moscow');\ninsert into person values (1004, 'Vera', 23, 'female', 'Moscow');\ninsert into person values (1005, 'Egor', 10, 'male', 'Samara');\ninsert into person values (1006, 'Ilya', 9, 'male', 'Samara');\ninsert into person values (1007, 'Sasha', 31, 'male', 'Moscow');\n\ninsert into pizzeria values (1000, 'Edge Low', 3.5);\ninsert into pizzeria values (1001, 'Edge High', 5);\ninsert into pizzeria values (1002, 'Below Edge', 3.4);\n\ninsert into person_visits values (1000, 1000, 3, '2022-01-06');\ninsert into person_visits values (1001, 1001, 2, '2022-02-10');\ninsert into person_visits values (1002, 1002, 3, '2022-01-05');\ninsert into person_visits values (1003, 1003, 4, '2022-01-10');\ninsert into person_visits values (1004, 1004, 1, '2022-01-09');\ninsert into person_visits values (1005, 1005, 1000, '2022-01-07');\ninsert into person_visits values (1006, 1000, 1001, '2022-01-07');\ninsert into person_visits values (1007, 1000, 1000, '2022-01-08');\n\ninsert into person_order values (1000, 1002, 13, '2022-01-07');\ninsert into person_order values (1001, 1000, 14, '2022-01-07');\ninsert into person_order values (1002, 1003, 15, '2022-01-07');\ninsert into person_order values (1003, 1004, 18, '2022-01-08');\ninsert into person_order values (1004, 1001, 18, '2022-01-07');\ninsert into person_visits values (1008, 1007, 3, '2022-01-06');\n",
    "schema": "# Схема базы (пиццерии)\n\nПосещения пиццерий и заказы это разные сущности: человек мог зайти в одну пиццерию, а заказ сделать в другой или по телефону.\n\n**person** (клиенты)\n\n| Столбец | Что это |\n| --- | --- |\n| `id` | первичный ключ |\n| `name` | имя |\n| `age` | возраст |\n| `gender` | пол (`female` или `male`) |\n| `address` | адрес |\n\n**pizzeria** (пиццерии)\n\n| Столбец | Что это |\n| --- | --- |\n| `id` | первичный ключ |\n| `name` | название пиццерии |\n| `rating` | средний рейтинг (от 0 до 5) |\n\n**menu** (меню и цены)\n\n| Столбец | Что это |\n| --- | --- |\n| `id` | первичный ключ |\n| `pizzeria_id` | внешний ключ на `pizzeria.id` |\n| `pizza_name` | название пиццы |\n| `price` | цена |\n\n**person_visits** (журнал посещений)\n\n| Столбец | Что это |\n| --- | --- |\n| `id` | первичный ключ |\n| `person_id` | внешний ключ на `person.id` |\n| `pizzeria_id` | внешний ключ на `pizzeria.id` |\n| `visit_date` | дата посещения, например `2022-01-01` |\n\n**person_order** (журнал заказов)\n\n| Столбец | Что это |\n| --- | --- |\n| `id` | первичный ключ |\n| `person_id` | внешний ключ на `person.id` |\n| `menu_id` | внешний ключ на `menu.id` |\n| `order_date` | дата заказа, например `2022-01-01` |\n\n**Связи:** `person_order.person_id` → `person.id`, `person_order.menu_id` → `menu.id`, `menu.pizzeria_id` → `pizzeria.id`, `person_visits.person_id` → `person.id`, `person_visits.pizzeria_id` → `pizzeria.id`.\n",
    "tables": [
     "person",
@@ -605,9 +605,598 @@
    "title": "CONCAT: склеить текст",
    "text": "`CONCAT(a, b, c)` склеивает значения и сам превращает числа в текст, `NULL` считает пустой строкой. Оператор `||` делает то же, но с `NULL` даёт `NULL`.",
    "sql": "SELECT CONCAT(name, ' (age:', age, ')') AS info, name || ' ' || city AS with_pipes\nFROM students;"
+  },
+  "%": {
+   "title": "% : остаток от деления",
+   "text": "Оператор `%` (или функция `MOD`) даёт остаток от деления. Число чётное, если остаток от деления на 2 равен 0.",
+   "sql": "SELECT id, id % 2 AS remainder FROM products ORDER BY id;"
+  },
+  "MOD": {
+   "title": "MOD: остаток от деления",
+   "text": "`MOD(a, b)` то же, что `a % b`: остаток от деления `a` на `b`.",
+   "sql": "SELECT MOD(10, 3) AS ten_mod_3, MOD(8, 2) AS eight_mod_2;"
+  },
+  "ПОДЗАПРОС": {
+   "title": "Подзапрос",
+   "text": "Подзапрос это `SELECT` в скобках внутри другого запроса. В списке столбцов он должен возвращать одно значение; он может обращаться к столбцам внешней строки.",
+   "sql": "SELECT name,\n       (SELECT title FROM courses WHERE courses.id = students.course_id) AS course\nFROM students\nORDER BY name;"
+  },
+  "SUBQUERY": {
+   "title": "Подзапрос",
+   "text": "Подзапрос это `SELECT` в скобках внутри другого запроса. В списке столбцов он должен возвращать одно значение; он может обращаться к столбцам внешней строки.",
+   "sql": "SELECT name,\n       (SELECT title FROM courses WHERE courses.id = students.course_id) AS course\nFROM students\nORDER BY name;"
   }
  },
  "days": [
+  {
+   "id": "day00",
+   "title": "Day 00. Основы SELECT (Basics)",
+   "tasks": [
+    {
+     "id": "day00/ex00",
+     "dir": "ex00_kazan_people",
+     "title": "Люди из Казани",
+     "readme": "# Задание 00. Люди из Казани\n\n**Разрешено:** ANSI SQL\n\nНапиши запрос `SELECT`, который вернёт имена и возраст всех людей из города «Казань» (`Kazan`).\n",
+     "theory": "# Задание 00. SELECT, FROM, WHERE\n\nЗапрос `SELECT` только читает данные. Он отвечает на три вопроса: какие столбцы показать (`SELECT`), из какой таблицы (`FROM`) и какие строки оставить (`WHERE`).\n\nСтолбцы перечисляются через запятую. Условие в `WHERE` сравнивает значение столбца с тем, что нужно найти. Текст пишется в **одинарных** кавычках и сравнивается с учётом регистра: `'Kazan'` и `'kazan'` для базы разные значения. Сравнение на равенство это одно знаком `=`, а не два.\n\nТаблицы базы и их столбцы смотри на вкладке «Схема БД» справа внизу: нужные данные о людях лежат в таблице `person`.\n\n## Примеры на маленьких таблицах\n\nВыбрать два столбца:\n\n```sql-run\nSELECT name, city\nFROM students;\n```\n\nОставить только строки, где город равен `'Berlin'`:\n\n```sql-run\nSELECT name, age\nFROM students\nWHERE city = 'Berlin';\n```\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Нужна таблица `person`. Покажи из неё два столбца: имя и возраст. Оставь только тех, у кого город равен `'Kazan'`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT ______, ______\nFROM ______\nWHERE ______ = '______';\n```\n\nВпиши названия двух столбцов, таблицу, столбец с городом и само значение."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT name, age\nFROM person\nWHERE ______ = 'Kazan';\n```\n\nОсталось название столбца, в котором хранится город."
+      }
+     ],
+     "solution": "SELECT name, age\nFROM person\nWHERE address = 'Kazan';",
+     "solutionCommented": "-- Идея: берём из таблицы person только людей, у которых в адресе стоит Kazan.\nSELECT name, age       -- два столбца, которые нужно показать\nFROM person            -- откуда берём строки\nWHERE address = 'Kazan';  -- оставляем только казанцев (текст в одинарных кавычках)",
+     "meta": {
+      "title": "Люди из Казани",
+      "ordered": false,
+      "positive": [
+       {
+        "why": "то же условие, с указанием таблицы перед столбцами",
+        "sql": "SELECT person.name, person.age FROM person WHERE person.address = 'Kazan';"
+       }
+      ],
+      "negative": [
+       {
+        "why": "условие не то: город написан с маленькой буквы, строки не находятся",
+        "sql": "SELECT name, age FROM person WHERE address = 'kazan';"
+       },
+       {
+        "why": "нет условия WHERE: показаны все люди",
+        "sql": "SELECT name, age FROM person;"
+       },
+       {
+        "why": "лишний столбец (нужны только имя и возраст)",
+        "sql": "SELECT name, age, gender FROM person WHERE address = 'Kazan';"
+       },
+       {
+        "why": "ответ вписан готовыми значениями: на скрытых данных не совпадёт",
+        "sql": "SELECT * FROM (VALUES ('Kate', 33), ('Denis', 13), ('Elvira', 45)) AS t(name, age);"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day00/ex01",
+     "dir": "ex01_women_kazan",
+     "title": "Женщины из Казани",
+     "readme": "# Задание 01. Женщины из Казани\n\n**Разрешено:** ANSI SQL\n\nНапиши запрос `SELECT`, который выведет имена и возраст всех женщин из города «Казань» (`Kazan`). Отсортируй результат по имени.\n",
+     "theory": "# Задание 01. AND и ORDER BY\n\nЕсли нужно, чтобы выполнялись сразу два условия, их соединяют словом `AND`. Строка попадёт в результат, только если верны оба условия.\n\n`ORDER BY` сортирует готовый результат. Пишется он в самом конце запроса, после `WHERE`. По умолчанию сортировка по возрастанию (для текста это алфавитный порядок); слово `DESC` разворачивает её.\n\nНе путай: `WHERE` отбирает строки, а `ORDER BY` только меняет порядок уже отобранных.\n\n## Примеры на маленьких таблицах\n\nДва условия сразу:\n\n```sql-run\nSELECT name, age, city\nFROM students\nWHERE city = 'Berlin' AND age > 19;\n```\n\nСортировка по имени:\n\n```sql-run\nSELECT name, age\nFROM students\nORDER BY name;\n```\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Это задание 00 с ещё одним условием: пол должен быть женский (`'female'`). Два условия в `WHERE` склеиваются через `AND`. В конце добавь сортировку по имени."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT name, age\nFROM person\nWHERE address = 'Kazan' ______ gender = '______'\nORDER BY ______;\n```\n\nВпиши слово для «и», значение пола и столбец сортировки."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT name, age\nFROM person\nWHERE address = 'Kazan' AND gender = 'female'\n______ ______;\n```\n\nОсталась сортировка: два слова, первое из них `ORDER`."
+      }
+     ],
+     "solution": "SELECT name, age\nFROM person\nWHERE address = 'Kazan' AND gender = 'female'\nORDER BY name;",
+     "solutionCommented": "-- Идея: к условию про Казань добавляем условие про пол и сортируем по имени.\nSELECT name, age\nFROM person\nWHERE address = 'Kazan'    -- первое условие: город\n  AND gender = 'female'    -- второе условие: пол (оба должны быть верны)\nORDER BY name;             -- по возрастанию имени, от A до Z",
+     "meta": {
+      "title": "Женщины из Казани",
+      "ordered": true,
+      "positive": [
+       {
+        "why": "два условия можно писать в обратном порядке",
+        "sql": "SELECT name, age FROM person WHERE gender = 'female' AND address = 'Kazan' ORDER BY name ASC;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "OR вместо AND: попали все женщины и все казанцы",
+        "sql": "SELECT name, age FROM person WHERE address = 'Kazan' OR gender = 'female' ORDER BY name;"
+       },
+       {
+        "why": "нет сортировки по имени",
+        "sql": "SELECT name, age FROM person WHERE address = 'Kazan' AND gender = 'female' ORDER BY age;"
+       },
+       {
+        "why": "сортировка по убыванию, а нужна по возрастанию",
+        "sql": "SELECT name, age FROM person WHERE address = 'Kazan' AND gender = 'female' ORDER BY name DESC;"
+       },
+       {
+        "why": "ответ вписан готовыми значениями",
+        "sql": "SELECT * FROM (VALUES ('Elvira', 45), ('Kate', 33)) AS t(name, age);"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day00/ex02",
+     "dir": "ex02_rating_range",
+     "title": "Рейтинг от 3.5 до 5",
+     "readme": "# Задание 02. Рейтинг от 3.5 до 5\n\n**Разрешено:** ANSI SQL\n\nСоставь запрос `SELECT`, который вернёт список пиццерий (название и рейтинг) с рейтингом от 3.5 до 5 включительно, отсортированный по рейтингу.\n\nВ оригинальном задании нужно написать **два запроса**, разных по синтаксису:\n\n1. В первом используй операторы сравнения (`<=`, `>=`).\n2. Во втором используй ключевое слово `BETWEEN`.\n\nВ редакторе реши задание любым из способов, потом перепиши вторым способом и убедись, что результат тот же (автопроверка принимает оба).\n",
+     "theory": "# Задание 02. Сравнения и BETWEEN\n\nЗначения можно сравнивать: `>` больше, `<` меньше, `>=` больше или равно, `<=` меньше или равно. Границы «включительно» означают именно `>=` и `<=`; строгие `>` и `<` границу бы не включили.\n\nДля диапазона есть короткая запись `BETWEEN a AND b`. Она значит то же, что `>= a AND <= b`: **обе границы включаются**.\n\nДля сортировки по числу `ORDER BY` работает так же, как для текста: по возрастанию по умолчанию.\n\n## Примеры на маленьких таблицах\n\nЧерез операторы сравнения:\n\n```sql-run\nSELECT title, price\nFROM products\nWHERE price >= 4 AND price <= 20\nORDER BY price;\n```\n\nТот же результат через `BETWEEN`:\n\n```sql-run\nSELECT title, price\nFROM products\nWHERE price BETWEEN 4 AND 20\nORDER BY price;\n```\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Название и рейтинг лежат в таблице `pizzeria`. Условие «от 3.5 до 5 включительно» это две границы: не меньше 3.5 и не больше 5. Не забудь сортировку по рейтингу."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT name, rating\nFROM pizzeria\nWHERE rating ____ 3.5 AND rating ____ 5\nORDER BY ______;\n```\n\nВ пропусках знаки сравнения, которые включают границы."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT name, rating\nFROM pizzeria\nWHERE rating BETWEEN ______ AND ______\nORDER BY rating;\n```\n\nЭто второй способ: впиши границы диапазона."
+      }
+     ],
+     "solution": "SELECT name, rating\nFROM pizzeria\nWHERE rating >= 3.5 AND rating <= 5\nORDER BY rating;",
+     "solutionCommented": "-- Способ 1: операторы сравнения.\nSELECT name, rating\nFROM pizzeria\nWHERE rating >= 3.5 AND rating <= 5   -- >= и <= включают границы\nORDER BY rating;                      -- по возрастанию рейтинга\n\n-- Способ 2 (то же самое): WHERE rating BETWEEN 3.5 AND 5",
+     "meta": {
+      "title": "Рейтинг от 3.5 до 5",
+      "ordered": true,
+      "positive": [
+       {
+        "why": "второй способ из условия: BETWEEN",
+        "sql": "SELECT name, rating FROM pizzeria WHERE rating BETWEEN 3.5 AND 5 ORDER BY rating;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "строгие знаки: пиццерия с рейтингом ровно 3.5 или 5 потеряется",
+        "sql": "SELECT name, rating FROM pizzeria WHERE rating > 3.5 AND rating < 5 ORDER BY rating;"
+       },
+       {
+        "why": "нет сортировки по рейтингу (по названию)",
+        "sql": "SELECT name, rating FROM pizzeria WHERE rating BETWEEN 3.5 AND 5 ORDER BY name;"
+       },
+       {
+        "why": "ответ вписан готовыми значениями",
+        "sql": "SELECT * FROM (VALUES ('DinoPizza', 4.2), ('Dominos', 4.3), ('Pizza Hut', 4.6), ('Papa Johns', 4.9)) AS t(name, rating) ORDER BY rating;"
+       },
+       {
+        "why": "сортировка по убыванию",
+        "sql": "SELECT name, rating FROM pizzeria WHERE rating BETWEEN 3.5 AND 5 ORDER BY rating DESC;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day00/ex03",
+     "dir": "ex03_visits_filter",
+     "title": "Посещения: даты или пиццерия",
+     "readme": "# Задание 03. Посещения: даты или пиццерия\n\n**Разрешено:** ANSI SQL\n\nСоставь запрос `SELECT`, который вернёт **уникальные** идентификаторы людей (без дубликатов), посетивших пиццерии в период с 6 по 9 января 2022 года (включительно), **либо** посетивших пиццерию с идентификатором 2.\n\nРезультат отсортируй по идентификатору человека по убыванию.\n",
+     "theory": "# Задание 03. OR, DISTINCT и даты\n\n`OR` пропускает строку, если верно **хотя бы одно** из условий (в отличие от `AND`, где нужны оба). Если в условии смешиваются `AND` и `OR`, ставь скобки: у `AND` приоритет выше.\n\nОдин человек мог посетить пиццерии несколько раз, поэтому его `person_id` в результате повторяется. `DISTINCT` после слова `SELECT` оставляет только разные значения.\n\nДаты пишутся в одинарных кавычках в виде `'2022-01-06'` и сравниваются так же, как числа; `BETWEEN` для дат тоже включает обе границы.\n\n## Примеры на маленьких таблицах\n\nПовторы без `DISTINCT` и с ним:\n\n```sql-run\nSELECT city FROM students;\n```\n\n```sql-run\nSELECT DISTINCT city\nFROM students\nORDER BY city DESC;\n```\n\nУсловие с `OR` и диапазоном дат:\n\n```sql-run\nSELECT title, added\nFROM products\nWHERE added BETWEEN '2024-01-01' AND '2024-01-31' OR category = 'travel';\n```\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Нужна таблица `person_visits`. Условие состоит из двух частей, соединённых `OR`: дата в диапазоне 6–9 января **или** `pizzeria_id = 2`. Чтобы убрать повторы, добавь `DISTINCT`, а сортировку по убыванию включает `DESC`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT ______ person_id\nFROM person_visits\nWHERE visit_date BETWEEN '______' AND '______' ______ pizzeria_id = 2\nORDER BY person_id ______;\n```\n\nВпиши слово для уникальных значений, две даты, слово «или» и направление сортировки."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT DISTINCT person_id\nFROM person_visits\nWHERE visit_date BETWEEN '2022-01-06' AND '2022-01-09' OR ______\nORDER BY ______;\n```\n\nОсталось второе условие и сортировка по убыванию."
+      }
+     ],
+     "solution": "SELECT DISTINCT person_id\nFROM person_visits\nWHERE visit_date BETWEEN '2022-01-06' AND '2022-01-09' OR pizzeria_id = 2\nORDER BY person_id DESC;",
+     "solutionCommented": "-- Идея: берём id людей из посещений, у которых дата в диапазоне ИЛИ пиццерия номер 2.\nSELECT DISTINCT person_id            -- DISTINCT: каждый человек один раз\nFROM person_visits\nWHERE visit_date BETWEEN '2022-01-06' AND '2022-01-09'   -- даты включительно\n   OR pizzeria_id = 2                                    -- ИЛИ вторая пиццерия\nORDER BY person_id DESC;             -- по убыванию",
+     "meta": {
+      "title": "Посещения: даты или пиццерия",
+      "ordered": true,
+      "positive": [
+       {
+        "why": "диапазон через две границы",
+        "sql": "SELECT DISTINCT person_id FROM person_visits WHERE (visit_date >= '2022-01-06' AND visit_date <= '2022-01-09') OR pizzeria_id = 2 ORDER BY person_id DESC;"
+       },
+       {
+        "why": "уникальность через GROUP BY",
+        "sql": "SELECT person_id FROM person_visits WHERE visit_date BETWEEN '2022-01-06' AND '2022-01-09' OR pizzeria_id = 2 GROUP BY person_id ORDER BY person_id DESC;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "AND вместо OR: условия должны быть «либо-либо»",
+        "sql": "SELECT DISTINCT person_id FROM person_visits WHERE visit_date BETWEEN '2022-01-06' AND '2022-01-09' AND pizzeria_id = 2 ORDER BY person_id DESC;"
+       },
+       {
+        "why": "нет DISTINCT: люди повторяются",
+        "sql": "SELECT person_id FROM person_visits WHERE visit_date BETWEEN '2022-01-06' AND '2022-01-09' OR pizzeria_id = 2 ORDER BY person_id DESC;"
+       },
+       {
+        "why": "сортировка по возрастанию",
+        "sql": "SELECT DISTINCT person_id FROM person_visits WHERE visit_date BETWEEN '2022-01-06' AND '2022-01-09' OR pizzeria_id = 2 ORDER BY person_id;"
+       },
+       {
+        "why": "неверный диапазон дат (с 7-го)",
+        "sql": "SELECT DISTINCT person_id FROM person_visits WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-09' OR pizzeria_id = 2 ORDER BY person_id DESC;"
+       },
+       {
+        "why": "ответ вписан готовыми значениями",
+        "sql": "SELECT * FROM (VALUES (9), (8), (7), (6), (5), (4), (2)) AS t(person_id);"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day00/ex04",
+     "dir": "ex04_person_information",
+     "title": "Информация о человеке одной строкой",
+     "readme": "# Задание 04. Информация о человеке одной строкой\n\n**Разрешено:** ANSI SQL\n\nСоставь запрос `SELECT`, который вернёт одно вычисляемое поле с именем `person_information` в виде одной строки, как в примере:\n\n```\nAnna (age:16,gender:'female',address:'Moscow')\n```\n\nВ конце добавь сортировку по этому вычисляемому полю по возрастанию. Обрати особое внимание на правильное использование кавычек в формуле!\n",
+     "theory": "# Задание 04. Склейка текста и кавычки\n\nСтроки склеиваются функцией `CONCAT(a, b, c, ...)`: она принимает любое число значений, сама превращает числа в текст и считает `NULL` пустой строкой. Есть и оператор `||`: `name || ' ' || city`. Но с `NULL` он даёт `NULL`, а числа ему нужно превращать в текст вручную.\n\nТекст пишется в одинарных кавычках. Если сам текст должен содержать одинарную кавычку, её удваивают: `''`. Так `'gender:'''` это строка `gender:'`: открывающая кавычка, текст `gender:`, затем удвоенная кавычка (одна настоящая кавычка в тексте) и закрывающая.\n\n`AS имя` задаёт название столбца результата. По этому имени можно сортировать в `ORDER BY`.\n\n## Примеры на маленьких таблицах\n\nСклейка значений из разных столбцов:\n\n```sql-run\nSELECT CONCAT(name, ' (age:', age, ')') AS info\nFROM students\nORDER BY info;\n```\n\nКавычка внутри текста (удвоенная):\n\n```sql-run\nSELECT CONCAT(name, ' lives in ''', city, '''') AS info\nFROM students\nWHERE city IS NOT NULL\nORDER BY info;\n```\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Нужно собрать одну строку из пяти кусков: имя, возраст, пол, адрес и постоянный текст между ними. Для склейки удобен `CONCAT`. Одинарные кавычки внутри текста удваиваются."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT CONCAT(name, ' (age:', ______, ',gender:''', ______, ''',address:''', ______, ''')') AS ______\nFROM person\nORDER BY ______;\n```\n\nВпиши три столбца и название вычисляемого поля (оно же в сортировке)."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT CONCAT(name, ' (age:', age, ',gender:''', gender, ''',address:''', address, ''')') AS person_information\nFROM person\nORDER BY ______;\n```\n\nОсталась сортировка по новому имени столбца."
+      }
+     ],
+     "solution": "SELECT CONCAT(name, ' (age:', age, ',gender:''', gender, ''',address:''', address, ''')') AS person_information\nFROM person\nORDER BY person_information;",
+     "solutionCommented": "-- Идея: склеиваем текст из частей и значений столбцов.\nSELECT CONCAT(\n         name,                  -- Anna\n         ' (age:', age,         -- (age:16\n         ',gender:''', gender,  -- ,gender:'female   ('''' внутри текста даёт одну кавычку ')\n         ''',address:''', address,  -- ',address:'Moscow\n         ''')'                  -- ')\n       ) AS person_information      -- название столбца результата\nFROM person\nORDER BY person_information;    -- сортируем по этому столбцу, по возрастанию",
+     "meta": {
+      "title": "Информация о человеке одной строкой",
+      "ordered": true,
+      "positive": [
+       {
+        "why": "то же через оператор ||, число приведено к тексту",
+        "sql": "SELECT name || ' (age:' || age::text || ',gender:''' || gender || ''',address:''' || address || ''')' AS person_information FROM person ORDER BY person_information;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "нет кавычек вокруг пола и адреса",
+        "sql": "SELECT CONCAT(name, ' (age:', age, ',gender:', gender, ',address:', address, ')') AS person_information FROM person ORDER BY person_information;"
+       },
+       {
+        "why": "другое название столбца",
+        "sql": "SELECT CONCAT(name, ' (age:', age, ',gender:''', gender, ''',address:''', address, ''')') AS info FROM person ORDER BY info;"
+       },
+       {
+        "why": "нет сортировки по этому столбцу (сортировка по возрасту)",
+        "sql": "SELECT CONCAT(name, ' (age:', age, ',gender:''', gender, ''',address:''', address, ''')') AS person_information FROM person ORDER BY age, name;"
+       },
+       {
+        "why": "сортировка по убыванию",
+        "sql": "SELECT CONCAT(name, ' (age:', age, ',gender:''', gender, ''',address:''', address, ''')') AS person_information FROM person ORDER BY person_information DESC;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day00/ex05",
+     "dir": "ex05_subquery_in_select",
+     "title": "Подзапрос в SELECT",
+     "readme": "# Задание 05. Подзапрос в SELECT\n\n**Разрешено:** ANSI SQL\n\n**Запрещено:** `IN`, все виды `JOIN`\n\nНапиши запрос `SELECT`, который вернёт имена людей (используя внутренний запрос в части `SELECT`), которые сделали заказы по меню с идентификаторами 13, 14 и 18, при этом дата заказа должна быть 7 января 2022 года.\n\nСтолбец результата назови `name`. Перед началом работы обязательно ознакомься с разделом «Запрещено».\n\nОбрати внимание на пример внутреннего запроса:\n\n```sql\nSELECT\n    (SELECT ... ) AS name  -- это внутренний запрос в основном операторе\nFROM ...\nWHERE ...\n```\n",
+     "theory": "# Задание 05. Подзапрос в части SELECT\n\n**Подзапрос** это `SELECT` внутри другого запроса, в скобках. Если он стоит в списке столбцов, то вычисляется для каждой строки внешнего запроса и должен возвращать **одно значение** (одну строку и один столбец).\n\nПодзапрос может обращаться к столбцам внешней строки. Так он узнаёт, для какого человека искать имя: в условии внутри пишут `person.id = person_order.person_id`, то есть сравнивают `id` из `person` со значением из текущей строки внешней таблицы.\n\nВ заказах хранится только `person_id`, а имя лежит в `person`. Внутренний запрос и достаёт имя по этому номеру, поэтому `JOIN` здесь не нужен (он запрещён).\n\nЕсли условие состоит из нескольких вариантов одного столбца без `IN`, их перечисляют через `OR`: `menu_id = 13 OR menu_id = 14`. Вместе с другим условием через `AND` такой `OR` берут в скобки.\n\n## Примеры на маленьких таблицах\n\nНазвание курса достаём подзапросом в `SELECT`:\n\n```sql-run\nSELECT name,\n       (SELECT title FROM courses WHERE courses.id = students.course_id) AS course\nFROM students\nORDER BY name;\n```\n\nУ Eve нет курса, подзапрос вернул `NULL`. Условия с `OR` и `AND` вместе (скобки обязательны):\n\n```sql-run\nSELECT name, age\nFROM students\nWHERE (city = 'Berlin' OR city = 'Rome') AND age >= 20\nORDER BY name;\n```\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Строки берём из `person_order`: там заказы, меню и дата. Имя человека достаём подзапросом в `SELECT`, который ищет в `person` строку с `id`, равным `person_id` заказа. Три варианта меню соединяются через `OR` в скобках, дата через `AND`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT (SELECT name FROM person WHERE person.id = ______) AS name\nFROM person_order\nWHERE (menu_id = 13 OR menu_id = ______ OR menu_id = ______)\n  AND order_date = '______';\n```\n\nВпиши столбец `person_id` заказа, оставшиеся номера меню и дату."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS name\nFROM person_order\nWHERE (menu_id = 13 OR menu_id = 14 OR menu_id = 18)\n  AND ______ = '2022-01-07';\n```\n\nОсталось название столбца с датой заказа."
+      }
+     ],
+     "solution": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS name\nFROM person_order\nWHERE (menu_id = 13 OR menu_id = 14 OR menu_id = 18)\n  AND order_date = '2022-01-07';",
+     "solutionCommented": "-- Идея: идём по заказам, а имя человека достаём подзапросом прямо в SELECT.\nSELECT (SELECT name                          -- внутренний запрос: берём имя\n        FROM person\n        WHERE person.id = person_order.person_id)   -- именно того человека, чей это заказ\n       AS name\nFROM person_order\nWHERE (menu_id = 13 OR menu_id = 14 OR menu_id = 18)  -- три варианта меню (IN запрещён)\n  AND order_date = '2022-01-07';                      -- и дата заказа",
+     "meta": {
+      "title": "Подзапрос в SELECT",
+      "ordered": false,
+      "forbidden": [
+       "IN",
+       "JOIN"
+      ],
+      "positive": [
+       {
+        "why": "варианты меню через = ANY вместо OR",
+        "sql": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS name FROM person_order WHERE menu_id = ANY (ARRAY[13, 14, 18]) AND order_date = '2022-01-07';"
+       }
+      ],
+      "negative": [
+       {
+        "why": "использован запрещённый IN",
+        "sql": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS name FROM person_order WHERE menu_id IN (13, 14, 18) AND order_date = '2022-01-07';"
+       },
+       {
+        "why": "использован запрещённый JOIN",
+        "sql": "SELECT person.name AS name FROM person_order JOIN person ON person.id = person_order.person_id WHERE (menu_id = 13 OR menu_id = 14 OR menu_id = 18) AND order_date = '2022-01-07';"
+       },
+       {
+        "why": "OR без скобок: условие даты относится только к последнему меню",
+        "sql": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS name FROM person_order WHERE menu_id = 13 OR menu_id = 14 OR menu_id = 18 AND order_date = '2022-01-07';"
+       },
+       {
+        "why": "забыта дата заказа",
+        "sql": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS name FROM person_order WHERE menu_id = 13 OR menu_id = 14 OR menu_id = 18;"
+       },
+       {
+        "why": "ответ вписан готовыми значениями",
+        "sql": "SELECT * FROM (VALUES ('Denis'), ('Nataly')) AS t(name);"
+       }
+      ],
+      "dataset": "pizza",
+      "required": []
+     }
+    },
+    {
+     "id": "day00/ex06",
+     "dir": "ex06_check_name",
+     "title": "Проверка имени (check_name)",
+     "readme": "# Задание 06. Проверка имени\n\n**Разрешено:** ANSI SQL\n\n**Запрещено:** `IN`, все виды `JOIN`\n\nИспользуй конструкцию SQL из задания 05 и добавь в оператор `SELECT` новый вычисляемый столбец с именем `check_name`. В этом столбце реализуй проверку по псевдокоду:\n\n```\nif (person_name == 'Denis') вернуть true,\nиначе вернуть false.\n```\n\nСтолбец с именем человека в этом задании называется `person_name` (он нужен в результате вместе с `check_name`). Условия отбора заказов те же, что в задании 05.\n",
+     "theory": "# Задание 06. CASE и логическое значение\n\nВыражение `CASE` это `if / else` внутри запроса:\n\n```sql\nCASE WHEN условие THEN значение_1 ELSE значение_2 END\n```\n\nУсловия проверяются сверху вниз, срабатывает первое верное. Значениями могут быть и логические `true` / `false`.\n\nСамо сравнение тоже даёт логическое значение: `name = 'Denis'` это `true` или `false` (а при `NULL` слева результат тоже `NULL`). Так что проверку можно записать и коротко, без `CASE`.\n\nПодзапрос из задания 05 можно использовать и внутри `CASE`: в условии вместо имени столбца стоит тот же подзапрос в скобках. Новое имя `person_name` из `SELECT` нельзя использовать в условии `WHERE` или внутри другого выражения `SELECT` (оно ещё не создано), поэтому подзапрос приходится повторить.\n\n## Примеры на маленьких таблицах\n\n`CASE` с логическим результатом:\n\n```sql-run\nSELECT name,\n       CASE WHEN name = 'Ann' THEN true ELSE false END AS is_ann\nFROM students\nORDER BY name;\n```\n\nКороткая запись: сравнение само даёт `true` или `false`:\n\n```sql-run\nSELECT name, (age >= 21) AS is_adult\nFROM students\nORDER BY name;\n```\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Возьми запрос из задания 05, назови столбец с именем `person_name` и добавь второй столбец: проверку, что имя равно `'Denis'`. Подзапрос с именем придётся написать ещё раз внутри проверки."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS ______,\n       CASE WHEN (SELECT name FROM person WHERE person.id = person_order.person_id) = '______'\n            THEN ______ ELSE ______ END AS ______\nFROM person_order\nWHERE ...;  -- условия из задания 05\n```\n\nВпиши имена столбцов, имя `Denis` и значения `true` / `false`."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS person_name,\n       CASE WHEN (SELECT name FROM person WHERE person.id = person_order.person_id) = 'Denis'\n            THEN true ELSE false END AS check_name\nFROM person_order\nWHERE ______;\n```\n\nОсталось условие `WHERE` из задания 05."
+      }
+     ],
+     "solution": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS person_name,\n       CASE WHEN (SELECT name FROM person WHERE person.id = person_order.person_id) = 'Denis' THEN true ELSE false END AS check_name\nFROM person_order\nWHERE (menu_id = 13 OR menu_id = 14 OR menu_id = 18)\n  AND order_date = '2022-01-07';",
+     "solutionCommented": "-- Идея: запрос из задания 05 плюс столбец-проверка.\nSELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS person_name,\n       CASE WHEN (SELECT name FROM person WHERE person.id = person_order.person_id) = 'Denis'\n            THEN true    -- имя Denis\n            ELSE false   -- любое другое имя\n       END AS check_name\nFROM person_order\nWHERE (menu_id = 13 OR menu_id = 14 OR menu_id = 18)\n  AND order_date = '2022-01-07';",
+     "meta": {
+      "title": "Проверка имени (check_name)",
+      "ordered": false,
+      "forbidden": [
+       "IN",
+       "JOIN"
+      ],
+      "positive": [
+       {
+        "why": "сравнение без CASE",
+        "sql": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS person_name, (SELECT name FROM person WHERE person.id = person_order.person_id) = 'Denis' AS check_name FROM person_order WHERE (menu_id = 13 OR menu_id = 14 OR menu_id = 18) AND order_date = '2022-01-07';"
+       }
+      ],
+      "negative": [
+       {
+        "why": "запрещённый IN",
+        "sql": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS person_name, CASE WHEN (SELECT name FROM person WHERE person.id = person_order.person_id) = 'Denis' THEN true ELSE false END AS check_name FROM person_order WHERE menu_id IN (13, 14, 18) AND order_date = '2022-01-07';"
+       },
+       {
+        "why": "проверка перевёрнута: true для всех, кроме Denis",
+        "sql": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS person_name, CASE WHEN (SELECT name FROM person WHERE person.id = person_order.person_id) = 'Denis' THEN false ELSE true END AS check_name FROM person_order WHERE (menu_id = 13 OR menu_id = 14 OR menu_id = 18) AND order_date = '2022-01-07';"
+       },
+       {
+        "why": "сравнение с шаблоном: подойдёт и Denise, имя целиком не проверяется",
+        "sql": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS person_name, CASE WHEN (SELECT name FROM person WHERE person.id = person_order.person_id) LIKE 'Den%' THEN true ELSE false END AS check_name FROM person_order WHERE (menu_id = 13 OR menu_id = 14 OR menu_id = 18) AND order_date = '2022-01-07';"
+       },
+       {
+        "why": "ответ вписан готовыми значениями",
+        "sql": "SELECT * FROM (VALUES ('Denis', true), ('Nataly', false)) AS t(person_name, check_name);"
+       }
+      ],
+      "dataset": "pizza",
+      "required": []
+     }
+    },
+    {
+     "id": "day00/ex07",
+     "dir": "ex07_age_interval",
+     "title": "Интервалы возраста",
+     "readme": "# Задание 07. Интервалы возраста\n\n**Разрешено:** ANSI SQL\n\nПрименим интервалы возрастов к таблице `person`.\n\nНапиши запрос, который вернёт идентификаторы людей, их имена и интервал по возрасту в виде нового вычисляемого столбца `interval_info` по псевдокоду:\n\n```\nif (age >= 10 and age <= 20) - вернуть «interval #1»\nelse if (age > 20 and age < 24) - вернуть «interval #2»\nво всех остальных случаях - вернуть «interval #3»\n```\n\nОтсортируй результат по столбцу `interval_info` по возрастанию. Столбцы результата: `id`, `name`, `interval_info`. (Порядок людей внутри одного интервала не важен.)\n",
+     "theory": "# Задание 07. CASE с несколькими ветками\n\nВ `CASE` может быть сколько угодно веток `WHEN`:\n\n```sql\nCASE\n    WHEN условие_1 THEN значение_1\n    WHEN условие_2 THEN значение_2\n    ELSE значение_по_умолчанию\nEND\n```\n\nПроверка идёт сверху вниз, срабатывает **первая** верная ветка, остальные уже не смотрятся. Поэтому в `ELSE if` из псевдокода во второй ветке не нужно повторять, что возраст больше 20: до неё доходят только те, кому первая ветка не подошла (но условие всё равно можно записать полностью, как в задании).\n\nГраницы важны. `>= 10 AND <= 20` включает 10 и 20, а `> 20 AND < 24` их не включает. Подумай, в какой интервал попадёт возраст ровно 20, ровно 21 или ровно 24.\n\nРезультат `CASE` это значение, поэтому ему нужно имя через `AS`, и по этому имени можно сортировать. Текстовые значения сортируются как обычный текст: `interval #1` раньше `interval #2`.\n\n## Примеры на маленьких таблицах\n\n```sql-run\nSELECT name, age,\n       CASE\n           WHEN age < 20 THEN 'young'\n           WHEN age < 25 THEN 'middle'\n           ELSE 'older'\n       END AS age_group\nFROM students\nORDER BY age_group, name;\n```\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Столбцы `id` и `name` просто берутся из таблицы, а `interval_info` считается выражением `CASE` с двумя `WHEN` и `ELSE`. Сортировать нужно по имени нового столбца."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT id, name,\n       CASE\n           WHEN age >= 10 AND age <= 20 THEN '______'\n           WHEN age > 20 AND age < 24 THEN '______'\n           ELSE '______'\n       END AS ______\nFROM person\nORDER BY ______;\n```\n\nВпиши три текста интервалов и имя нового столбца."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT id, name,\n       CASE\n           WHEN age >= 10 AND age <= 20 THEN 'interval #1'\n           WHEN age > 20 AND age < 24 THEN 'interval #2'\n           ELSE 'interval #3'\n       END AS interval_info\nFROM person\nORDER BY ______;\n```\n\nОсталась сортировка по новому столбцу."
+      }
+     ],
+     "solution": "SELECT id, name,\n       CASE\n           WHEN age >= 10 AND age <= 20 THEN 'interval #1'\n           WHEN age > 20 AND age < 24 THEN 'interval #2'\n           ELSE 'interval #3'\n       END AS interval_info\nFROM person\nORDER BY interval_info;",
+     "solutionCommented": "-- Идея: CASE раскладывает возраст по трём интервалам, потом сортируем по результату.\nSELECT id, name,\n       CASE\n           WHEN age >= 10 AND age <= 20 THEN 'interval #1'   -- 10..20 включительно\n           WHEN age > 20 AND age < 24 THEN 'interval #2'     -- 21..23\n           ELSE 'interval #3'                                -- всё остальное\n       END AS interval_info                                  -- имя нового столбца\nFROM person\nORDER BY interval_info;                                      -- сортируем по новому столбцу",
+     "meta": {
+      "title": "Интервалы возраста",
+      "ordered": true,
+      "orderKeys": [
+       "interval_info"
+      ],
+      "positive": [
+       {
+        "why": "BETWEEN вместо двух сравнений в первой ветке",
+        "sql": "SELECT id, name, CASE WHEN age BETWEEN 10 AND 20 THEN 'interval #1' WHEN age > 20 AND age < 24 THEN 'interval #2' ELSE 'interval #3' END AS interval_info FROM person ORDER BY interval_info, id;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "возраст 20 не попал в первый интервал (строгое <)",
+        "sql": "SELECT id, name, CASE WHEN age >= 10 AND age < 20 THEN 'interval #1' WHEN age > 20 AND age < 24 THEN 'interval #2' ELSE 'interval #3' END AS interval_info FROM person ORDER BY interval_info;"
+       },
+       {
+        "why": "возраст 24 попал во второй интервал (<=)",
+        "sql": "SELECT id, name, CASE WHEN age >= 10 AND age <= 20 THEN 'interval #1' WHEN age > 20 AND age <= 24 THEN 'interval #2' ELSE 'interval #3' END AS interval_info FROM person ORDER BY interval_info;"
+       },
+       {
+        "why": "нет сортировки по interval_info",
+        "sql": "SELECT id, name, CASE WHEN age >= 10 AND age <= 20 THEN 'interval #1' WHEN age > 20 AND age < 24 THEN 'interval #2' ELSE 'interval #3' END AS interval_info FROM person ORDER BY id DESC;"
+       },
+       {
+        "why": "сортировка по убыванию",
+        "sql": "SELECT id, name, CASE WHEN age >= 10 AND age <= 20 THEN 'interval #1' WHEN age > 20 AND age < 24 THEN 'interval #2' ELSE 'interval #3' END AS interval_info FROM person ORDER BY interval_info DESC;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day00/ex08",
+     "dir": "ex08_even_orders",
+     "title": "Чётные заказы",
+     "readme": "# Задание 08. Чётные заказы\n\n**Разрешено:** ANSI SQL\n\nНапиши запрос, который вернёт все столбцы из таблицы `person_order`, где идентификатор является **чётным** числом. Результат отсортируй по этому идентификатору.\n",
+     "theory": "# Задание 08. Остаток от деления\n\nЧисло чётное, если при делении на 2 остаток равен нулю. Остаток даёт оператор `%`: `10 % 2` это `0`, `7 % 2` это `1`. То же делает функция `MOD(10, 2)`.\n\nПоэтому условие «`id` чётный» записывается как `id % 2 = 0`. Звёздочка `*` в `SELECT` означает «все столбцы таблицы».\n\nНе путай `%` в арифметике с `%` в шаблонах `LIKE`: в `LIKE` это любое количество символов, а между числами остаток от деления.\n\n## Примеры на маленьких таблицах\n\n```sql-run\nSELECT id, title\nFROM products\nWHERE id % 2 = 0\nORDER BY id;\n```\n\nНечётные тем же приёмом:\n\n```sql-run\nSELECT *\nFROM products\nWHERE MOD(id, 2) = 1\nORDER BY id;\n```\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Нужны все столбцы (`*`) таблицы `person_order`. Условие чётности через остаток от деления на 2. Сортировка по `id`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT ______\nFROM person_order\nWHERE id ______ 2 = ______\nORDER BY ______;\n```\n\nВпиши «все столбцы», оператор остатка, число для чётных и столбец сортировки."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT *\nFROM person_order\nWHERE id % 2 = ______\nORDER BY id;\n```\n\nОсталось число: какой остаток у чётных чисел."
+      }
+     ],
+     "solution": "SELECT *\nFROM person_order\nWHERE id % 2 = 0\nORDER BY id;",
+     "solutionCommented": "-- Идея: остаток от деления id на 2 равен нулю, значит id чётный.\nSELECT *                 -- все столбцы\nFROM person_order\nWHERE id % 2 = 0         -- % даёт остаток от деления\nORDER BY id;             -- по возрастанию id",
+     "meta": {
+      "title": "Чётные заказы",
+      "ordered": true,
+      "positive": [
+       {
+        "why": "функция MOD вместо %",
+        "sql": "SELECT * FROM person_order WHERE MOD(id, 2) = 0 ORDER BY id;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "нечётные вместо чётных",
+        "sql": "SELECT * FROM person_order WHERE id % 2 = 1 ORDER BY id;"
+       },
+       {
+        "why": "нет сортировки по id (по убыванию)",
+        "sql": "SELECT * FROM person_order WHERE id % 2 = 0 ORDER BY id DESC;"
+       },
+       {
+        "why": "не все столбцы",
+        "sql": "SELECT id, person_id FROM person_order WHERE id % 2 = 0 ORDER BY id;"
+       },
+       {
+        "why": "ответ вписан готовыми значениями (id)",
+        "sql": "SELECT * FROM person_order WHERE id IN (2, 4, 6, 8, 10, 12, 14, 16, 18, 20) ORDER BY id;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day00/ex09",
+     "dir": "ex09_subquery_in_from",
+     "title": "Подзапрос в FROM",
+     "readme": "# Задание 09. Подзапрос в FROM\n\n**Разрешено:** ANSI SQL\n\n**Запрещено:** все виды `JOIN`\n\nСоставь запрос `SELECT`, который вернёт имена людей и названия пиццерий на основе таблицы `person_visits` с датами посещений в период с 7 по 9 января 2022 года (включительно), используя внутренний запрос в части `FROM`.\n\nОбрати внимание на структуру итогового запроса:\n\n```sql\nSELECT (...) AS person_name,    -- внутренний запрос в основном SELECT\n       (...) AS pizzeria_name   -- внутренний запрос в основном SELECT\nFROM (SELECT ... FROM person_visits WHERE ...) AS pv  -- внутренний запрос в основном FROM\nORDER BY ...\n```\n\nДобавь сортировку по имени человека по возрастанию и по названию пиццерии по убыванию.\n",
+     "theory": "# Задание 09. Подзапрос в FROM\n\nПодзапрос в `FROM` работает как временная таблица: сначала выполняется он, а внешний запрос уже читает его результат. **Псевдоним обязателен**: `FROM (SELECT ...) AS pv`, дальше к столбцам можно обращаться как `pv.person_id`.\n\nЭтим удобно сначала отобрать нужные строки (здесь посещения в нужные даты), а потом уже в `SELECT` добавить подзапросами имена из других таблиц, как в задании 05.\n\n`ORDER BY` умеет сортировать по нескольким столбцам, у каждого своё направление: `ORDER BY a ASC, b DESC`. Сначала сортировка по первому, а при равных значениях по второму. По новым именам из `SELECT` (`AS person_name`) сортировать можно.\n\n## Примеры на маленьких таблицах\n\nПодзапрос в `FROM`:\n\n```sql-run\nSELECT young.name, young.age\nFROM (SELECT name, age FROM students WHERE age < 22) AS young\nORDER BY young.age DESC;\n```\n\nВместе с подзапросом в `SELECT`:\n\n```sql-run\nSELECT s.name,\n       (SELECT title FROM courses WHERE courses.id = s.course_id) AS course\nFROM (SELECT name, course_id FROM students WHERE course_id IS NOT NULL) AS s\nORDER BY course ASC, name DESC;\n```\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "В `FROM` отбери из `person_visits` только посещения 7–9 января (оставь `person_id` и `pizzeria_id`) и назови результат `pv`. В `SELECT` достань имя человека и название пиццерии двумя подзапросами по номерам из `pv`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT (SELECT name FROM person WHERE person.id = pv.______) AS person_name,\n       (SELECT name FROM pizzeria WHERE pizzeria.id = pv.______) AS pizzeria_name\nFROM (SELECT person_id, pizzeria_id FROM person_visits\n      WHERE visit_date BETWEEN '______' AND '______') AS pv\nORDER BY ______, ______ ______;\n```\n\nВпиши два номера, две даты и сортировку."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT (SELECT name FROM person WHERE person.id = pv.person_id) AS person_name,\n       (SELECT name FROM pizzeria WHERE pizzeria.id = pv.pizzeria_id) AS pizzeria_name\nFROM (SELECT person_id, pizzeria_id FROM person_visits\n      WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-09') AS pv\nORDER BY person_name, ______;\n```\n\nОсталось название пиццерии по убыванию: к нему добавь `DESC`."
+      }
+     ],
+     "solution": "SELECT (SELECT name FROM person WHERE person.id = pv.person_id) AS person_name,\n       (SELECT name FROM pizzeria WHERE pizzeria.id = pv.pizzeria_id) AS pizzeria_name\nFROM (SELECT person_id, pizzeria_id\n      FROM person_visits\n      WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-09') AS pv\nORDER BY person_name ASC, pizzeria_name DESC;",
+     "solutionCommented": "-- Идея: в FROM временная таблица pv только с нужными посещениями,\n-- а имена достаём подзапросами в SELECT (JOIN запрещён).\nSELECT (SELECT name FROM person WHERE person.id = pv.person_id) AS person_name,         -- имя человека\n       (SELECT name FROM pizzeria WHERE pizzeria.id = pv.pizzeria_id) AS pizzeria_name  -- название пиццерии\nFROM (SELECT person_id, pizzeria_id          -- внутренний запрос в FROM\n      FROM person_visits\n      WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-09') AS pv   -- псевдоним обязателен\nORDER BY person_name ASC, pizzeria_name DESC;  -- имя по возрастанию, пиццерия по убыванию",
+     "meta": {
+      "title": "Подзапрос в FROM",
+      "ordered": true,
+      "forbidden": [
+       "JOIN"
+      ],
+      "positive": [
+       {
+        "why": "отбор по датам двумя сравнениями",
+        "sql": "SELECT (SELECT name FROM person WHERE person.id = pv.person_id) AS person_name, (SELECT name FROM pizzeria WHERE pizzeria.id = pv.pizzeria_id) AS pizzeria_name FROM (SELECT person_id, pizzeria_id FROM person_visits WHERE visit_date >= '2022-01-07' AND visit_date <= '2022-01-09') AS pv ORDER BY person_name, pizzeria_name DESC;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "запрещённый JOIN",
+        "sql": "SELECT person.name AS person_name, pizzeria.name AS pizzeria_name FROM person_visits JOIN person ON person.id = person_visits.person_id JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-09' ORDER BY person_name, pizzeria_name DESC;"
+       },
+       {
+        "why": "пиццерии отсортированы по возрастанию, а нужно по убыванию",
+        "sql": "SELECT (SELECT name FROM person WHERE person.id = pv.person_id) AS person_name, (SELECT name FROM pizzeria WHERE pizzeria.id = pv.pizzeria_id) AS pizzeria_name FROM (SELECT person_id, pizzeria_id FROM person_visits WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-09') AS pv ORDER BY person_name, pizzeria_name;"
+       },
+       {
+        "why": "неверный диапазон дат (по 8-е)",
+        "sql": "SELECT (SELECT name FROM person WHERE person.id = pv.person_id) AS person_name, (SELECT name FROM pizzeria WHERE pizzeria.id = pv.pizzeria_id) AS pizzeria_name FROM (SELECT person_id, pizzeria_id FROM person_visits WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-08') AS pv ORDER BY person_name, pizzeria_name DESC;"
+       },
+       {
+        "why": "выбраны id вместо имён",
+        "sql": "SELECT person_id AS person_name, pizzeria_id AS pizzeria_name FROM (SELECT person_id, pizzeria_id FROM person_visits WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-09') AS pv ORDER BY person_name, pizzeria_name DESC;"
+       }
+      ],
+      "dataset": "pizza",
+      "required": []
+     }
+    }
+   ]
+  },
   {
    "id": "day01",
    "title": "Day 01. Множества и JOIN",

@@ -1,0 +1,6 @@
+{
+ "%": {"title": "% : остаток от деления", "text": "Оператор `%` (или функция `MOD`) даёт остаток от деления. Число чётное, если остаток от деления на 2 равен 0.", "sql": "SELECT id, id % 2 AS remainder FROM products ORDER BY id;"},
+ "MOD": {"title": "MOD: остаток от деления", "text": "`MOD(a, b)` то же, что `a % b`: остаток от деления `a` на `b`.", "sql": "SELECT MOD(10, 3) AS ten_mod_3, MOD(8, 2) AS eight_mod_2;"},
+ "ПОДЗАПРОС": {"title": "Подзапрос", "text": "Подзапрос это `SELECT` в скобках внутри другого запроса. В списке столбцов он должен возвращать одно значение; он может обращаться к столбцам внешней строки.", "sql": "SELECT name,\n       (SELECT title FROM courses WHERE courses.id = students.course_id) AS course\nFROM students\nORDER BY name;"},
+ "SUBQUERY": {"title": "Подзапрос", "text": "Подзапрос это `SELECT` в скобках внутри другого запроса. В списке столбцов он должен возвращать одно значение; он может обращаться к столбцам внешней строки.", "sql": "SELECT name,\n       (SELECT title FROM courses WHERE courses.id = students.course_id) AS course\nFROM students\nORDER BY name;"}
+}

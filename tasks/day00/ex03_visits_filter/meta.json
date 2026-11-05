@@ -1,0 +1,39 @@
+{
+  "title": "Посещения: даты или пиццерия",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "диапазон через две границы",
+      "sql": "SELECT DISTINCT person_id FROM person_visits WHERE (visit_date >= '2022-01-06' AND visit_date <= '2022-01-09') OR pizzeria_id = 2 ORDER BY person_id DESC;"
+    },
+    {
+      "why": "уникальность через GROUP BY",
+      "sql": "SELECT person_id FROM person_visits WHERE visit_date BETWEEN '2022-01-06' AND '2022-01-09' OR pizzeria_id = 2 GROUP BY person_id ORDER BY person_id DESC;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "AND вместо OR: условия должны быть «либо-либо»",
+      "sql": "SELECT DISTINCT person_id FROM person_visits WHERE visit_date BETWEEN '2022-01-06' AND '2022-01-09' AND pizzeria_id = 2 ORDER BY person_id DESC;"
+    },
+    {
+      "why": "нет DISTINCT: люди повторяются",
+      "sql": "SELECT person_id FROM person_visits WHERE visit_date BETWEEN '2022-01-06' AND '2022-01-09' OR pizzeria_id = 2 ORDER BY person_id DESC;"
+    },
+    {
+      "why": "сортировка по возрастанию",
+      "sql": "SELECT DISTINCT person_id FROM person_visits WHERE visit_date BETWEEN '2022-01-06' AND '2022-01-09' OR pizzeria_id = 2 ORDER BY person_id;"
+    },
+    {
+      "why": "неверный диапазон дат (с 7-го)",
+      "sql": "SELECT DISTINCT person_id FROM person_visits WHERE visit_date BETWEEN '2022-01-07' AND '2022-01-09' OR pizzeria_id = 2 ORDER BY person_id DESC;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES (9), (8), (7), (6), (5), (4), (2)) AS t(person_id);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

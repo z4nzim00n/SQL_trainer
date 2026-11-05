@@ -126,7 +126,12 @@ export function compareResults(user, ref, meta = {}) {
     if (extra.length) diffs.push(`Лишние строки, например: ${sample(extra)}.`);
 
     if (!missing.length && !extra.length && meta.ordered) {
-        const i = user.rows.findIndex((r, idx) => keyOf(r) !== keyOf(ref.rows[idx]));
+        /* meta.orderKeys: порядок важен только по этим столбцам (при равных значениях строки могут идти как угодно) */
+        const keyIdx = Array.isArray(meta.orderKeys) && meta.orderKeys.length
+            ? meta.orderKeys.map((n) => rc.indexOf(String(n).toLowerCase())).filter((x) => x >= 0)
+            : null;
+        const rowKey = (r) => (keyIdx && keyIdx.length ? JSON.stringify(keyIdx.map((x) => r[x])) : keyOf(r));
+        const i = user.rows.findIndex((r, idx) => rowKey(r) !== rowKey(ref.rows[idx]));
         if (i >= 0) {
             diffs.push(`Строки те же, но порядок другой: строка ${i + 1} должна быть ${fmtRow(ref.rows[i])}, а у тебя ${fmtRow(user.rows[i])}.`);
         }

@@ -1,0 +1,31 @@
+{
+  "title": "Люди из Казани",
+  "ordered": false,
+  "positive": [
+    {
+      "why": "то же условие, с указанием таблицы перед столбцами",
+      "sql": "SELECT person.name, person.age FROM person WHERE person.address = 'Kazan';"
+    }
+  ],
+  "negative": [
+    {
+      "why": "условие не то: город написан с маленькой буквы, строки не находятся",
+      "sql": "SELECT name, age FROM person WHERE address = 'kazan';"
+    },
+    {
+      "why": "нет условия WHERE: показаны все люди",
+      "sql": "SELECT name, age FROM person;"
+    },
+    {
+      "why": "лишний столбец (нужны только имя и возраст)",
+      "sql": "SELECT name, age, gender FROM person WHERE address = 'Kazan';"
+    },
+    {
+      "why": "ответ вписан готовыми значениями: на скрытых данных не совпадёт",
+      "sql": "SELECT * FROM (VALUES ('Kate', 33), ('Denis', 13), ('Elvira', 45)) AS t(name, age);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

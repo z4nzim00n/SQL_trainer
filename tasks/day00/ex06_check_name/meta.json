@@ -1,0 +1,34 @@
+{
+  "title": "Проверка имени (check_name)",
+  "ordered": false,
+  "forbidden": [
+    "IN",
+    "JOIN"
+  ],
+  "positive": [
+    {
+      "why": "сравнение без CASE",
+      "sql": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS person_name, (SELECT name FROM person WHERE person.id = person_order.person_id) = 'Denis' AS check_name FROM person_order WHERE (menu_id = 13 OR menu_id = 14 OR menu_id = 18) AND order_date = '2022-01-07';"
+    }
+  ],
+  "negative": [
+    {
+      "why": "запрещённый IN",
+      "sql": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS person_name, CASE WHEN (SELECT name FROM person WHERE person.id = person_order.person_id) = 'Denis' THEN true ELSE false END AS check_name FROM person_order WHERE menu_id IN (13, 14, 18) AND order_date = '2022-01-07';"
+    },
+    {
+      "why": "проверка перевёрнута: true для всех, кроме Denis",
+      "sql": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS person_name, CASE WHEN (SELECT name FROM person WHERE person.id = person_order.person_id) = 'Denis' THEN false ELSE true END AS check_name FROM person_order WHERE (menu_id = 13 OR menu_id = 14 OR menu_id = 18) AND order_date = '2022-01-07';"
+    },
+    {
+      "why": "сравнение с шаблоном: подойдёт и Denise, имя целиком не проверяется",
+      "sql": "SELECT (SELECT name FROM person WHERE person.id = person_order.person_id) AS person_name, CASE WHEN (SELECT name FROM person WHERE person.id = person_order.person_id) LIKE 'Den%' THEN true ELSE false END AS check_name FROM person_order WHERE (menu_id = 13 OR menu_id = 14 OR menu_id = 18) AND order_date = '2022-01-07';"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('Denis', true), ('Nataly', false)) AS t(person_name, check_name);"
+    }
+  ],
+  "dataset": "pizza",
+  "required": []
+}
