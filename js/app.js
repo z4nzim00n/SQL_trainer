@@ -4,6 +4,7 @@ import { highlightSql } from './highlight.js';
 import { runCheck } from './checker.js';
 import { createEngine } from './engine.js';
 import { createSchemaView } from './schema.js';
+import { createWiki } from './wiki.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -38,8 +39,7 @@ const solutionShown = store.get('sql-solution', {});
 const drafts = store.get('sql-drafts', {});
 
 const TABS = [
-    { id: 'readme', label: '📋 Условие' },
-    { id: 'schema', label: '🗂 Схема' },
+    { id: 'readme', label: '📋 Задание' },
     { id: 'theory', label: '💡 Теория' },
     { id: 'hints', label: '🧭 Подсказки' },
     { id: 'solution', label: '✅ Решение' },
@@ -76,19 +76,10 @@ const panelsContainer = $('panelsContainer');
 const panelLeft = $('panelLeft');
 const panelRight = $('panelRight');
 const resizer = $('resizer');
-const layoutToggle = $('layoutToggle');
 let isVertical = false;
 let isResizing = false;
 
 $('sidebarToggle').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
-
-layoutToggle.addEventListener('click', () => {
-    isVertical = !isVertical;
-    panelsContainer.classList.toggle('vertical', isVertical);
-    layoutToggle.textContent = isVertical ? '⬛' : '⬜';
-    panelLeft.style.flex = '1 1 0%';
-    panelRight.style.flex = '1 1 0%';
-});
 
 resizer.addEventListener('mousedown', (e) => {
     isResizing = true;
@@ -130,21 +121,66 @@ function setNav(msg, kind) {
 /* ============================================
    MARKDOWN
    ============================================ */
-function renderMd(md) {
+function renderMd(md, dataset) {
     const box = document.createElement('div');
     box.className = 'document';
     box.innerHTML = marked.parse(md, { gfm: true, async: false });
     box.querySelectorAll('pre code').forEach((code) => {
         const lang = code.className || '';
+        if (/language-sql-run/.test(lang)) return;
         if (!lang || /language-sql/.test(lang)) code.innerHTML = highlightSql(code.textContent);
     });
+    box.querySelectorAll('pre > code.language-sql-run').forEach((code) => {
+        code.closest('pre').replaceWith(exampleBlock(code.textContent.trim(), dataset));
+    });
     box.querySelectorAll('table').forEach((t) => {
+        if (t.closest('.result-table-wrap')) return;
         const wrap = document.createElement('div');
         wrap.className = 'table-wrap';
         t.replaceWith(wrap);
         wrap.appendChild(t);
     });
     return box;
+}
+
+/* Пример с кнопкой «Показать пример»: ```sql-run в Markdown. Выполняется на основном наборе данных. */
+function exampleBlock(sql, dataset) {
+    const ex = el('div', 'example');
+    const pre = el('pre');
+    const code = el('code');
+    code.innerHTML = highlightSql(sql);
+    pre.appendChild(code);
+    const bar = el('div', 'example-bar');
+    const run = el('button', 'btn-primary', '▶ Показать пример');
+    run.type = 'button';
+    const copy = el('button', '', '⧉ Копировать');
+    copy.type = 'button';
+    const out = el('div', 'example-out');
+    out.hidden = true;
+    bar.append(run, copy);
+    ex.append(pre, bar, out);
+
+    run.addEventListener('click', async () => {
+        out.hidden = false;
+        if (!engine) { out.replaceChildren(el('div', 'output-hint', 'PostgreSQL ещё загружается, попробуй через несколько секунд.')); return; }
+        out.replaceChildren(el('div', 'output-hint', 'Выполняю…'));
+        const res = await engine.run(dataset || defaultDataset(), 'main', sql);
+        out.replaceChildren();
+        if (res.error) out.appendChild(verdictBox('error', 'PostgreSQL вернул ошибку', [res.error]));
+        else if (res.noResult) out.appendChild(el('div', 'output-hint', 'Запрос выполнился, таблицы с результатом нет.'));
+        else out.appendChild(resultTable(res));
+        run.textContent = '↻ Выполнить ещё раз';
+    });
+    copy.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(sql); copy.textContent = '✓ Скопировано'; }
+        catch (e) { copy.textContent = 'Не удалось'; }
+        setTimeout(() => { copy.textContent = '⧉ Копировать'; }, 1500);
+    });
+    return ex;
+}
+
+function defaultDataset() {
+    return data && data.datasets ? Object.keys(data.datasets)[0] : 'pizza';
 }
 
 function el(tag, className, text) {
@@ -191,6 +227,30 @@ function markSolved(task) {
     store.set('sql-solved', solved);
     const row = treeEl.querySelector(`[data-id="${task.id}"] .tree-task-icon`);
     if (row) row.textContent = '✅';
+    updateProgress();
+}
+
+const progressEl = $('progress');
+function updateProgress() {
+    if (!data) return;
+    const all = data.days.flatMap((d) => d.tasks);
+    const done = all.filter((t) => solved[t.id]).length;
+    progressEl.textContent = `Решено: ${done} из ${all.length}`;
+    progressEl.style.setProperty('--p', all.length ? (done / all.length) * 100 + '%' : '0%');
+}
+
+function nextTaskOf(task) {
+    const all = data.days.flatMap((d) => d.tasks);
+    const i = all.findIndex((t) => t.id === task.id);
+    return i >= 0 && i + 1 < all.length ? all[i + 1] : null;
+}
+
+function openTaskById(id) {
+    const row = treeEl.querySelector(`[data-id="${id}"]`);
+    if (!row) return;
+    const sec = row.closest('.tree-section');
+    if (sec) sec.classList.add('open');
+    row.click();
 }
 
 /* ============================================
@@ -221,9 +281,8 @@ function renderLeft(keepScroll) {
     const task = activeTask;
     const wrap = el('div');
 
-    if (leftTab === 'readme') wrap.appendChild(renderMd(task.readme));
-    else if (leftTab === 'schema') wrap.appendChild(renderMd(data.datasets[task.meta.dataset].schema));
-    else if (leftTab === 'theory') wrap.appendChild(renderMd(task.theory));
+    if (leftTab === 'readme') wrap.appendChild(renderMd(task.readme, task.meta.dataset));
+    else if (leftTab === 'theory') wrap.appendChild(renderMd(task.theory, task.meta.dataset));
     else if (leftTab === 'hints') renderHints(wrap, task);
     else if (leftTab === 'solution') renderSolution(wrap, task);
 
@@ -282,7 +341,6 @@ const editor = $('editor');
 const editorHl = $('editorHl');
 const runBtn = $('runBtn');
 const checkBtn = $('checkBtn');
-const resetBtn = $('resetBtn');
 const output = $('output');
 
 function paintEditor() {
@@ -311,16 +369,13 @@ editor.addEventListener('keydown', (e) => {
         const { selectionStart: s, selectionEnd: en } = editor;
         editor.setRangeText('    ', s, en, 'end');
         editor.dispatchEvent(new Event('input'));
+    } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
+        e.preventDefault();
+        if (!checkBtn.disabled) checkQuery();
     } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         if (!runBtn.disabled) runQuery();
     }
-});
-
-resetBtn.addEventListener('click', () => {
-    editor.value = '';
-    editor.dispatchEvent(new Event('input'));
-    editor.focus();
 });
 
 function setEditorEnabled(on) {
@@ -328,7 +383,6 @@ function setEditorEnabled(on) {
     editor.disabled = !ready;
     runBtn.disabled = !ready;
     checkBtn.disabled = !ready;
-    resetBtn.disabled = !ready;
 }
 
 /* ============================================
@@ -413,7 +467,16 @@ function checkQuery() {
             output.appendChild(el('div', 'result-meta', 'Результат твоего запроса:'));
             output.appendChild(resultTable(v.userResult));
         }
-        if (v.status === 'pass') markSolved(task);
+        if (v.status === 'pass') {
+            markSolved(task);
+            const next = nextTaskOf(task);
+            if (next) {
+                const b = el('button', 'btn-primary next-btn', 'Следующее задание →');
+                b.type = 'button';
+                b.addEventListener('click', () => openTaskById(next.id));
+                output.insertBefore(b, output.children[1] || null);
+            }
+        }
     });
 }
 
@@ -456,9 +519,23 @@ document.querySelectorAll('#outTabs .tab').forEach((b) =>
     b.addEventListener('click', () => showOutTab(b.dataset.out)));
 
 /* ============================================
+   ЭНЦИКЛОПЕДИЯ
+   ============================================ */
+const wiki = createWiki({
+    root: $('wikiView'),
+    contentArea: $('contentArea'),
+    button: $('wikiBtn'),
+    sidebar,
+    renderMd: (md) => renderMd(md, defaultDataset()),
+    store,
+    el,
+});
+
+/* ============================================
    SELECT TASK
    ============================================ */
 function selectTask(task, row) {
+    wiki.close();
     if (activeTaskEl) activeTaskEl.classList.remove('active');
     row.classList.add('active');
     activeTaskEl = row;
@@ -533,6 +610,8 @@ async function start() {
     }
 
     buildTree();
+    updateProgress();
+    wiki.setData(data.wiki || []);
     setNav('Загружаю PostgreSQL…');
 
     enginePromise = createEngine(data.datasets, (msg) => setNav(msg))

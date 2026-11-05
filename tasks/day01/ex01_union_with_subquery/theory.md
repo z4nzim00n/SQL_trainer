@@ -7,3 +7,36 @@
 Внутри скобок `ORDER BY` видит только столбцы этого запроса. Если во второй части столбец называется `pizza_name`, то и сортировать нужно по `pizza_name`, а не по `object_name`: новое имя придумано в первой части, и вторая о нём ничего не знает.
 
 Порядок частей задаёт порядок строк в результате: первой идёт часть с `person`, второй часть с `menu`. Название столбца результата, как и раньше, берётся из первого запроса.
+
+## Примеры
+
+Скобки дают каждой части свою сортировку. Здесь сначала идут пиццерии по названию, потом люди по возрасту (пример не из задания):
+
+```sql-run
+(SELECT name AS object_name FROM pizzeria ORDER BY name)
+UNION ALL
+(SELECT name FROM person WHERE age < 20 ORDER BY age DESC);
+```
+
+Без скобок общий `ORDER BY` сортирует всё вместе и перемешивает части:
+
+```sql-run
+SELECT name AS object_name FROM pizzeria
+UNION ALL
+SELECT name FROM person WHERE age < 20
+ORDER BY object_name;
+```
+
+`UNION ALL` сохраняет повторы, `UNION` их удаляет. Сравни число строк:
+
+```sql-run
+SELECT address FROM person
+UNION ALL
+SELECT address FROM person;
+```
+
+```sql-run
+SELECT address FROM person
+UNION
+SELECT address FROM person;
+```

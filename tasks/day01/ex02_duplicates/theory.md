@@ -7,3 +7,33 @@
 Сортировка пишется один раз в конце: `ORDER BY pizza_name DESC`. Слово `DESC` означает «по убыванию», без него сортировка идёт по возрастанию.
 
 Запрет проверяется по тексту запроса, поэтому слова `DISTINCT`, `GROUP BY`, `HAVING` и `JOIN` не должны встречаться в коде вообще, даже в виде `NATURAL JOIN` или `LEFT JOIN`.
+
+## Примеры
+
+`DISTINCT` убирает повторы (в этом задании он запрещён, но полезно видеть, что он делает):
+
+```sql-run
+SELECT address FROM person;
+```
+
+```sql-run
+SELECT DISTINCT address FROM person;
+```
+
+`UNION` тоже убирает повторы. Склейка запроса с самим собой оставляет каждое значение один раз:
+
+```sql-run
+SELECT address FROM person
+UNION
+SELECT address FROM person
+ORDER BY address DESC;
+```
+
+`INTERSECT` берёт пересечение, и повторов в нём тоже нет:
+
+```sql-run
+SELECT address FROM person
+INTERSECT
+SELECT address FROM person
+ORDER BY address DESC;
+```

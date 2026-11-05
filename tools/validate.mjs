@@ -109,5 +109,23 @@ for (const day of data.days) {
     }
 }
 
+/* Примеры ```sql-run в теории и энциклопедии должны выполняться без ошибок на обоих наборах данных */
+console.log('Примеры sql-run');
+const blocks = [];
+const collect = (where, md, dataset) => {
+    for (const m of md.matchAll(/```sql-run\n([\s\S]*?)```/g)) blocks.push({ where, sql: m[1].trim(), dataset });
+};
+for (const a of data.wiki || []) collect(a.id, a.md, Object.keys(data.datasets)[0]);
+for (const day of data.days) for (const t of day.tasks) { collect(t.id + ' readme', t.readme, t.meta.dataset); collect(t.id + ' theory', t.theory, t.meta.dataset); }
+let runOk = 0;
+for (const b of blocks) {
+    for (const variant of ['main', 'alt']) {
+        const r = await run(b.dataset, variant, b.sql);
+        if (r.error) bad(`${b.where} (${variant}): ${r.error}\n      ${b.sql.replace(/\s+/g, ' ').slice(0, 140)}`);
+        else if (variant === 'main') runOk++;
+    }
+}
+ok(`выполняется примеров: ${runOk} из ${blocks.length}`);
+
 console.log(failed ? `\nПровалено: ${failed}` : '\nВсё хорошо.');
 process.exit(failed ? 1 : 0);

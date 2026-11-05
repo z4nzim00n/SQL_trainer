@@ -19,7 +19,7 @@
         <div class="nav-header">
             <div class="nav-header-top">
                 <h1>🗄️ SQL Practice</h1>
-                <span class="version">v0.002</span>
+                <span class="version">v0.003</span>
             </div>
 
             <div class="settings-bar">
@@ -45,10 +45,14 @@
 
         <div id="navStatus" class="nav-status">Загружаю задания…</div>
 
+        <button class="wiki-btn" id="wikiBtn" type="button">📖 Энциклопедия SQL</button>
+        <div class="progress" id="progress"></div>
         <nav class="tree" id="tree"></nav>
     </aside>
 
-    <div class="content-area">
+    <div class="wiki" id="wikiView" hidden></div>
+
+    <div class="content-area" id="contentArea">
         <div class="task-bar">
             <button class="sidebar-toggle-btn" id="sidebarToggle" title="Скрыть/показать меню">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -58,7 +62,6 @@
                 </svg>
             </button>
             <span class="task-bar-title" id="taskBarTitle">Выбери задание слева</span>
-            <button class="layout-toggle" id="layoutToggle" title="Сменить раскладку окон">⬜</button>
         </div>
 
         <div class="panels-container" id="panelsContainer">
@@ -81,8 +84,7 @@
                 <div class="panel-topbar secondary">
                     <span class="panel-topbar-title">Запрос</span>
                     <button id="runBtn" type="button" title="Выполнить запрос (Ctrl+Enter)" disabled>▶ Выполнить</button>
-                    <button id="checkBtn" class="btn-primary" type="button" title="Проверить решение" disabled>✔ Проверить</button>
-                    <button id="resetBtn" type="button" title="Очистить редактор" disabled>↺</button>
+                    <button id="checkBtn" class="btn-primary" type="button" title="Проверить решение (Ctrl+Shift+Enter)" disabled>✔ Проверить</button>
                 </div>
                 <div class="right-body">
                     <div class="editor-wrap" id="editorWrap">

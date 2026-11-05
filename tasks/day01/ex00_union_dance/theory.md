@@ -7,3 +7,39 @@
 `ORDER BY` пишется один раз в самом конце, после последнего запроса, и сортирует весь объединённый результат. Сортировать можно по нескольким столбцам через запятую: сначала по первому, а при равных значениях по второму. В `ORDER BY` используются уже новые имена из первого запроса.
 
 Обычный `UNION` ещё и убирает полностью одинаковые строки, а `UNION ALL` их оставляет. В этом задании полных дублей нет, поэтому подойдёт любой из двух.
+
+## Примеры
+
+`UNION` склеивает два запроса: названия столбцов берутся из первого, а `ORDER BY` стоит один раз в конце. Пример на других таблицах (не из задания):
+
+```sql-run
+SELECT id AS object_id, address AS object_name
+FROM person
+WHERE id < 3
+UNION
+SELECT id, name
+FROM pizzeria
+WHERE id < 3
+ORDER BY object_id, object_name;
+```
+
+`AS` даёт столбцу новое имя только в результате, исходная таблица не меняется:
+
+```sql-run
+SELECT name AS pizzeria_name, rating AS stars
+FROM pizzeria;
+```
+
+Разница между `UNION` и `UNION ALL`: первый убирает повторяющиеся строки, второй оставляет всё.
+
+```sql-run
+SELECT address FROM person WHERE address = 'Kazan'
+UNION
+SELECT address FROM person WHERE address = 'Kazan';
+```
+
+```sql-run
+SELECT address FROM person WHERE address = 'Kazan'
+UNION ALL
+SELECT address FROM person WHERE address = 'Kazan';
+```
