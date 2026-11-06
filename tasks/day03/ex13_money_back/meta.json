@@ -1,0 +1,27 @@
+{
+  "title": "Вернём деньги клиентам (DELETE)",
+  "setup": "INSERT INTO menu VALUES (19, 2, 'greek pizza', 800);\nINSERT INTO person_order (id, person_id, menu_id, order_date)\nSELECT (SELECT MAX(id) FROM person_order) + person.id, person.id, (SELECT id FROM menu WHERE pizza_name = 'greek pizza'), '2022-02-25'\nFROM person;",
+  "ordered": true,
+  "verify": "SELECT 'order' AS tbl, id, person_id AS a, menu_id AS b FROM person_order UNION ALL SELECT 'menu', id, pizzeria_id, price FROM menu ORDER BY 1, 2",
+  "negative": [
+    {
+      "why": "обратный порядок: пицца не удаляется, пока на неё есть заказы (ошибка внешнего ключа)",
+      "sql": "DELETE FROM menu WHERE pizza_name = 'greek pizza';\nDELETE FROM person_order WHERE order_date = '2022-02-25';"
+    },
+    {
+      "why": "удалены не только новые заказы, а все",
+      "sql": "DELETE FROM person_order;\nDELETE FROM menu WHERE pizza_name = 'greek pizza';"
+    },
+    {
+      "why": "пицца осталась в меню",
+      "sql": "DELETE FROM person_order WHERE order_date = '2022-02-25';"
+    },
+    {
+      "why": "удалены заказы не за ту дату",
+      "sql": "DELETE FROM person_order WHERE order_date = '2022-01-01';\nDELETE FROM menu WHERE pizza_name = 'greek pizza';"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

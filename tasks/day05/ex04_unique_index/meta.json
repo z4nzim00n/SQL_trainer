@@ -1,0 +1,29 @@
+{
+  "title": "Уникальный индекс",
+  "ordered": false,
+  "required": [
+    "UNIQUE",
+    "EXPLAIN ANALYZE"
+  ],
+  "verify": "ANALYZE menu, pizzeria, person, person_order, person_visits;\nSET LOCAL enable_seqscan = off;\nCREATE FUNCTION pg_temp.plan_of(q text) RETURNS text AS $$ DECLARE r text; t text := ''; BEGIN FOR r IN EXECUTE 'EXPLAIN ' || q LOOP t := t || r || E'\\n'; END LOOP; RETURN t; END $$ LANGUAGE plpgsql;\nSELECT x.idx, x.method, x.is_unique, x.is_partial, x.key_cols, x.predicate, (pg_temp.plan_of('SELECT * FROM menu WHERE pizzeria_id = 1 AND pizza_name = ''cheese pizza''') LIKE '%idx_menu_unique%') AS used_in_plan FROM (SELECT 1) d LEFT JOIN (SELECT c.relname AS idx, am.amname AS method, i.indisunique AS is_unique, (i.indpred IS NOT NULL) AS is_partial, (SELECT string_agg(pg_get_indexdef(i.indexrelid, n, true), ', ' ORDER BY n) FROM generate_series(1, i.indnkeyatts) n) AS key_cols, pg_get_expr(i.indpred, i.indrelid) AS predicate FROM pg_index i JOIN pg_class c ON c.oid = i.indexrelid JOIN pg_am am ON am.oid = c.relam WHERE c.relname = 'idx_menu_unique' AND c.relnamespace = current_schema()::regnamespace) x ON true",
+  "negative": [
+    {
+      "why": "индекс не уникальный",
+      "sql": "CREATE INDEX idx_menu_unique ON menu (pizzeria_id, pizza_name);\nEXPLAIN ANALYZE SELECT * FROM menu WHERE pizzeria_id = 1 AND pizza_name = 'cheese pizza';"
+    },
+    {
+      "why": "столбцы в обратном порядке",
+      "sql": "CREATE UNIQUE INDEX idx_menu_unique ON menu (pizza_name, pizzeria_id);\nEXPLAIN ANALYZE SELECT * FROM menu WHERE pizzeria_id = 1 AND pizza_name = 'cheese pizza';"
+    },
+    {
+      "why": "только один столбец",
+      "sql": "CREATE UNIQUE INDEX idx_menu_unique ON menu (pizzeria_id);\nEXPLAIN ANALYZE SELECT * FROM menu WHERE pizzeria_id = 1 AND pizza_name = 'cheese pizza';"
+    },
+    {
+      "why": "индекс назван по-другому",
+      "sql": "CREATE UNIQUE INDEX idx_menu_uniq ON menu (pizzeria_id, pizza_name);\nEXPLAIN ANALYZE SELECT * FROM menu WHERE pizzeria_id = 1 AND pizza_name = 'cheese pizza';"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

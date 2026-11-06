@@ -1,0 +1,37 @@
+{
+  "title": "Новые заказы для всех",
+  "setup": "INSERT INTO menu VALUES (19, 2, 'greek pizza', 800);",
+  "verify": "SELECT person_id, menu_id, order_date FROM person_order ORDER BY person_id, menu_id, order_date",
+  "ordered": true,
+  "forbidden": [
+    "ROW_NUMBER",
+    "OVER",
+    "VALUES"
+  ],
+  "positive": [
+    {
+      "why": "id через generate_series и номер человека",
+      "sql": "INSERT INTO person_order (id, person_id, menu_id, order_date) SELECT (SELECT MAX(id) FROM person_order) + person.id, person.id, (SELECT id FROM menu WHERE pizza_name = 'greek pizza'), '2022-02-25'::date FROM person CROSS JOIN generate_series(1, 1);"
+    }
+  ],
+  "negative": [
+    {
+      "why": "только женщины, а нужны все клиенты",
+      "sql": "INSERT INTO person_order (id, person_id, menu_id, order_date)\nSELECT (SELECT MAX(id) FROM person_order) + person.id, person.id, (SELECT id FROM menu WHERE pizza_name = 'greek pizza'), '2022-02-25'\nFROM person WHERE gender = 'female';"
+    },
+    {
+      "why": "неверная дата",
+      "sql": "INSERT INTO person_order (id, person_id, menu_id, order_date)\nSELECT (SELECT MAX(id) FROM person_order) + person.id, person.id, (SELECT id FROM menu WHERE pizza_name = 'greek pizza'), '2022-02-26'\nFROM person;"
+    },
+    {
+      "why": "запрещённая оконная функция",
+      "sql": "INSERT INTO person_order (id, person_id, menu_id, order_date) SELECT (SELECT MAX(id) FROM person_order) + ROW_NUMBER() OVER (ORDER BY person.id), person.id, (SELECT id FROM menu WHERE pizza_name = 'greek pizza'), '2022-02-25' FROM person;"
+    },
+    {
+      "why": "заказана другая позиция меню",
+      "sql": "INSERT INTO person_order (id, person_id, menu_id, order_date)\nSELECT (SELECT MAX(id) FROM person_order) + person.id, person.id, (SELECT id FROM menu WHERE pizza_name = 'sicilian pizza'), '2022-02-25'\nFROM person;"
+    }
+  ],
+  "dataset": "pizza",
+  "required": []
+}

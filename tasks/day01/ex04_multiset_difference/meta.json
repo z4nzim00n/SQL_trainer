@@ -1,0 +1,29 @@
+{
+  "title": "Разность мультимножеств (EXCEPT ALL)",
+  "ordered": false,
+  "forbidden": [
+    "JOIN"
+  ],
+  "required": [
+    "EXCEPT"
+  ],
+  "negative": [
+    {
+      "why": "EXCEPT без ALL убирает дубликаты",
+      "sql": "SELECT person_id FROM person_order WHERE order_date = '2022-01-07' EXCEPT SELECT person_id FROM person_visits WHERE visit_date = '2022-01-07';"
+    },
+    {
+      "why": "запросы поменяны местами: это другая разность",
+      "sql": "SELECT person_id FROM person_visits WHERE visit_date = '2022-01-07' EXCEPT ALL SELECT person_id FROM person_order WHERE order_date = '2022-01-07';"
+    },
+    {
+      "why": "забыта дата в одном из запросов",
+      "sql": "SELECT person_id FROM person_order WHERE order_date = '2022-01-07' EXCEPT ALL SELECT person_id FROM person_visits;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES (4), (4)) AS t(person_id);"
+    }
+  ],
+  "dataset": "pizza"
+}

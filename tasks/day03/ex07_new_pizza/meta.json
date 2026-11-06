@@ -1,0 +1,32 @@
+{
+  "title": "Новая пицца (INSERT)",
+  "dataset": "pizza",
+  "verify": "SELECT id, pizzeria_id, pizza_name, price FROM menu ORDER BY id",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "без перечисления столбцов",
+      "sql": "INSERT INTO menu VALUES (19, 2, 'greek pizza', 800);"
+    }
+  ],
+  "negative": [
+    {
+      "why": "неверная цена",
+      "sql": "INSERT INTO menu VALUES (19, 2, 'greek pizza', 900);"
+    },
+    {
+      "why": "пицца добавлена в другую пиццерию",
+      "sql": "INSERT INTO menu VALUES (19, 1, 'greek pizza', 800);"
+    },
+    {
+      "why": "ничего не добавлено",
+      "sql": "SELECT * FROM menu;"
+    },
+    {
+      "why": "неверное название",
+      "sql": "INSERT INTO menu VALUES (19, 2, 'Greek pizza', 800);"
+    }
+  ],
+  "forbidden": [],
+  "required": []
+}

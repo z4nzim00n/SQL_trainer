@@ -1,0 +1,25 @@
+{
+  "title": "Сравним заказы",
+  "ordered": true,
+  "negative": [
+    {
+      "why": "учтены только пиццерии, где заказывали одни женщины",
+      "sql": "SELECT pizzeria.name AS pizzeria_name FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id WHERE person.gender = 'female' EXCEPT SELECT pizzeria.name FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id WHERE person.gender = 'male' ORDER BY pizzeria_name;"
+    },
+    {
+      "why": "пересечение вместо разности: пиццерии, где заказывали и те, и другие",
+      "sql": "SELECT pizzeria.name AS pizzeria_name FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id WHERE person.gender = 'female' INTERSECT SELECT pizzeria.name FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id WHERE person.gender = 'male' ORDER BY pizzeria_name;"
+    },
+    {
+      "why": "UNION без вычитания: все пиццерии, где что-то заказывали",
+      "sql": "SELECT pizzeria.name AS pizzeria_name FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id WHERE person.gender = 'female' UNION SELECT pizzeria.name FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id WHERE person.gender = 'male' ORDER BY pizzeria_name;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('Papa Johns')) AS t(pizzeria_name);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

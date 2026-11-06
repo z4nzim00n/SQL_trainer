@@ -1,0 +1,27 @@
+{
+  "title": "IN против EXISTS",
+  "ordered": false,
+  "positive": [
+    {
+      "why": "второй способ из условия: NOT EXISTS",
+      "sql": "SELECT name FROM pizzeria WHERE NOT EXISTS (SELECT 1 FROM person_visits WHERE person_visits.pizzeria_id = pizzeria.id);"
+    }
+  ],
+  "negative": [
+    {
+      "why": "IN вместо NOT IN: это посещённые пиццерии",
+      "sql": "SELECT name FROM pizzeria WHERE id IN (SELECT pizzeria_id FROM person_visits);"
+    },
+    {
+      "why": "EXISTS без NOT: пиццерии, в которые заходили",
+      "sql": "SELECT name FROM pizzeria WHERE EXISTS (SELECT 1 FROM person_visits WHERE person_visits.pizzeria_id = pizzeria.id);"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('DoDo Pizza')) AS t(name);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

@@ -1,0 +1,36 @@
+{
+  "title": "Последовательность для id",
+  "setup": "CREATE TABLE person_discounts (\n    id bigint PRIMARY KEY,\n    person_id bigint,\n    pizzeria_id bigint,\n    discount numeric,\n    CONSTRAINT fk_person_discounts_person_id FOREIGN KEY (person_id) REFERENCES person (id),\n    CONSTRAINT fk_person_discounts_pizzeria_id FOREIGN KEY (pizzeria_id) REFERENCES pizzeria (id)\n);\nINSERT INTO person_discounts (id, person_id, pizzeria_id, discount)\nSELECT ROW_NUMBER() OVER () AS id,\n       person_order.person_id,\n       menu.pizzeria_id,\n       CASE WHEN COUNT(*) = 1 THEN 10.5\n            WHEN COUNT(*) = 2 THEN 22\n            ELSE 30 END\nFROM person_order\nJOIN menu ON menu.id = person_order.menu_id\nGROUP BY person_order.person_id, menu.pizzeria_id;\nALTER TABLE person_discounts ADD CONSTRAINT ch_nn_person_id CHECK (person_id IS NOT NULL);\nALTER TABLE person_discounts ADD CONSTRAINT ch_nn_pizzeria_id CHECK (pizzeria_id IS NOT NULL);\nALTER TABLE person_discounts ADD CONSTRAINT ch_nn_discount CHECK (discount IS NOT NULL);\nALTER TABLE person_discounts ALTER COLUMN discount SET DEFAULT 0;\nALTER TABLE person_discounts ADD CONSTRAINT ch_range_discount CHECK (discount BETWEEN 0 AND 100);",
+  "verify": "INSERT INTO person_discounts (person_id, pizzeria_id) SELECT person.id, pizzeria.id FROM person CROSS JOIN pizzeria WHERE NOT EXISTS (SELECT 1 FROM person_discounts d WHERE d.person_id = person.id AND d.pizzeria_id = pizzeria.id) ORDER BY person.id, pizzeria.id LIMIT 1 RETURNING id, discount::float8 AS discount",
+  "ordered": false,
+  "required": [
+    "CREATE SEQUENCE",
+    "NEXTVAL"
+  ],
+  "positive": [
+    {
+      "why": "is_called = true и максимум id",
+      "sql": "CREATE SEQUENCE seq_person_discounts START 1;\nALTER TABLE person_discounts ALTER COLUMN id SET DEFAULT NEXTVAL('seq_person_discounts');\nSELECT SETVAL('seq_person_discounts', (SELECT MAX(id) FROM person_discounts));"
+    }
+  ],
+  "negative": [
+    {
+      "why": "последовательность не передвинута: нарушение первичного ключа",
+      "sql": "CREATE SEQUENCE seq_person_discounts START 1;\nALTER TABLE person_discounts ALTER COLUMN id SET DEFAULT NEXTVAL('seq_person_discounts');"
+    },
+    {
+      "why": "не назначено значение по умолчанию для id",
+      "sql": "CREATE SEQUENCE seq_person_discounts START 1;\nSELECT SETVAL('seq_person_discounts', (SELECT COUNT(*) FROM person_discounts) + 1, false);"
+    },
+    {
+      "why": "количество строк вписано числом (на другом наборе данных будет неверным)",
+      "sql": "CREATE SEQUENCE seq_person_discounts START 1;\nALTER TABLE person_discounts ALTER COLUMN id SET DEFAULT NEXTVAL('seq_person_discounts');\nSELECT SETVAL('seq_person_discounts', 14, false);"
+    },
+    {
+      "why": "сдвиг на единицу: следующее значение COUNT + 2",
+      "sql": "CREATE SEQUENCE seq_person_discounts START 1;\nALTER TABLE person_discounts ALTER COLUMN id SET DEFAULT NEXTVAL('seq_person_discounts');\nSELECT SETVAL('seq_person_discounts', (SELECT COUNT(*) FROM person_discounts) + 2, false);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

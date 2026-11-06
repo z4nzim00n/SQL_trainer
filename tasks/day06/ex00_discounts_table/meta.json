@@ -1,0 +1,38 @@
+{
+  "title": "Таблица скидок",
+  "verify": "SELECT 'column' AS kind, column_name::text AS name, data_type::text AS detail FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'person_discounts' UNION ALL SELECT 'constraint', conname::text, contype::text || ' ' || pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid = to_regclass('person_discounts') ORDER BY 1, 2",
+  "ordered": true,
+  "required": [
+    "CREATE TABLE"
+  ],
+  "positive": [
+    {
+      "why": "ограничения заданы после столбцов через ALTER TABLE",
+      "sql": "CREATE TABLE person_discounts (id bigint PRIMARY KEY, person_id bigint, pizzeria_id bigint, discount numeric);\nALTER TABLE person_discounts ADD CONSTRAINT fk_person_discounts_person_id FOREIGN KEY (person_id) REFERENCES person (id);\nALTER TABLE person_discounts ADD CONSTRAINT fk_person_discounts_pizzeria_id FOREIGN KEY (pizzeria_id) REFERENCES pizzeria (id);"
+    }
+  ],
+  "negative": [
+    {
+      "why": "скидка целого типа: не поместится 10.5",
+      "sql": "CREATE TABLE person_discounts (\n    id bigint PRIMARY KEY,\n    person_id bigint,\n    pizzeria_id bigint,\n    discount integer,\n    CONSTRAINT fk_person_discounts_person_id FOREIGN KEY (person_id) REFERENCES person (id),\n    CONSTRAINT fk_person_discounts_pizzeria_id FOREIGN KEY (pizzeria_id) REFERENCES pizzeria (id)\n);"
+    },
+    {
+      "why": "id другого типа, чем в родительских таблицах",
+      "sql": "CREATE TABLE person_discounts (\n    id integer PRIMARY KEY,\n    person_id bigint,\n    pizzeria_id bigint,\n    discount numeric,\n    CONSTRAINT fk_person_discounts_person_id FOREIGN KEY (person_id) REFERENCES person (id),\n    CONSTRAINT fk_person_discounts_pizzeria_id FOREIGN KEY (pizzeria_id) REFERENCES pizzeria (id)\n);"
+    },
+    {
+      "why": "имена внешних ключей не по шаблону",
+      "sql": "CREATE TABLE person_discounts (\n    id bigint PRIMARY KEY,\n    person_id bigint,\n    pizzeria_id bigint,\n    discount numeric,\n    CONSTRAINT fk_person FOREIGN KEY (person_id) REFERENCES person (id),\n    CONSTRAINT fk_pizzeria FOREIGN KEY (pizzeria_id) REFERENCES pizzeria (id)\n);"
+    },
+    {
+      "why": "нет внешних ключей",
+      "sql": "CREATE TABLE person_discounts (id bigint PRIMARY KEY, person_id bigint, pizzeria_id bigint, discount numeric);"
+    },
+    {
+      "why": "нет первичного ключа",
+      "sql": "CREATE TABLE person_discounts (\n    id bigint,\n    person_id bigint,\n    pizzeria_id bigint,\n    discount numeric,\n    CONSTRAINT fk_person_discounts_person_id FOREIGN KEY (person_id) REFERENCES person (id),\n    CONSTRAINT fk_person_discounts_pizzeria_id FOREIGN KEY (pizzeria_id) REFERENCES pizzeria (id)\n);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

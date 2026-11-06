@@ -1,0 +1,31 @@
+{
+  "title": "Любимые пиццы",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "IN вместо двух OR",
+      "sql": "SELECT menu.pizza_name, pizzeria.name AS pizzeria_name, menu.price FROM menu JOIN pizzeria ON menu.pizzeria_id = pizzeria.id WHERE menu.pizza_name IN ('mushroom pizza', 'pepperoni pizza') ORDER BY 1, 2;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "только одна из двух пицц",
+      "sql": "SELECT menu.pizza_name, pizzeria.name AS pizzeria_name, menu.price\nFROM menu\nJOIN pizzeria ON menu.pizzeria_id = pizzeria.id\nWHERE menu.pizza_name = 'mushroom pizza'\nORDER BY pizza_name, pizzeria_name;"
+    },
+    {
+      "why": "нет JOIN: вместо названия пиццерии её номер",
+      "sql": "SELECT pizza_name, pizzeria_id AS pizzeria_name, price FROM menu WHERE pizza_name = 'mushroom pizza' OR pizza_name = 'pepperoni pizza' ORDER BY pizza_name, pizzeria_name;"
+    },
+    {
+      "why": "сортировка не по названию пиццерии (по цене)",
+      "sql": "SELECT menu.pizza_name, pizzeria.name AS pizzeria_name, menu.price\nFROM menu\nJOIN pizzeria ON menu.pizzeria_id = pizzeria.id\nWHERE menu.pizza_name = 'mushroom pizza' OR menu.pizza_name = 'pepperoni pizza'\nORDER BY pizza_name, price DESC;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('mushroom pizza', 'Dominos', 1100), ('mushroom pizza', 'Papa Johns', 950), ('pepperoni pizza', 'Best Pizza', 800), ('pepperoni pizza', 'DinoPizza', 800), ('pepperoni pizza', 'Papa Johns', 1000), ('pepperoni pizza', 'Pizza Hut', 1200)) AS t(pizza_name, pizzeria_name, price);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

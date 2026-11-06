@@ -1,0 +1,31 @@
+{
+  "title": "Глобальный JOIN",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "соединение через запятую и WHERE",
+      "sql": "SELECT person.name AS person_name, menu.pizza_name AS pizza_name, pizzeria.name AS pizzeria_name FROM person_order, person, menu, pizzeria WHERE person.id = person_order.person_id AND menu.id = person_order.menu_id AND pizzeria.id = menu.pizzeria_id ORDER BY 1, 2, 3;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "пропущено соединение с pizzeria: каждая пицца со всеми пиццериями",
+      "sql": "SELECT person.name AS person_name, menu.pizza_name AS pizza_name, pizzeria.name AS pizzeria_name FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id CROSS JOIN pizzeria ORDER BY person_name, pizza_name, pizzeria_name;"
+    },
+    {
+      "why": "пиццерия определена не через меню, а по id заказа",
+      "sql": "SELECT person.name AS person_name, menu.pizza_name AS pizza_name, pizzeria.name AS pizzeria_name FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = person_order.id ORDER BY person_name, pizza_name, pizzeria_name;"
+    },
+    {
+      "why": "сортировка по убыванию",
+      "sql": "SELECT person.name AS person_name, menu.pizza_name AS pizza_name, pizzeria.name AS pizzeria_name FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id ORDER BY person_name DESC, pizza_name DESC, pizzeria_name DESC;"
+    },
+    {
+      "why": "DISTINCT убрал повторяющиеся заказы",
+      "sql": "SELECT DISTINCT person.name AS person_name, menu.pizza_name AS pizza_name, pizzeria.name AS pizzeria_name FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id ORDER BY person_name, pizza_name, pizzeria_name;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

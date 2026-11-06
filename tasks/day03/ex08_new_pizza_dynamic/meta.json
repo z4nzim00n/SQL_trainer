@@ -1,0 +1,29 @@
+{
+  "title": "Новая пицца: динамический id",
+  "setup": "INSERT INTO menu VALUES (19, 2, 'greek pizza', 800);",
+  "verify": "SELECT id, pizzeria_id, pizza_name, price FROM menu ORDER BY id",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "INSERT ... SELECT",
+      "sql": "INSERT INTO menu (id, pizzeria_id, pizza_name, price) SELECT MAX(menu.id) + 1, (SELECT id FROM pizzeria WHERE name = 'Dominos'), 'sicilian pizza', 900 FROM menu;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "id вписан числом: на других данных будет неверный",
+      "sql": "INSERT INTO menu VALUES (20, (SELECT id FROM pizzeria WHERE name = 'Dominos'), 'sicilian pizza', 900);"
+    },
+    {
+      "why": "неверная цена",
+      "sql": "INSERT INTO menu VALUES ((SELECT MAX(id) FROM menu) + 1, (SELECT id FROM pizzeria WHERE name = 'Dominos'), 'sicilian pizza', 90);"
+    },
+    {
+      "why": "пицца в другой пиццерии",
+      "sql": "INSERT INTO menu VALUES ((SELECT MAX(id) FROM menu) + 1, (SELECT id FROM pizzeria WHERE name = 'Pizza Hut'), 'sicilian pizza', 900);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

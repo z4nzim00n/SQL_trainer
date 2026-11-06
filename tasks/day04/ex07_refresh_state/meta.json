@@ -1,0 +1,29 @@
+{
+  "title": "Обновим снимок",
+  "setup": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800\nWITH DATA;",
+  "verify": "SELECT (SELECT COUNT(*) FROM mv_dmitriy_visits_and_eats) AS mv_rows, (SELECT COUNT(*) FROM (SELECT * FROM mv_dmitriy_visits_and_eats EXCEPT SELECT pizzeria.name AS pizzeria_name FROM person_visits JOIN person ON person.id = person_visits.person_id JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id JOIN menu ON menu.pizzeria_id = pizzeria.id WHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800) AS x) AS stale_rows, (SELECT COUNT(*) FROM person_visits JOIN person ON person.id = person_visits.person_id WHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08') AS dmitriy_visits",
+  "ordered": false,
+  "required": [
+    "REFRESH MATERIALIZED VIEW"
+  ],
+  "negative": [
+    {
+      "why": "нет REFRESH: снимок устарел",
+      "sql": "INSERT INTO person_visits (id, person_id, pizzeria_id, visit_date)\nVALUES ((SELECT MAX(id) FROM person_visits) + 1,\n        (SELECT id FROM person WHERE name = 'Dmitriy'),\n        (SELECT id FROM pizzeria WHERE name = 'DoDo Pizza'),\n        '2022-01-08');"
+    },
+    {
+      "why": "нет нового визита: обновлять нечего",
+      "sql": "REFRESH MATERIALIZED VIEW mv_dmitriy_visits_and_eats;"
+    },
+    {
+      "why": "визит добавлен на другую дату",
+      "sql": "INSERT INTO person_visits (id, person_id, pizzeria_id, visit_date)\nVALUES ((SELECT MAX(id) FROM person_visits) + 1,\n        (SELECT id FROM person WHERE name = 'Dmitriy'),\n        (SELECT id FROM pizzeria WHERE name = 'DoDo Pizza'),\n        '2022-01-09');\nREFRESH MATERIALIZED VIEW mv_dmitriy_visits_and_eats;"
+    },
+    {
+      "why": "REFRESH сделан до вставки",
+      "sql": "REFRESH MATERIALIZED VIEW mv_dmitriy_visits_and_eats;\nINSERT INTO person_visits (id, person_id, pizzeria_id, visit_date)\nVALUES ((SELECT MAX(id) FROM person_visits) + 1,\n        (SELECT id FROM person WHERE name = 'Dmitriy'),\n        (SELECT id FROM pizzeria WHERE name = 'DoDo Pizza'),\n        '2022-01-08');"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

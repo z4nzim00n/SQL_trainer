@@ -1,0 +1,28 @@
+{
+  "title": "Индекс для каждого внешнего ключа",
+  "verify": "SELECT t.relname AS tbl, c.relname AS idx, am.amname AS method, i.indisunique AS is_unique, (SELECT string_agg(pg_get_indexdef(i.indexrelid, n, true), ', ' ORDER BY n) FROM generate_series(1, i.indnkeyatts) n) AS key_cols FROM pg_index i JOIN pg_class c ON c.oid = i.indexrelid JOIN pg_class t ON t.oid = i.indrelid JOIN pg_am am ON am.oid = c.relam WHERE c.relname LIKE 'idx\\_%' AND c.relnamespace = current_schema()::regnamespace ORDER BY 1, 2",
+  "ordered": true,
+  "required": [
+    "CREATE INDEX"
+  ],
+  "negative": [
+    {
+      "why": "создан не каждый индекс (пропущен один)",
+      "sql": "CREATE INDEX idx_person_order_person_id ON person_order (person_id);\nCREATE INDEX idx_person_order_menu_id ON person_order (menu_id);\nCREATE INDEX idx_person_visits_person_id ON person_visits (person_id);\nCREATE INDEX idx_person_visits_pizzeria_id ON person_visits (pizzeria_id);"
+    },
+    {
+      "why": "имя не по шаблону",
+      "sql": "CREATE INDEX menu_idx ON menu (pizzeria_id);\nCREATE INDEX idx_person_order_person_id ON person_order (person_id);\nCREATE INDEX idx_person_order_menu_id ON person_order (menu_id);\nCREATE INDEX idx_person_visits_person_id ON person_visits (person_id);\nCREATE INDEX idx_person_visits_pizzeria_id ON person_visits (pizzeria_id);"
+    },
+    {
+      "why": "индекс не на тот столбец (по дате заказа, а не по внешнему ключу)",
+      "sql": "CREATE INDEX idx_menu_pizzeria_id ON menu (pizzeria_id);\nCREATE INDEX idx_person_order_person_id ON person_order (person_id);\nCREATE INDEX idx_person_order_menu_id ON person_order (order_date);\nCREATE INDEX idx_person_visits_person_id ON person_visits (person_id);\nCREATE INDEX idx_person_visits_pizzeria_id ON person_visits (pizzeria_id);"
+    },
+    {
+      "why": "индекс не B-Tree (hash)",
+      "sql": "CREATE INDEX idx_menu_pizzeria_id ON menu USING hash (pizzeria_id);\nCREATE INDEX idx_person_order_person_id ON person_order (person_id);\nCREATE INDEX idx_person_order_menu_id ON person_order (menu_id);\nCREATE INDEX idx_person_visits_person_id ON person_visits (person_id);\nCREATE INDEX idx_person_visits_pizzeria_id ON person_visits (pizzeria_id);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

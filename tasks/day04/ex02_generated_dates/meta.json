@@ -1,0 +1,28 @@
+{
+  "title": "Даты в одном месте",
+  "dataset": "pizza",
+  "ordered": true,
+  "verify": "SELECT generated_date, pg_typeof(generated_date)::text AS typ FROM v_generated_dates",
+  "required": [
+    "generate_series"
+  ],
+  "negative": [
+    {
+      "why": "тип timestamp вместо date",
+      "sql": "CREATE VIEW v_generated_dates AS SELECT generate_series('2022-01-01'::date, '2022-01-31'::date, '1 day'::interval) AS generated_date ORDER BY generated_date;"
+    },
+    {
+      "why": "период до 30 января",
+      "sql": "CREATE VIEW v_generated_dates AS\nSELECT generate_series('2022-01-01'::date, '2022-01-30'::date, '1 day'::interval)::date AS generated_date\nORDER BY generated_date;"
+    },
+    {
+      "why": "даты по убыванию",
+      "sql": "CREATE VIEW v_generated_dates AS\nSELECT generate_series('2022-01-01'::date, '2022-01-31'::date, '1 day'::interval)::date AS generated_date\nORDER BY generated_date DESC;"
+    },
+    {
+      "why": "другое имя столбца",
+      "sql": "CREATE VIEW v_generated_dates AS\nSELECT generate_series('2022-01-01'::date, '2022-01-31'::date, '1 day'::interval)::date AS day\nORDER BY generated_date;"
+    }
+  ],
+  "forbidden": []
+}

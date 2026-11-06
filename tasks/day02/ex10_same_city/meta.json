@@ -1,0 +1,31 @@
+{
+  "title": "Люди из одного города (self join)",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "то же через CROSS JOIN и WHERE",
+      "sql": "SELECT person1.name AS person_name1, person2.name AS person_name2, person1.address AS common_address FROM person AS person1 CROSS JOIN person AS person2 WHERE person1.address = person2.address AND person1.id > person2.id ORDER BY 1, 2, 3;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "нет условия на id: люди в паре с самими собой и пары дважды",
+      "sql": "SELECT person1.name AS person_name1, person2.name AS person_name2, person1.address AS common_address FROM person AS person1 JOIN person AS person2 ON person1.address = person2.address ORDER BY person_name1, person_name2, common_address;"
+    },
+    {
+      "why": "<> вместо >: каждая пара встречается дважды",
+      "sql": "SELECT person1.name AS person_name1, person2.name AS person_name2, person1.address AS common_address\nFROM person AS person1\nJOIN person AS person2 ON person1.address = person2.address AND person1.id <> person2.id\nORDER BY person_name1, person_name2, common_address;"
+    },
+    {
+      "why": "обратное условие (id первого меньше): пары в другом порядке",
+      "sql": "SELECT person1.name AS person_name1, person2.name AS person_name2, person1.address AS common_address\nFROM person AS person1\nJOIN person AS person2 ON person1.address = person2.address AND person1.id < person2.id\nORDER BY person_name1, person_name2, common_address;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('Andrey', 'Anna', 'Moscow'), ('Denis', 'Kate', 'Kazan'), ('Elvira', 'Denis', 'Kazan'), ('Elvira', 'Kate', 'Kazan'), ('Peter', 'Irina', 'Saint-Petersburg')) AS t(person_name1, person_name2, common_address);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

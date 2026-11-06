@@ -1,0 +1,38 @@
+{
+  "title": "FULL JOIN",
+  "ordered": true,
+  "forbidden": [
+    "NOT IN",
+    "IN",
+    "NOT EXISTS",
+    "EXISTS",
+    "UNION",
+    "EXCEPT",
+    "INTERSECT"
+  ],
+  "positive": [],
+  "negative": [
+    {
+      "why": "условие по датам в WHERE стирает людей и пиццерии без посещений",
+      "sql": "SELECT COALESCE(person.name, '-') AS person_name, person_visits.visit_date, COALESCE(pizzeria.name, '-') AS pizzeria_name FROM person FULL JOIN person_visits ON person.id = person_visits.person_id FULL JOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id WHERE person_visits.visit_date BETWEEN '2022-01-01' AND '2022-01-03' ORDER BY person_name, visit_date, pizzeria_name;"
+    },
+    {
+      "why": "LEFT JOIN вместо FULL: пропали пиццерии без посетителей",
+      "sql": "SELECT COALESCE(person.name, '-') AS person_name, pv.visit_date, COALESCE(pizzeria.name, '-') AS pizzeria_name\nFROM person\nFULL JOIN (SELECT person_id, pizzeria_id, visit_date\n           FROM person_visits\n           WHERE visit_date BETWEEN '2022-01-01' AND '2022-01-03') AS pv\n       ON person.id = pv.person_id\nLEFT JOIN pizzeria ON pv.pizzeria_id = pizzeria.id\nORDER BY person_name, visit_date, pizzeria_name;"
+    },
+    {
+      "why": "NULL не заменены на '-'",
+      "sql": "SELECT person.name AS person_name, pv.visit_date, pizzeria.name AS pizzeria_name\nFROM person\nFULL JOIN (SELECT person_id, pizzeria_id, visit_date\n           FROM person_visits\n           WHERE visit_date BETWEEN '2022-01-01' AND '2022-01-03') AS pv\n       ON person.id = pv.person_id\nFULL JOIN pizzeria ON pv.pizzeria_id = pizzeria.id\nORDER BY person_name, visit_date, pizzeria_name;"
+    },
+    {
+      "why": "неверный диапазон дат",
+      "sql": "SELECT COALESCE(person.name, '-') AS person_name, pv.visit_date, COALESCE(pizzeria.name, '-') AS pizzeria_name\nFROM person\nFULL JOIN (SELECT person_id, pizzeria_id, visit_date\n           FROM person_visits\n           WHERE visit_date BETWEEN '2022-01-01' AND '2022-01-02') AS pv\n       ON person.id = pv.person_id\nFULL JOIN pizzeria ON pv.pizzeria_id = pizzeria.id\nORDER BY person_name, visit_date, pizzeria_name;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('-', NULL, 'DinoPizza'), ('-', NULL, 'DoDo Pizza'), ('Andrey', '2022-01-01', 'Dominos'), ('Andrey', '2022-01-02', 'Pizza Hut'), ('Anna', '2022-01-01', 'Pizza Hut'), ('Denis', NULL, '-'), ('Dmitriy', NULL, '-'), ('Elvira', NULL, '-'), ('Irina', '2022-01-01', 'Papa Johns'), ('Kate', '2022-01-03', 'Best Pizza'), ('Nataly', NULL, '-'), ('Peter', '2022-01-03', 'Pizza Hut')) AS t(person_name, visit_date, pizzeria_name);"
+    }
+  ],
+  "dataset": "pizza",
+  "required": []
+}

@@ -1,0 +1,35 @@
+{
+  "title": "Комментарии к таблице",
+  "setup": "CREATE TABLE person_discounts (\n    id bigint PRIMARY KEY,\n    person_id bigint,\n    pizzeria_id bigint,\n    discount numeric,\n    CONSTRAINT fk_person_discounts_person_id FOREIGN KEY (person_id) REFERENCES person (id),\n    CONSTRAINT fk_person_discounts_pizzeria_id FOREIGN KEY (pizzeria_id) REFERENCES pizzeria (id)\n);",
+  "verify": "SELECT 'table' AS what, COALESCE(length(trim(obj_description(to_regclass('person_discounts'), 'pg_class'))) > 0, false) AS has_comment UNION ALL SELECT a.attname::text, COALESCE(length(trim(col_description(a.attrelid, a.attnum))) > 0, false) FROM pg_attribute a WHERE a.attrelid = to_regclass('person_discounts') AND a.attnum > 0 AND NOT a.attisdropped ORDER BY 1",
+  "ordered": true,
+  "required": [
+    "COMMENT ON"
+  ],
+  "positive": [
+    {
+      "why": "комментарии на русском",
+      "sql": "COMMENT ON TABLE person_discounts IS 'Персональные скидки клиентов';\nCOMMENT ON COLUMN person_discounts.id IS 'Идентификатор';\nCOMMENT ON COLUMN person_discounts.person_id IS 'Клиент';\nCOMMENT ON COLUMN person_discounts.pizzeria_id IS 'Пиццерия';\nCOMMENT ON COLUMN person_discounts.discount IS 'Скидка в процентах';"
+    }
+  ],
+  "negative": [
+    {
+      "why": "нет комментария у таблицы",
+      "sql": "COMMENT ON COLUMN person_discounts.id IS 'Primary key of the discount record';\nCOMMENT ON COLUMN person_discounts.person_id IS 'Client who receives the discount (reference to person)';\nCOMMENT ON COLUMN person_discounts.pizzeria_id IS 'Pizzeria where the discount is valid (reference to pizzeria)';\nCOMMENT ON COLUMN person_discounts.discount IS 'Personal discount size in percent, from 0 to 100';"
+    },
+    {
+      "why": "не описан один из столбцов",
+      "sql": "COMMENT ON TABLE person_discounts IS 'Personal discounts of clients in specific pizzerias';\nCOMMENT ON COLUMN person_discounts.id IS 'Primary key of the discount record';\nCOMMENT ON COLUMN person_discounts.person_id IS 'Client who receives the discount (reference to person)';\nCOMMENT ON COLUMN person_discounts.pizzeria_id IS 'Pizzeria where the discount is valid (reference to pizzeria)';\n"
+    },
+    {
+      "why": "пустой комментарий не считается",
+      "sql": "COMMENT ON TABLE person_discounts IS 'Personal discounts of clients in specific pizzerias';\nCOMMENT ON COLUMN person_discounts.id IS '';\nCOMMENT ON COLUMN person_discounts.person_id IS 'Client who receives the discount (reference to person)';\nCOMMENT ON COLUMN person_discounts.pizzeria_id IS 'Pizzeria where the discount is valid (reference to pizzeria)';\nCOMMENT ON COLUMN person_discounts.discount IS 'Personal discount size in percent, from 0 to 100';"
+    },
+    {
+      "why": "комментарии только к столбцам",
+      "sql": "COMMENT ON COLUMN person_discounts.id IS 'Primary key of the discount record';\nCOMMENT ON COLUMN person_discounts.person_id IS 'Client who receives the discount (reference to person)';\nCOMMENT ON COLUMN person_discounts.pizzeria_id IS 'Pizzeria where the discount is valid (reference to pizzeria)';\nCOMMENT ON COLUMN person_discounts.discount IS 'Personal discount size in percent, from 0 to 100';"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

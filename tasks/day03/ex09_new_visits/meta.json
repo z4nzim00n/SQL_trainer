@@ -1,0 +1,29 @@
+{
+  "title": "Новые визиты (INSERT ... SELECT)",
+  "setup": "INSERT INTO menu VALUES (19, 2, 'greek pizza', 800);\nINSERT INTO menu (id, pizzeria_id, pizza_name, price) VALUES ((SELECT MAX(id) FROM menu) + 1, (SELECT id FROM pizzeria WHERE name = 'Dominos'), 'sicilian pizza', 900);",
+  "verify": "SELECT person_id, pizzeria_id, visit_date FROM person_visits ORDER BY person_id, pizzeria_id, visit_date",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "id через ROW_NUMBER",
+      "sql": "INSERT INTO person_visits (id, person_id, pizzeria_id, visit_date) SELECT (SELECT MAX(id) FROM person_visits) + ROW_NUMBER() OVER (ORDER BY person.id), person.id, (SELECT id FROM pizzeria WHERE name = 'Dominos'), '2022-02-24' FROM person WHERE person.name = 'Denis' OR person.name = 'Irina';"
+    }
+  ],
+  "negative": [
+    {
+      "why": "добавлен только один человек",
+      "sql": "INSERT INTO person_visits (id, person_id, pizzeria_id, visit_date) SELECT (SELECT MAX(id) FROM person_visits) + person.id, person.id, (SELECT id FROM pizzeria WHERE name = 'Dominos'), '2022-02-24' FROM person WHERE person.name = 'Denis';"
+    },
+    {
+      "why": "неверная дата",
+      "sql": "INSERT INTO person_visits (id, person_id, pizzeria_id, visit_date) SELECT (SELECT MAX(id) FROM person_visits) + person.id, person.id, (SELECT id FROM pizzeria WHERE name = 'Dominos'), '2022-02-25' FROM person WHERE person.name = 'Denis' OR person.name = 'Irina';"
+    },
+    {
+      "why": "неверная пиццерия",
+      "sql": "INSERT INTO person_visits (id, person_id, pizzeria_id, visit_date) SELECT (SELECT MAX(id) FROM person_visits) + person.id, person.id, (SELECT id FROM pizzeria WHERE name = 'Pizza Hut'), '2022-02-24' FROM person WHERE person.name = 'Denis' OR person.name = 'Irina';"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

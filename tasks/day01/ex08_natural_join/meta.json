@@ -1,0 +1,31 @@
+{
+  "title": "Перейти на NATURAL JOIN",
+  "ordered": true,
+  "required": [
+    "NATURAL JOIN"
+  ],
+  "forbidden": [
+    "INNER",
+    "LEFT",
+    "RIGHT",
+    "FULL",
+    "CROSS",
+    "ON",
+    "USING"
+  ],
+  "negative": [
+    {
+      "why": "NATURAL JOIN без переименования соединяет по id, это неверно",
+      "sql": "SELECT order_date, CONCAT(name, ' (age:', age, ')') AS person_information FROM person_order NATURAL JOIN person ORDER BY order_date, person_information;"
+    },
+    {
+      "why": "обычный JOIN ... ON вместо NATURAL JOIN",
+      "sql": "SELECT person_order.order_date, CONCAT(person.name, ' (age:', person.age, ')') AS person_information FROM person_order JOIN person ON person_order.person_id = person.id ORDER BY order_date, person_information;"
+    },
+    {
+      "why": "нет возраста в нужном формате",
+      "sql": "SELECT order_date, name AS person_information FROM person_order NATURAL JOIN (SELECT id AS person_id, name, age FROM person) AS p ORDER BY order_date, person_information;"
+    }
+  ],
+  "dataset": "pizza"
+}

@@ -1,0 +1,39 @@
+{
+  "title": "Мужчины: пепперони или грибы",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "IN вместо цепочек OR",
+      "sql": "SELECT DISTINCT person.name FROM person_order JOIN person ON person_order.person_id = person.id JOIN menu ON person_order.menu_id = menu.id WHERE person.gender = 'male' AND person.address IN ('Moscow', 'Samara') AND menu.pizza_name IN ('pepperoni pizza', 'mushroom pizza') ORDER BY name DESC;"
+    },
+    {
+      "why": "уникальность через GROUP BY",
+      "sql": "SELECT person.name FROM person_order JOIN person ON person_order.person_id = person.id JOIN menu ON person_order.menu_id = menu.id WHERE person.gender = 'male' AND person.address IN ('Moscow', 'Samara') AND menu.pizza_name IN ('pepperoni pizza', 'mushroom pizza') GROUP BY person.name ORDER BY name DESC;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "нет DISTINCT: имена повторяются",
+      "sql": "SELECT person.name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nWHERE person.gender = 'male'\n  AND (person.address = 'Moscow' OR person.address = 'Samara')\n  AND (menu.pizza_name = 'pepperoni pizza' OR menu.pizza_name = 'mushroom pizza')\nORDER BY name DESC;"
+    },
+    {
+      "why": "нет скобок: OR ломает смысл условия",
+      "sql": "SELECT DISTINCT person.name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nWHERE person.gender = 'male'\n  AND person.address = 'Moscow' OR person.address = 'Samara'\n  AND (menu.pizza_name = 'pepperoni pizza' OR menu.pizza_name = 'mushroom pizza')\nORDER BY name DESC;"
+    },
+    {
+      "why": "сортировка по возрастанию",
+      "sql": "SELECT DISTINCT person.name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nWHERE person.gender = 'male'\n  AND (person.address = 'Moscow' OR person.address = 'Samara')\n  AND (menu.pizza_name = 'pepperoni pizza' OR menu.pizza_name = 'mushroom pizza')\nORDER BY name;"
+    },
+    {
+      "why": "только один город",
+      "sql": "SELECT DISTINCT person.name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nWHERE person.gender = 'male'\n  AND (person.address = 'Moscow')\n  AND (menu.pizza_name = 'pepperoni pizza' OR menu.pizza_name = 'mushroom pizza')\nORDER BY name DESC;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('Dmitriy'), ('Andrey')) AS t(name);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

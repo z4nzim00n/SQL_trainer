@@ -1,0 +1,26 @@
+{
+  "title": "Женщины старше 25",
+  "ordered": true,
+  "positive": [],
+  "negative": [
+    {
+      "why": ">= включает 25-летних",
+      "sql": "SELECT name\nFROM person\nWHERE gender = 'female' AND age >= 25\nORDER BY name;"
+    },
+    {
+      "why": "условие пола потеряно",
+      "sql": "SELECT name FROM person WHERE age > 25 ORDER BY name;"
+    },
+    {
+      "why": "сортировка по возрасту",
+      "sql": "SELECT name FROM person WHERE gender = 'female' AND age > 25 ORDER BY age;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('Elvira'), ('Kate'), ('Nataly')) AS t(name);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

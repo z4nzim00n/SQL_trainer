@@ -1,0 +1,7 @@
+-- Идея: последовательность выдаёт id; её нужно передвинуть за уже занятые номера.
+CREATE SEQUENCE seq_person_discounts START 1;
+ALTER TABLE person_discounts
+    ALTER COLUMN id SET DEFAULT NEXTVAL('seq_person_discounts');     -- id берётся автоматически
+SELECT SETVAL('seq_person_discounts',
+              (SELECT COUNT(*) FROM person_discounts) + 1,           -- число строк + 1, без вписанных чисел
+              false);                                                -- false: это значение ещё не выдано

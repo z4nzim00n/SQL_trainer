@@ -1,0 +1,23 @@
+{
+  "title": "Новые заказы",
+  "setup": "INSERT INTO menu VALUES (19, 2, 'greek pizza', 800);\nINSERT INTO menu (id, pizzeria_id, pizza_name, price) VALUES ((SELECT MAX(id) FROM menu) + 1, (SELECT id FROM pizzeria WHERE name = 'Dominos'), 'sicilian pizza', 900);\nINSERT INTO person_visits (id, person_id, pizzeria_id, visit_date)\nSELECT (SELECT MAX(id) FROM person_visits) + person.id, person.id, (SELECT id FROM pizzeria WHERE name = 'Dominos'), '2022-02-24'\nFROM person\nWHERE person.name = 'Denis' OR person.name = 'Irina';",
+  "verify": "SELECT person_id, menu_id, order_date FROM person_order ORDER BY person_id, menu_id, order_date",
+  "ordered": true,
+  "negative": [
+    {
+      "why": "добавлен только один человек",
+      "sql": "INSERT INTO person_order (id, person_id, menu_id, order_date)\nSELECT (SELECT MAX(id) FROM person_order) + person.id, person.id, (SELECT id FROM menu WHERE pizza_name = 'sicilian pizza'), '2022-02-24'\nFROM person\nWHERE person.name = 'Irina';"
+    },
+    {
+      "why": "заказана не та позиция меню (greek pizza)",
+      "sql": "INSERT INTO person_order (id, person_id, menu_id, order_date)\nSELECT (SELECT MAX(id) FROM person_order) + person.id, person.id, (SELECT id FROM menu WHERE pizza_name = 'greek pizza'), '2022-02-24'\nFROM person\nWHERE person.name = 'Denis' OR person.name = 'Irina';"
+    },
+    {
+      "why": "неверная дата",
+      "sql": "INSERT INTO person_order (id, person_id, menu_id, order_date)\nSELECT (SELECT MAX(id) FROM person_order) + person.id, person.id, (SELECT id FROM menu WHERE pizza_name = 'sicilian pizza'), '2022-02-23'\nFROM person\nWHERE person.name = 'Denis' OR person.name = 'Irina';"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

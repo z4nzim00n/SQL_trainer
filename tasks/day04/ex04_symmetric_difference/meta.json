@@ -1,0 +1,34 @@
+{
+  "title": "Симметрическая разность",
+  "ordered": true,
+  "verify": "SELECT * FROM v_symmetric_union",
+  "required": [
+    "CREATE VIEW"
+  ],
+  "positive": [
+    {
+      "why": "без EXCEPT: через NOT IN",
+      "sql": "CREATE VIEW v_symmetric_union AS SELECT person_id FROM (SELECT person_id FROM person_visits WHERE visit_date IN ('2022-01-02', '2022-01-06') GROUP BY person_id HAVING COUNT(DISTINCT visit_date) = 1) AS t ORDER BY person_id;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "только R − S",
+      "sql": "CREATE VIEW v_symmetric_union AS SELECT person_id FROM person_visits WHERE visit_date = '2022-01-02' EXCEPT SELECT person_id FROM person_visits WHERE visit_date = '2022-01-06' ORDER BY person_id;"
+    },
+    {
+      "why": "объединение без вычитания: попали и те, кто был в обе даты",
+      "sql": "CREATE VIEW v_symmetric_union AS SELECT person_id FROM person_visits WHERE visit_date = '2022-01-02' UNION SELECT person_id FROM person_visits WHERE visit_date = '2022-01-06' ORDER BY person_id;"
+    },
+    {
+      "why": "пересечение вместо разности",
+      "sql": "CREATE VIEW v_symmetric_union AS SELECT person_id FROM person_visits WHERE visit_date = '2022-01-02' INTERSECT SELECT person_id FROM person_visits WHERE visit_date = '2022-01-06' ORDER BY person_id;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "CREATE VIEW v_symmetric_union AS SELECT * FROM (VALUES (1), (3), (5)) AS t(person_id) ORDER BY person_id;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

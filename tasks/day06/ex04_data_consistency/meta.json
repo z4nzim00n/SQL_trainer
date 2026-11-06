@@ -1,0 +1,37 @@
+{
+  "title": "Согласованность данных",
+  "setup": "CREATE TABLE person_discounts (\n    id bigint PRIMARY KEY,\n    person_id bigint,\n    pizzeria_id bigint,\n    discount numeric,\n    CONSTRAINT fk_person_discounts_person_id FOREIGN KEY (person_id) REFERENCES person (id),\n    CONSTRAINT fk_person_discounts_pizzeria_id FOREIGN KEY (pizzeria_id) REFERENCES pizzeria (id)\n);\nINSERT INTO person_discounts (id, person_id, pizzeria_id, discount)\nSELECT ROW_NUMBER() OVER () AS id,\n       person_order.person_id,\n       menu.pizzeria_id,\n       CASE WHEN COUNT(*) = 1 THEN 10.5\n            WHEN COUNT(*) = 2 THEN 22\n            ELSE 30 END\nFROM person_order\nJOIN menu ON menu.id = person_order.menu_id\nGROUP BY person_order.person_id, menu.pizzeria_id;",
+  "verify": "SELECT 'constraint' AS kind, conname::text AS name, contype::text || ' ' || pg_get_constraintdef(oid) AS detail FROM pg_constraint WHERE conrelid = to_regclass('person_discounts') AND contype = 'c' UNION ALL SELECT 'default', column_name::text, COALESCE(column_default, '-') FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'person_discounts' AND column_name = 'discount' ORDER BY 1, 2",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "диапазон через >= и <=",
+      "sql": "ALTER TABLE person_discounts ADD CONSTRAINT ch_nn_person_id CHECK (person_id IS NOT NULL);\nALTER TABLE person_discounts ADD CONSTRAINT ch_nn_pizzeria_id CHECK (pizzeria_id IS NOT NULL);\nALTER TABLE person_discounts ADD CONSTRAINT ch_nn_discount CHECK (discount IS NOT NULL);\nALTER TABLE person_discounts ALTER COLUMN discount SET DEFAULT 0;\nALTER TABLE person_discounts ADD CONSTRAINT ch_range_discount CHECK (discount >= 0 AND discount <= 100);"
+    }
+  ],
+  "negative": [
+    {
+      "why": "NOT NULL без имён (SET NOT NULL): ограничения с нужными именами нет",
+      "sql": "ALTER TABLE person_discounts ALTER COLUMN person_id SET NOT NULL;\nALTER TABLE person_discounts ALTER COLUMN pizzeria_id SET NOT NULL;\nALTER TABLE person_discounts ALTER COLUMN discount SET NOT NULL;\nALTER TABLE person_discounts ALTER COLUMN discount SET DEFAULT 0;\nALTER TABLE person_discounts ADD CONSTRAINT ch_range_discount CHECK (discount BETWEEN 0 AND 100);"
+    },
+    {
+      "why": "нет значения по умолчанию",
+      "sql": "ALTER TABLE person_discounts ADD CONSTRAINT ch_nn_person_id CHECK (person_id IS NOT NULL);\nALTER TABLE person_discounts ADD CONSTRAINT ch_nn_pizzeria_id CHECK (pizzeria_id IS NOT NULL);\nALTER TABLE person_discounts ADD CONSTRAINT ch_nn_discount CHECK (discount IS NOT NULL);\nALTER TABLE person_discounts ADD CONSTRAINT ch_range_discount CHECK (discount BETWEEN 0 AND 100);"
+    },
+    {
+      "why": "диапазон до 99",
+      "sql": "ALTER TABLE person_discounts ADD CONSTRAINT ch_nn_person_id CHECK (person_id IS NOT NULL);\nALTER TABLE person_discounts ADD CONSTRAINT ch_nn_pizzeria_id CHECK (pizzeria_id IS NOT NULL);\nALTER TABLE person_discounts ADD CONSTRAINT ch_nn_discount CHECK (discount IS NOT NULL);\nALTER TABLE person_discounts ALTER COLUMN discount SET DEFAULT 0;\nALTER TABLE person_discounts ADD CONSTRAINT ch_range_discount CHECK (discount BETWEEN 0 AND 99);"
+    },
+    {
+      "why": "не хватает ограничения для discount",
+      "sql": "ALTER TABLE person_discounts ADD CONSTRAINT ch_nn_person_id CHECK (person_id IS NOT NULL);\nALTER TABLE person_discounts ADD CONSTRAINT ch_nn_pizzeria_id CHECK (pizzeria_id IS NOT NULL);\nALTER TABLE person_discounts ALTER COLUMN discount SET DEFAULT 0;\nALTER TABLE person_discounts ADD CONSTRAINT ch_range_discount CHECK (discount BETWEEN 0 AND 100);"
+    },
+    {
+      "why": "значение по умолчанию 1",
+      "sql": "ALTER TABLE person_discounts ADD CONSTRAINT ch_nn_person_id CHECK (person_id IS NOT NULL);\nALTER TABLE person_discounts ADD CONSTRAINT ch_nn_pizzeria_id CHECK (pizzeria_id IS NOT NULL);\nALTER TABLE person_discounts ADD CONSTRAINT ch_nn_discount CHECK (discount IS NOT NULL);\nALTER TABLE person_discounts ALTER COLUMN discount SET DEFAULT 1;\nALTER TABLE person_discounts ADD CONSTRAINT ch_range_discount CHECK (discount BETWEEN 0 AND 100);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

@@ -1,0 +1,31 @@
+{
+  "title": "Просто сделай JOIN",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "соединение через запятую и WHERE, текст склеен оператором ||",
+      "sql": "SELECT order_date, person.name || ' (age:' || person.age::text || ')' AS person_information FROM person_order, person WHERE person_order.person_id = person.id ORDER BY order_date, person_information;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "DISTINCT убрал повторяющиеся заказы",
+      "sql": "SELECT DISTINCT person_order.order_date, CONCAT(person.name, ' (age:', person.age, ')') AS person_information FROM person_order JOIN person ON person_order.person_id = person.id ORDER BY order_date, person_information;"
+    },
+    {
+      "why": "нет возраста в формате (age:...)",
+      "sql": "SELECT person_order.order_date, person.name AS person_information FROM person_order JOIN person ON person_order.person_id = person.id ORDER BY order_date, person_information;"
+    },
+    {
+      "why": "сортировка по убыванию",
+      "sql": "SELECT person_order.order_date, CONCAT(person.name, ' (age:', person.age, ')') AS person_information FROM person_order JOIN person ON person_order.person_id = person.id ORDER BY order_date DESC, person_information DESC;"
+    },
+    {
+      "why": "нет условия связи: все заказы со всеми людьми",
+      "sql": "SELECT person_order.order_date, CONCAT(person.name, ' (age:', person.age, ')') AS person_information FROM person_order CROSS JOIN person ORDER BY order_date, person_information;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

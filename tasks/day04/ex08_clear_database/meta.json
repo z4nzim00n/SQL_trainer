@@ -1,0 +1,29 @@
+{
+  "title": "Наведём порядок",
+  "setup": "CREATE VIEW v_persons_female AS SELECT * FROM person WHERE gender = 'female';\nCREATE VIEW v_persons_male AS SELECT * FROM person WHERE gender = 'male';\nCREATE VIEW v_generated_dates AS\nSELECT generate_series('2022-01-01'::date, '2022-01-31'::date, '1 day'::interval)::date AS generated_date\nORDER BY generated_date;\nCREATE VIEW v_symmetric_union AS\n(SELECT person_id FROM person_visits WHERE visit_date = '2022-01-02'\n EXCEPT\n SELECT person_id FROM person_visits WHERE visit_date = '2022-01-06')\nUNION\n(SELECT person_id FROM person_visits WHERE visit_date = '2022-01-06'\n EXCEPT\n SELECT person_id FROM person_visits WHERE visit_date = '2022-01-02')\nORDER BY person_id;\nCREATE VIEW v_price_with_discount AS\nSELECT person.name, menu.pizza_name, menu.price, ROUND(menu.price - menu.price * 0.1) AS discount_price\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nORDER BY person.name, menu.pizza_name;\nCREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800\nWITH DATA;",
+  "verify": "SELECT (SELECT COUNT(*) FROM pg_views WHERE schemaname = current_schema()) AS views_left, (SELECT COUNT(*) FROM pg_matviews WHERE schemaname = current_schema()) AS matviews_left, (SELECT COUNT(*) FROM person) AS persons, (SELECT COUNT(*) FROM person_visits) AS visits",
+  "ordered": false,
+  "positive": [
+    {
+      "why": "одной командой, через запятую",
+      "sql": "DROP VIEW v_persons_female, v_persons_male, v_generated_dates, v_symmetric_union, v_price_with_discount;\nDROP MATERIALIZED VIEW mv_dmitriy_visits_and_eats;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "материализованное представление осталось",
+      "sql": "DROP VIEW v_persons_female;\nDROP VIEW v_persons_male;\nDROP VIEW v_generated_dates;\nDROP VIEW v_symmetric_union;\nDROP VIEW v_price_with_discount;"
+    },
+    {
+      "why": "остались обычные представления",
+      "sql": "DROP MATERIALIZED VIEW mv_dmitriy_visits_and_eats;"
+    },
+    {
+      "why": "удалена таблица с данными вместо представлений",
+      "sql": "DROP VIEW v_persons_female;\nDROP VIEW v_persons_male;\nDROP VIEW v_generated_dates;\nDROP VIEW v_symmetric_union;\nDROP VIEW v_price_with_discount;\nDROP MATERIALIZED VIEW mv_dmitriy_visits_and_eats;\nDROP TABLE person_visits CASCADE;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

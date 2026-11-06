@@ -1,0 +1,30 @@
+{
+  "title": "Ускорим запрос",
+  "ordered": false,
+  "required": [
+    "EXPLAIN ANALYZE"
+  ],
+  "verify": "ANALYZE menu, pizzeria, person, person_order, person_visits;\nSET LOCAL enable_seqscan = off;\nCREATE FUNCTION pg_temp.plan_of(q text) RETURNS text AS $$ DECLARE r text; t text := ''; BEGIN FOR r IN EXECUTE 'EXPLAIN ' || q LOOP t := t || r || E'\\n'; END LOOP; RETURN t; END $$ LANGUAGE plpgsql;\nCREATE FUNCTION pg_temp.improved(q text, idx text) RETURNS TABLE(used_in_plan boolean, cheaper_than_without boolean) AS $$ DECLARE p text; c1 numeric; c2 numeric; BEGIN IF to_regclass(idx) IS NULL THEN RETURN QUERY SELECT false, false; RETURN; END IF; p := pg_temp.plan_of(q); c1 := substring(p from 'cost=[0-9.]+\\.\\.([0-9.]+)')::numeric; EXECUTE 'DROP INDEX ' || idx; c2 := substring(pg_temp.plan_of(q) from 'cost=[0-9.]+\\.\\.([0-9.]+)')::numeric; RETURN QUERY SELECT p LIKE '%' || idx || '%', c1 < c2; END $$ LANGUAGE plpgsql;\nSELECT * FROM pg_temp.improved('SELECT m.pizza_name AS pizza_name, max(rating) OVER (PARTITION BY rating ORDER BY rating ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS k FROM menu m INNER JOIN pizzeria pz ON m.pizzeria_id = pz.id ORDER BY 1,2', 'idx_1')",
+  "positive": [
+    {
+      "why": "индекс в другом порядке столбцов",
+      "sql": "CREATE INDEX idx_1 ON pizzeria (rating, id);\nEXPLAIN ANALYZE\nSELECT m.pizza_name AS pizza_name, max(rating) OVER (PARTITION BY rating ORDER BY rating ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS k FROM menu m INNER JOIN pizzeria pz ON m.pizzeria_id = pz.id ORDER BY 1,2;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "индекс на столбце, который запрос не использует",
+      "sql": "CREATE INDEX idx_1 ON menu (price);\nEXPLAIN ANALYZE\nSELECT m.pizza_name AS pizza_name, max(rating) OVER (PARTITION BY rating ORDER BY rating ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS k FROM menu m INNER JOIN pizzeria pz ON m.pizzeria_id = pz.id ORDER BY 1,2;"
+    },
+    {
+      "why": "индекс не создан",
+      "sql": "EXPLAIN ANALYZE\nSELECT m.pizza_name AS pizza_name, max(rating) OVER (PARTITION BY rating ORDER BY rating ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS k FROM menu m INNER JOIN pizzeria pz ON m.pizzeria_id = pz.id ORDER BY 1,2;"
+    },
+    {
+      "why": "индекс назван не idx_1",
+      "sql": "CREATE INDEX idx_pizzeria ON pizzeria (id, rating);\nEXPLAIN ANALYZE\nSELECT m.pizza_name AS pizza_name, max(rating) OVER (PARTITION BY rating ORDER BY rating ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS k FROM menu m INNER JOIN pizzeria pz ON m.pizzeria_id = pz.id ORDER BY 1,2;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

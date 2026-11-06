@@ -1,0 +1,37 @@
+{
+  "title": "Переписать на CTE",
+  "ordered": true,
+  "forbidden": [
+    "NOT IN",
+    "IN",
+    "NOT EXISTS",
+    "EXISTS",
+    "UNION",
+    "EXCEPT",
+    "INTERSECT"
+  ],
+  "required": [
+    "WITH",
+    "generate_series"
+  ],
+  "positive": [],
+  "negative": [
+    {
+      "why": "нет WITH (запрос из задания 01)",
+      "sql": "SELECT day::date AS missing_date\nFROM generate_series('2022-01-01'::date, '2022-01-10'::date, '1 day'::interval) AS day\nLEFT JOIN (SELECT visit_date\n           FROM person_visits\n           WHERE person_id = 1 OR person_id = 2) AS visits\n       ON visits.visit_date = day::date\nWHERE visits.visit_date IS NULL\nORDER BY missing_date;"
+    },
+    {
+      "why": "запрещён NOT IN",
+      "sql": "WITH days AS (SELECT generate_series('2022-01-01'::date, '2022-01-10'::date, '1 day'::interval)::date AS missing_date) SELECT missing_date FROM days WHERE missing_date NOT IN (SELECT visit_date FROM person_visits WHERE person_id = 1 OR person_id = 2) ORDER BY missing_date;"
+    },
+    {
+      "why": "учтён только человек 2",
+      "sql": "WITH days AS (\n    SELECT generate_series('2022-01-01'::date, '2022-01-10'::date, '1 day'::interval)::date AS missing_date\n)\nSELECT days.missing_date\nFROM days\nLEFT JOIN (SELECT visit_date\n           FROM person_visits\n           WHERE person_id = 2) AS visits\n       ON visits.visit_date = days.missing_date\nWHERE visits.visit_date IS NULL\nORDER BY missing_date;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('2022-01-03'), ('2022-01-04'), ('2022-01-05'), ('2022-01-06'), ('2022-01-07'), ('2022-01-08'), ('2022-01-09'), ('2022-01-10')) AS t(missing_date);"
+    }
+  ],
+  "dataset": "pizza"
+}

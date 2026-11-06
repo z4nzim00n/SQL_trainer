@@ -1,0 +1,35 @@
+{
+  "title": "От частей к общему списку",
+  "setup": "CREATE VIEW v_persons_female AS SELECT * FROM person WHERE gender = 'female';\nCREATE VIEW v_persons_male AS SELECT * FROM person WHERE gender = 'male';",
+  "ordered": true,
+  "required": [
+    "v_persons_female",
+    "v_persons_male"
+  ],
+  "positive": [
+    {
+      "why": "UNION ALL: имена не повторяются, результат тот же",
+      "sql": "SELECT name FROM v_persons_female UNION ALL SELECT name FROM v_persons_male ORDER BY name;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "только женщины",
+      "sql": "SELECT name FROM v_persons_female ORDER BY name;"
+    },
+    {
+      "why": "сортировка по убыванию",
+      "sql": "SELECT name FROM v_persons_female UNION SELECT name FROM v_persons_male ORDER BY name DESC;"
+    },
+    {
+      "why": "обращение напрямую к таблице вместо представлений (запрещено по смыслу)",
+      "sql": "SELECT name FROM person ORDER BY name;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('Andrey'), ('Anna')) AS t(name) ORDER BY name;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

@@ -1,0 +1,28 @@
+{
+  "title": "Раздельные представления",
+  "ordered": true,
+  "verify": "SELECT 'f' AS t, id, name, age, gender, address FROM v_persons_female UNION ALL SELECT 'm', id, name, age, gender, address FROM v_persons_male ORDER BY 1, 2",
+  "required": [
+    "CREATE VIEW"
+  ],
+  "negative": [
+    {
+      "why": "полы перепутаны",
+      "sql": "CREATE VIEW v_persons_female AS SELECT * FROM person WHERE gender = 'male';\nCREATE VIEW v_persons_male AS SELECT * FROM person WHERE gender = 'female';"
+    },
+    {
+      "why": "в представлениях не все атрибуты (нет адреса)",
+      "sql": "CREATE VIEW v_persons_female AS SELECT id, name, age, gender FROM person WHERE gender = 'female';\nCREATE VIEW v_persons_male AS SELECT id, name, age, gender FROM person WHERE gender = 'male';"
+    },
+    {
+      "why": "нет фильтра: представление женщин содержит всех",
+      "sql": "CREATE VIEW v_persons_female AS SELECT * FROM person;\nCREATE VIEW v_persons_male AS SELECT * FROM person WHERE gender = 'male';"
+    },
+    {
+      "why": "создано только одно представление",
+      "sql": "CREATE VIEW v_persons_female AS SELECT * FROM person WHERE gender = 'female';"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

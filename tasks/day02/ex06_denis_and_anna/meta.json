@@ -1,0 +1,31 @@
+{
+  "title": "Любимые пиццы Дениса и Анны",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "IN вместо OR (в этом задании IN разрешён)",
+      "sql": "SELECT menu.pizza_name, pizzeria.name AS pizzeria_name FROM person_order JOIN person ON person_order.person_id = person.id JOIN menu ON person_order.menu_id = menu.id JOIN pizzeria ON menu.pizzeria_id = pizzeria.id WHERE person.name IN ('Denis', 'Anna') ORDER BY 1, 2;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "только Денис",
+      "sql": "SELECT menu.pizza_name, pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nJOIN pizzeria ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Denis'\nORDER BY pizza_name, pizzeria_name;"
+    },
+    {
+      "why": "взяты посещения вместо заказов",
+      "sql": "SELECT menu.pizza_name, pizzeria.name AS pizzeria_name FROM person_visits JOIN person ON person_visits.person_id = person.id JOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id JOIN menu ON menu.pizzeria_id = pizzeria.id WHERE person.name = 'Denis' OR person.name = 'Anna' ORDER BY pizza_name, pizzeria_name;"
+    },
+    {
+      "why": "сортировка только по первому столбцу и по убыванию",
+      "sql": "SELECT menu.pizza_name, pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nJOIN pizzeria ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Denis' OR person.name = 'Anna'\nORDER BY pizza_name DESC;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('cheese pizza', 'Best Pizza'), ('cheese pizza', 'Pizza Hut'), ('pepperoni pizza', 'Best Pizza'), ('pepperoni pizza', 'DinoPizza'), ('pepperoni pizza', 'Pizza Hut'), ('sausage pizza', 'DinoPizza'), ('supreme pizza', 'Best Pizza')) AS t(pizza_name, pizzeria_name);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

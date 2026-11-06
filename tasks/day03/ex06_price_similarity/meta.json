@@ -1,0 +1,28 @@
+{
+  "title": "Пиццы с одинаковой ценой",
+  "ordered": true,
+  "orderKeys": [
+    "pizza_name"
+  ],
+  "negative": [
+    {
+      "why": "условие <> даёт каждую пару дважды",
+      "sql": "SELECT m1.pizza_name, pz1.name AS pizzeria_name_1, pz2.name AS pizzeria_name_2, m1.price\nFROM menu AS m1\nJOIN menu AS m2 ON m1.pizza_name = m2.pizza_name AND m1.price = m2.price AND m1.pizzeria_id <> m2.pizzeria_id\nJOIN pizzeria AS pz1 ON pz1.id = m1.pizzeria_id\nJOIN pizzeria AS pz2 ON pz2.id = m2.pizzeria_id\nORDER BY pizza_name;"
+    },
+    {
+      "why": "условие >= включает «пару» пиццерии с самой собой",
+      "sql": "SELECT m1.pizza_name, pz1.name AS pizzeria_name_1, pz2.name AS pizzeria_name_2, m1.price\nFROM menu AS m1\nJOIN menu AS m2 ON m1.pizza_name = m2.pizza_name AND m1.price = m2.price AND m1.pizzeria_id >= m2.pizzeria_id\nJOIN pizzeria AS pz1 ON pz1.id = m1.pizzeria_id\nJOIN pizzeria AS pz2 ON pz2.id = m2.pizzeria_id\nORDER BY pizza_name;"
+    },
+    {
+      "why": "перепутаны пиццерии: в первом столбце пиццерия с меньшим id",
+      "sql": "SELECT m1.pizza_name, pz1.name AS pizzeria_name_1, pz2.name AS pizzeria_name_2, m1.price\nFROM menu AS m1\nJOIN menu AS m2 ON m1.pizza_name = m2.pizza_name AND m1.price = m2.price AND m1.pizzeria_id < m2.pizzeria_id\nJOIN pizzeria AS pz1 ON pz1.id = m1.pizzeria_id\nJOIN pizzeria AS pz2 ON pz2.id = m2.pizzeria_id\nORDER BY pizza_name;"
+    },
+    {
+      "why": "не проверяется цена: пары с разной ценой",
+      "sql": "SELECT m1.pizza_name, pz1.name AS pizzeria_name_1, pz2.name AS pizzeria_name_2, m1.price\nFROM menu AS m1\nJOIN menu AS m2 ON m1.pizza_name = m2.pizza_name AND m1.pizzeria_id > m2.pizzeria_id\nJOIN pizzeria AS pz1 ON pz1.id = m1.pizzeria_id\nJOIN pizzeria AS pz2 ON pz2.id = m2.pizzeria_id\nORDER BY pizza_name;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

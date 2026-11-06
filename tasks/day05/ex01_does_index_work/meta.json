@@ -1,0 +1,28 @@
+{
+  "title": "Как увидеть, что индекс работает",
+  "setup": "CREATE INDEX idx_menu_pizzeria_id ON menu (pizzeria_id);\nCREATE INDEX idx_person_order_person_id ON person_order (person_id);\nCREATE INDEX idx_person_order_menu_id ON person_order (menu_id);\nCREATE INDEX idx_person_visits_person_id ON person_visits (person_id);\nCREATE INDEX idx_person_visits_pizzeria_id ON person_visits (pizzeria_id);",
+  "ordered": false,
+  "required": [
+    "EXPLAIN ANALYZE",
+    "enable_seqscan"
+  ],
+  "verify": "ANALYZE menu, pizzeria, person, person_order, person_visits;\nCREATE FUNCTION pg_temp.plan_of(q text) RETURNS text AS $$ DECLARE r text; t text := ''; BEGIN FOR r IN EXECUTE 'EXPLAIN ' || q LOOP t := t || r || E'\\n'; END LOOP; RETURN t; END $$ LANGUAGE plpgsql;\nSELECT current_setting('enable_seqscan') AS seqscan, pg_temp.plan_of('SELECT menu.pizza_name, pizzeria.name AS pizzeria_name FROM menu JOIN pizzeria ON pizzeria.id = menu.pizzeria_id') LIKE '%idx_menu_pizzeria_id%' AS index_in_plan",
+  "positive": [
+    {
+      "why": "то же через SET ... TO",
+      "sql": "SET enable_seqscan TO off;\nEXPLAIN ANALYZE SELECT menu.pizza_name, pizzeria.name AS pizzeria_name FROM menu JOIN pizzeria ON pizzeria.id = menu.pizzeria_id;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "не отключено последовательное сканирование: индекс не используется",
+      "sql": "EXPLAIN ANALYZE SELECT menu.pizza_name, pizzeria.name AS pizzeria_name FROM menu JOIN pizzeria ON pizzeria.id = menu.pizzeria_id;"
+    },
+    {
+      "why": "нет EXPLAIN ANALYZE",
+      "sql": "SET enable_seqscan = off;\nSELECT menu.pizza_name, pizzeria.name AS pizzeria_name FROM menu JOIN pizzeria ON pizzeria.id = menu.pizzeria_id;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

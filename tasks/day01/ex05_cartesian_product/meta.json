@@ -1,0 +1,28 @@
+{
+  "title": "Декартово произведение",
+  "ordered": false,
+  "checkColumns": false,
+  "positive": [
+    {
+      "why": "таблицы через запятую без условия",
+      "sql": "SELECT person.id, person.name, age, gender, address, pizzeria.id, pizzeria.name, rating FROM person, pizzeria;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "порядок таблиц обратный: сначала столбцы pizzeria",
+      "sql": "SELECT * FROM pizzeria CROSS JOIN person;"
+    },
+    {
+      "why": "добавлено условие: получились не все комбинации",
+      "sql": "SELECT * FROM person JOIN pizzeria ON person.id = pizzeria.id;"
+    },
+    {
+      "why": "только столбцы person",
+      "sql": "SELECT person.* FROM person CROSS JOIN pizzeria;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

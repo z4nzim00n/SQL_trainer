@@ -1,0 +1,34 @@
+{
+  "title": "Материализация",
+  "ordered": false,
+  "verify": "SELECT * FROM mv_dmitriy_visits_and_eats",
+  "required": [
+    "MATERIALIZED VIEW"
+  ],
+  "positive": [
+    {
+      "why": "WITH DATA не указан: по умолчанию данные включены",
+      "sql": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "WITH NO DATA: читать нельзя",
+      "sql": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800\nWITH NO DATA;"
+    },
+    {
+      "why": "не учтена дата",
+      "sql": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND menu.price < 800\nWITH DATA;"
+    },
+    {
+      "why": "не учтена цена",
+      "sql": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08'\nWITH DATA;"
+    },
+    {
+      "why": "цена <= 800 включает лишнюю пиццерию",
+      "sql": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price <= 800\nWITH DATA;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

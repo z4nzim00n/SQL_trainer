@@ -1,0 +1,31 @@
+{
+  "title": "Кто любит сыр и пепперони",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "второй способ: INTERSECT",
+      "sql": "SELECT person.name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nWHERE person.gender = 'female' AND menu.pizza_name = 'pepperoni pizza'\nINTERSECT\nSELECT person.name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nWHERE person.gender = 'female' AND menu.pizza_name = 'cheese pizza'\nORDER BY name;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "COUNT(*) вместо DISTINCT: попадёт тот, кто дважды заказал одну пиццу",
+      "sql": "SELECT person.name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nWHERE person.gender = 'female'\n  AND (menu.pizza_name = 'pepperoni pizza' OR menu.pizza_name = 'cheese pizza')\nGROUP BY person.id, person.name\nHAVING COUNT(*) = 2\nORDER BY person.name;"
+    },
+    {
+      "why": "условие HAVING < 2: попали те, кто заказал только одну",
+      "sql": "SELECT person.name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nWHERE person.gender = 'female'\n  AND (menu.pizza_name = 'pepperoni pizza' OR menu.pizza_name = 'cheese pizza')\nGROUP BY person.id, person.name\nHAVING COUNT(DISTINCT menu.pizza_name) < 2\nORDER BY person.name;"
+    },
+    {
+      "why": "только одна из двух пицц",
+      "sql": "SELECT DISTINCT person.name FROM person_order JOIN person ON person_order.person_id = person.id JOIN menu ON person_order.menu_id = menu.id WHERE person.gender = 'female' AND (menu.pizza_name = 'pepperoni pizza' OR menu.pizza_name = 'cheese pizza') ORDER BY person.name;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('Anna'), ('Nataly')) AS t(name);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

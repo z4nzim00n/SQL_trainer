@@ -1,0 +1,27 @@
+{
+  "title": "«Скрытые» инсайты с именами",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "имя через подзапрос в SELECT",
+      "sql": "SELECT pv.action_date, (SELECT name FROM person WHERE person.id = pv.person_id) AS person_name FROM (SELECT order_date AS action_date, person_id FROM person_order INTERSECT SELECT visit_date, person_id FROM person_visits) AS pv ORDER BY action_date ASC, person_name DESC;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "имена отсортированы по возрастанию",
+      "sql": "SELECT pv.action_date, person.name AS person_name FROM (SELECT order_date AS action_date, person_id FROM person_order INTERSECT SELECT visit_date, person_id FROM person_visits) AS pv JOIN person ON person.id = pv.person_id ORDER BY action_date ASC, person_name ASC;"
+    },
+    {
+      "why": "остались идентификаторы вместо имён",
+      "sql": "SELECT order_date AS action_date, person_id AS person_name FROM person_order INTERSECT SELECT visit_date, person_id FROM person_visits ORDER BY action_date ASC, person_name DESC;"
+    },
+    {
+      "why": "в результате не пересечение, а все заказы",
+      "sql": "SELECT order_date AS action_date, person.name AS person_name FROM person_order JOIN person ON person.id = person_order.person_id ORDER BY action_date ASC, person_name DESC;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

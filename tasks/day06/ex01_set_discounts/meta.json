@@ -1,0 +1,39 @@
+{
+  "title": "Назначим персональные скидки",
+  "setup": "CREATE TABLE person_discounts (\n    id bigint PRIMARY KEY,\n    person_id bigint,\n    pizzeria_id bigint,\n    discount numeric,\n    CONSTRAINT fk_person_discounts_person_id FOREIGN KEY (person_id) REFERENCES person (id),\n    CONSTRAINT fk_person_discounts_pizzeria_id FOREIGN KEY (pizzeria_id) REFERENCES pizzeria (id)\n);",
+  "verify": "SELECT person_id, pizzeria_id, discount::float8 AS discount, (SELECT COUNT(DISTINCT id) = COUNT(*) AND MIN(id) = 1 AND MAX(id) = COUNT(*) FROM person_discounts) AS ids_ok FROM person_discounts ORDER BY 1, 2",
+  "ordered": true,
+  "required": [
+    "ROW_NUMBER"
+  ],
+  "positive": [
+    {
+      "why": "подзапрос с количеством заказов",
+      "sql": "INSERT INTO person_discounts (id, person_id, pizzeria_id, discount) SELECT ROW_NUMBER() OVER (), t.person_id, t.pizzeria_id, CASE WHEN t.cnt = 1 THEN 10.5 WHEN t.cnt = 2 THEN 22 ELSE 30 END FROM (SELECT po.person_id, m.pizzeria_id, COUNT(*) AS cnt FROM person_order po JOIN menu m ON m.id = po.menu_id GROUP BY po.person_id, m.pizzeria_id) AS t;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "порог сдвинут: при 3 заказах скидка 22",
+      "sql": "INSERT INTO person_discounts (id, person_id, pizzeria_id, discount)\nSELECT ROW_NUMBER() OVER () AS id,\n       person_order.person_id,\n       menu.pizzeria_id,\n       CASE WHEN COUNT(*) = 1 THEN 10.5\n            WHEN COUNT(*) <= 3 THEN 22\n            ELSE 30 END\nFROM person_order\nJOIN menu ON menu.id = person_order.menu_id\nGROUP BY person_order.person_id, menu.pizzeria_id;"
+    },
+    {
+      "why": "для 3 и более заказов скидка 0 вместо 30, кроме ровно 3",
+      "sql": "INSERT INTO person_discounts (id, person_id, pizzeria_id, discount)\nSELECT ROW_NUMBER() OVER () AS id,\n       person_order.person_id,\n       menu.pizzeria_id,\n       CASE WHEN COUNT(*) = 1 THEN 10.5\n            WHEN COUNT(*) = 2 THEN 22\n            WHEN COUNT(*) = 3 THEN 30 ELSE 0 END\nFROM person_order\nJOIN menu ON menu.id = person_order.menu_id\nGROUP BY person_order.person_id, menu.pizzeria_id;"
+    },
+    {
+      "why": "группировка только по клиенту, без пиццерии",
+      "sql": "INSERT INTO person_discounts (id, person_id, pizzeria_id, discount) SELECT ROW_NUMBER() OVER (), person_order.person_id, MIN(menu.pizzeria_id), CASE WHEN COUNT(*) = 1 THEN 10.5 WHEN COUNT(*) = 2 THEN 22 ELSE 30 END FROM person_order JOIN menu ON menu.id = person_order.menu_id GROUP BY person_order.person_id;"
+    },
+    {
+      "why": "перепутаны значения скидок",
+      "sql": "INSERT INTO person_discounts (id, person_id, pizzeria_id, discount)\nSELECT ROW_NUMBER() OVER () AS id,\n       person_order.person_id,\n       menu.pizzeria_id,\n       CASE WHEN COUNT(*) = 1 THEN 22.5\n            WHEN COUNT(*) = 2 THEN 22\n            ELSE 30 END\nFROM person_order\nJOIN menu ON menu.id = person_order.menu_id\nGROUP BY person_order.person_id, menu.pizzeria_id;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "INSERT INTO person_discounts VALUES (1, 1, 1, 22), (2, 2, 2, 22);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

@@ -1,0 +1,30 @@
+{
+  "title": "Цена со скидкой",
+  "ordered": true,
+  "orderKeys": [
+    "name",
+    "pizza_name"
+  ],
+  "verify": "SELECT name, pizza_name, price, discount_price FROM v_price_with_discount",
+  "negative": [
+    {
+      "why": "нет округления: остаются дробные значения",
+      "sql": "CREATE VIEW v_price_with_discount AS\nSELECT person.name, menu.pizza_name, menu.price, menu.price - menu.price * 0.1 AS discount_price\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nORDER BY person.name, menu.pizza_name;"
+    },
+    {
+      "why": "скидка 20%",
+      "sql": "CREATE VIEW v_price_with_discount AS\nSELECT person.name, menu.pizza_name, menu.price, ROUND(menu.price - menu.price * 0.2) AS discount_price\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nORDER BY person.name, menu.pizza_name;"
+    },
+    {
+      "why": "сортировка только по цене",
+      "sql": "CREATE VIEW v_price_with_discount AS\nSELECT person.name, menu.pizza_name, menu.price, ROUND(menu.price - menu.price * 0.1) AS discount_price\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nORDER BY menu.price;"
+    },
+    {
+      "why": "нет столбца discount_price (другое имя)",
+      "sql": "CREATE VIEW v_price_with_discount AS\nSELECT person.name, menu.pizza_name, menu.price, ROUND(menu.price - menu.price * 0.1) AS price_with_discount\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nORDER BY person.name, menu.pizza_name;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

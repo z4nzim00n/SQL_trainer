@@ -1,0 +1,35 @@
+{
+  "title": "Забытые пиццы и пиццерии",
+  "ordered": true,
+  "orderKeys": [
+    "pizza_name",
+    "price"
+  ],
+  "positive": [
+    {
+      "why": "через NOT EXISTS",
+      "sql": "SELECT menu.pizza_name, menu.price, pizzeria.name AS pizzeria_name FROM menu JOIN pizzeria ON pizzeria.id = menu.pizzeria_id WHERE NOT EXISTS (SELECT 1 FROM person_order WHERE person_order.menu_id = menu.id) ORDER BY pizza_name, price;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "показаны заказанные позиции (IN вместо NOT IN)",
+      "sql": "SELECT menu.pizza_name, menu.price, pizzeria.name AS pizzeria_name FROM menu JOIN pizzeria ON pizzeria.id = menu.pizzeria_id WHERE menu.id IN (SELECT menu_id FROM person_order) ORDER BY pizza_name, price;"
+    },
+    {
+      "why": "не все столбцы: нет названия пиццерии",
+      "sql": "SELECT menu.pizza_name, menu.price FROM menu WHERE menu.id NOT IN (SELECT menu_id FROM person_order) ORDER BY pizza_name, price;"
+    },
+    {
+      "why": "цены отсортированы по убыванию",
+      "sql": "SELECT menu.pizza_name, menu.price, pizzeria.name AS pizzeria_name FROM menu JOIN pizzeria ON pizzeria.id = menu.pizzeria_id WHERE menu.id NOT IN (SELECT menu_id FROM person_order) ORDER BY pizza_name, price DESC;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('cheese pizza', 700, 'Papa Johns'), ('cheese pizza', 780, 'DoDo Pizza')) AS t(pizza_name, price, pizzeria_name);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

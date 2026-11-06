@@ -1,0 +1,36 @@
+{
+  "title": "Пересчёт истории заказов",
+  "setup": "CREATE TABLE person_discounts (\n    id bigint PRIMARY KEY,\n    person_id bigint,\n    pizzeria_id bigint,\n    discount numeric,\n    CONSTRAINT fk_person_discounts_person_id FOREIGN KEY (person_id) REFERENCES person (id),\n    CONSTRAINT fk_person_discounts_pizzeria_id FOREIGN KEY (pizzeria_id) REFERENCES pizzeria (id)\n);\nINSERT INTO person_discounts (id, person_id, pizzeria_id, discount)\nSELECT ROW_NUMBER() OVER () AS id,\n       person_order.person_id,\n       menu.pizzeria_id,\n       CASE WHEN COUNT(*) = 1 THEN 10.5\n            WHEN COUNT(*) = 2 THEN 22\n            ELSE 30 END\nFROM person_order\nJOIN menu ON menu.id = person_order.menu_id\nGROUP BY person_order.person_id, menu.pizzeria_id;",
+  "ordered": true,
+  "orderKeys": [
+    "name",
+    "pizza_name"
+  ],
+  "positive": [
+    {
+      "why": "умножение на (100 - скидка) / 100",
+      "sql": "SELECT person.name, menu.pizza_name, menu.price,\n       ROUND(menu.price * (100 - person_discounts.discount) / 100) AS discount_price,\n       pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nJOIN person_discounts ON person_discounts.person_id = person.id AND person_discounts.pizzeria_id = pizzeria.id\nORDER BY person.name, menu.pizza_name;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "скидка присоединена только по клиенту: строки размножены",
+      "sql": "SELECT person.name, menu.pizza_name, menu.price,\n       ROUND(menu.price - menu.price * person_discounts.discount / 100) AS discount_price,\n       pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nJOIN person_discounts ON person_discounts.person_id = person.id\nORDER BY person.name, menu.pizza_name;"
+    },
+    {
+      "why": "скидка считается как доля от 1 без деления на 100",
+      "sql": "SELECT person.name, menu.pizza_name, menu.price,\n       ROUND(menu.price - menu.price * person_discounts.discount / 10) AS discount_price,\n       pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nJOIN person_discounts ON person_discounts.person_id = person.id AND person_discounts.pizzeria_id = pizzeria.id\nORDER BY person.name, menu.pizza_name;"
+    },
+    {
+      "why": "нет округления",
+      "sql": "SELECT person.name, menu.pizza_name, menu.price,\n       menu.price - menu.price * person_discounts.discount / 100 AS discount_price,\n       pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nJOIN person_discounts ON person_discounts.person_id = person.id AND person_discounts.pizzeria_id = pizzeria.id\nORDER BY person.name, menu.pizza_name;"
+    },
+    {
+      "why": "сортировка только по цене",
+      "sql": "SELECT person.name, menu.pizza_name, menu.price,\n       ROUND(menu.price - menu.price * person_discounts.discount / 100) AS discount_price,\n       pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nJOIN person_discounts ON person_discounts.person_id = person.id AND person_discounts.pizzeria_id = pizzeria.id\nORDER BY menu.price;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

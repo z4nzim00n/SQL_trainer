@@ -1,0 +1,31 @@
+{
+  "title": "Заходил, но ничего не заказал",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "через NOT IN",
+      "sql": "SELECT DISTINCT pizzeria.name AS pizzeria_name FROM person_visits JOIN person ON person.id = person_visits.person_id JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id WHERE person.name = 'Andrey' AND pizzeria.id NOT IN (SELECT menu.pizzeria_id FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id WHERE person.name = 'Andrey') ORDER BY pizzeria_name;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "все посещённые пиццерии, заказы не вычтены",
+      "sql": "SELECT pizzeria.name AS pizzeria_name FROM person_visits JOIN person ON person.id = person_visits.person_id JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id WHERE person.name = 'Andrey' ORDER BY pizzeria_name;"
+    },
+    {
+      "why": "вычитание в обратную сторону: пиццерии, где заказывал, но не был",
+      "sql": "SELECT pizzeria.name AS pizzeria_name FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id WHERE person.name = 'Andrey'\nEXCEPT\nSELECT pizzeria.name FROM person_visits JOIN person ON person.id = person_visits.person_id JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id WHERE person.name = 'Andrey'\nORDER BY pizzeria_name;"
+    },
+    {
+      "why": "пиццерия заказа определена неверно (по id заказа)",
+      "sql": "SELECT pizzeria.name AS pizzeria_name FROM person_visits JOIN person ON person.id = person_visits.person_id JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id WHERE person.name = 'Andrey' EXCEPT SELECT pizzeria.name FROM person_order JOIN person ON person.id = person_order.person_id JOIN pizzeria ON pizzeria.id = person_order.id WHERE person.name = 'Andrey' ORDER BY pizzeria_name;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('Pizza Hut')) AS t(pizzeria_name);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

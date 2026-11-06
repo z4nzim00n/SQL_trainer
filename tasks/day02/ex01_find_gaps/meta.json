@@ -1,0 +1,40 @@
+{
+  "title": "Найти пропуски (generate_series)",
+  "ordered": true,
+  "forbidden": [
+    "NOT IN",
+    "IN",
+    "NOT EXISTS",
+    "EXISTS",
+    "UNION",
+    "EXCEPT",
+    "INTERSECT"
+  ],
+  "required": [
+    "generate_series"
+  ],
+  "positive": [],
+  "negative": [
+    {
+      "why": "запрещён NOT IN",
+      "sql": "SELECT day::date AS missing_date FROM generate_series('2022-01-01'::date, '2022-01-10'::date, '1 day'::interval) AS day WHERE day::date NOT IN (SELECT visit_date FROM person_visits WHERE person_id = 1 OR person_id = 2) ORDER BY missing_date;"
+    },
+    {
+      "why": "учтён только человек 1",
+      "sql": "SELECT day::date AS missing_date\nFROM generate_series('2022-01-01'::date, '2022-01-10'::date, '1 day'::interval) AS day\nLEFT JOIN (SELECT visit_date\n           FROM person_visits\n           WHERE person_id = 1) AS visits\n       ON visits.visit_date = day::date\nWHERE visits.visit_date IS NULL\nORDER BY missing_date;"
+    },
+    {
+      "why": "календарь не до 10-го числа",
+      "sql": "SELECT day::date AS missing_date\nFROM generate_series('2022-01-01'::date, '2022-01-09'::date, '1 day'::interval) AS day\nLEFT JOIN (SELECT visit_date\n           FROM person_visits\n           WHERE person_id = 1 OR person_id = 2) AS visits\n       ON visits.visit_date = day::date\nWHERE visits.visit_date IS NULL\nORDER BY missing_date;"
+    },
+    {
+      "why": "INNER JOIN вместо LEFT JOIN: возвращает дни с посещениями",
+      "sql": "SELECT day::date AS missing_date\nFROM generate_series('2022-01-01'::date, '2022-01-10'::date, '1 day'::interval) AS day\nJOIN (SELECT visit_date\n           FROM person_visits\n           WHERE person_id = 1 OR person_id = 2) AS visits\n       ON visits.visit_date = day::date\nORDER BY missing_date;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('2022-01-03'), ('2022-01-04'), ('2022-01-05'), ('2022-01-06'), ('2022-01-07'), ('2022-01-08'), ('2022-01-09'), ('2022-01-10')) AS t(missing_date);"
+    }
+  ],
+  "dataset": "pizza"
+}

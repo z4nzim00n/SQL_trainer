@@ -1,0 +1,29 @@
+{
+  "title": "«Улучшим» цену",
+  "setup": "INSERT INTO menu VALUES (19, 2, 'greek pizza', 800);",
+  "verify": "SELECT id, pizzeria_id, pizza_name, price FROM menu ORDER BY id",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "вычитание процента",
+      "sql": "UPDATE menu SET price = price - price * 0.1 WHERE pizza_name = 'greek pizza';"
+    }
+  ],
+  "negative": [
+    {
+      "why": "нет WHERE: цены всех пицц уменьшены",
+      "sql": "UPDATE menu SET price = price * 0.9;"
+    },
+    {
+      "why": "цена уменьшена на 10 рублей, а не на 10%",
+      "sql": "UPDATE menu SET price = price - 10 WHERE pizza_name = 'greek pizza';"
+    },
+    {
+      "why": "цена уменьшена на 90%",
+      "sql": "UPDATE menu SET price = price * 0.1 WHERE pizza_name = 'greek pizza';"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

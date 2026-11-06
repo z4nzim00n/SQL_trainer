@@ -1,0 +1,33 @@
+{
+  "title": "Забытые меню",
+  "ordered": true,
+  "forbidden": [
+    "JOIN"
+  ],
+  "positive": [
+    {
+      "why": "NOT EXISTS вместо NOT IN",
+      "sql": "SELECT id AS menu_id FROM menu WHERE NOT EXISTS (SELECT 1 FROM person_order WHERE person_order.menu_id = menu.id) ORDER BY menu_id;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "использован запрещённый JOIN",
+      "sql": "SELECT menu.id AS menu_id FROM menu LEFT JOIN person_order ON person_order.menu_id = menu.id WHERE person_order.id IS NULL ORDER BY menu_id;"
+    },
+    {
+      "why": "IN вместо NOT IN: заказанные меню",
+      "sql": "SELECT id AS menu_id FROM menu WHERE id IN (SELECT menu_id FROM person_order) ORDER BY menu_id;"
+    },
+    {
+      "why": "сортировка по убыванию",
+      "sql": "SELECT id AS menu_id FROM menu WHERE id NOT IN (SELECT menu_id FROM person_order) ORDER BY menu_id DESC;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES (5), (10), (11), (12), (15)) AS t(menu_id) ORDER BY menu_id;"
+    }
+  ],
+  "dataset": "pizza",
+  "required": []
+}

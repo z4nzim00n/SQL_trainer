@@ -1,0 +1,37 @@
+{
+  "title": "«Скрытые» инсайты (INTERSECT)",
+  "ordered": true,
+  "forbidden": [
+    "JOIN"
+  ],
+  "positive": [
+    {
+      "why": "то же через кортеж и IN, с DISTINCT",
+      "sql": "SELECT DISTINCT order_date AS action_date, person_id FROM person_order WHERE (order_date, person_id) IN (SELECT visit_date, person_id FROM person_visits) ORDER BY action_date ASC, person_id DESC;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "UNION вместо INTERSECT: попали все пары, а не общие",
+      "sql": "SELECT order_date AS action_date, person_id FROM person_order UNION SELECT visit_date, person_id FROM person_visits ORDER BY action_date ASC, person_id DESC;"
+    },
+    {
+      "why": "person_id отсортирован по возрастанию",
+      "sql": "SELECT order_date AS action_date, person_id FROM person_order\nINTERSECT\nSELECT visit_date, person_id FROM person_visits\nORDER BY action_date ASC, person_id ASC;"
+    },
+    {
+      "why": "столбец с датой не переименован в action_date",
+      "sql": "SELECT order_date, person_id FROM person_order INTERSECT SELECT visit_date, person_id FROM person_visits ORDER BY order_date ASC, person_id DESC;"
+    },
+    {
+      "why": "запрещённый JOIN",
+      "sql": "SELECT DISTINCT order_date AS action_date, person_order.person_id FROM person_order JOIN person_visits ON person_visits.person_id = person_order.person_id AND person_visits.visit_date = person_order.order_date ORDER BY action_date ASC, person_id DESC;"
+    },
+    {
+      "why": "сортировка только по дате (при равных датах порядок людей случаен)",
+      "sql": "SELECT order_date AS action_date, person_id FROM person_order\nINTERSECT\nSELECT visit_date, person_id FROM person_visits\nORDER BY action_date ASC;"
+    }
+  ],
+  "dataset": "pizza",
+  "required": []
+}
