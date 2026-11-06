@@ -1,0 +1,43 @@
+{
+  "title": "Аудит вставок",
+  "verify": "INSERT INTO person (id, name, age, gender, address) VALUES (5000, 'Test A', 31, 'female', 'Perm'), (5001, 'Test B', 44, 'male', 'Omsk');\nUPDATE person SET age = 99, address = 'Ufa' WHERE id = 5000;\nDELETE FROM person WHERE id = 5001;\nINSERT INTO person_audit (row_id, name) VALUES (-1, 'default-check');\nSELECT 'trigger' AS kind, pg_get_triggerdef(t.oid) AS v FROM pg_trigger t WHERE t.tgrelid = to_regclass('person') AND NOT t.tgisinternal UNION ALL SELECT 'audit', concat_ws('|', type_event, row_id, name, age, gender, address, (created IS NOT NULL)::text) FROM person_audit UNION ALL SELECT 'func', proname::text FROM pg_proc WHERE proname LIKE 'fnc\\_trg\\_%' AND pronamespace = current_schema()::regnamespace UNION ALL SELECT 'col', concat_ws('|', column_name, data_type, is_nullable, character_maximum_length) FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'person_audit' UNION ALL SELECT 'check', conname::text FROM pg_constraint WHERE conrelid = to_regclass('person_audit') AND contype = 'c' ORDER BY 1, 2",
+  "ordered": true,
+  "required": [
+    "CREATE TRIGGER",
+    "AFTER INSERT"
+  ],
+  "positive": [
+    {
+      "why": "EXECUTE PROCEDURE вместо EXECUTE FUNCTION",
+      "sql": "CREATE TABLE person_audit (\n    created timestamp with time zone DEFAULT current_timestamp NOT NULL,\n    type_event char(1) DEFAULT 'I' NOT NULL,\n    row_id bigint NOT NULL,\n    name varchar,\n    age integer,\n    gender varchar,\n    address varchar,\n    CONSTRAINT ch_type_event CHECK (type_event IN ('I', 'U', 'D'))\n);\n\nCREATE FUNCTION fnc_trg_person_insert_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('I', NEW.id, NEW.name, NEW.age, NEW.gender, NEW.address);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_insert_audit AFTER INSERT ON person FOR EACH ROW EXECUTE PROCEDURE fnc_trg_person_insert_audit();\n\nINSERT INTO person(id, name, age, gender, address) VALUES (10, 'Damir', 22, 'male', 'Irkutsk');"
+    }
+  ],
+  "negative": [
+    {
+      "why": "триггер BEFORE, а нужен AFTER",
+      "sql": "CREATE TABLE person_audit (\n    created timestamp with time zone DEFAULT current_timestamp NOT NULL,\n    type_event char(1) DEFAULT 'I' NOT NULL,\n    row_id bigint NOT NULL,\n    name varchar,\n    age integer,\n    gender varchar,\n    address varchar,\n    CONSTRAINT ch_type_event CHECK (type_event IN ('I', 'U', 'D'))\n);\n\nCREATE FUNCTION fnc_trg_person_insert_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('I', NEW.id, NEW.name, NEW.age, NEW.gender, NEW.address);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_insert_audit BEFORE INSERT ON person FOR EACH ROW EXECUTE FUNCTION fnc_trg_person_insert_audit();\n\nINSERT INTO person(id, name, age, gender, address) VALUES (10, 'Damir', 22, 'male', 'Irkutsk');"
+    },
+    {
+      "why": "в аудит попадает старый вид события D вместо I",
+      "sql": "CREATE TABLE person_audit (\n    created timestamp with time zone DEFAULT current_timestamp NOT NULL,\n    type_event char(1) DEFAULT 'I' NOT NULL,\n    row_id bigint NOT NULL,\n    name varchar,\n    age integer,\n    gender varchar,\n    address varchar,\n    CONSTRAINT ch_type_event CHECK (type_event IN ('I', 'U', 'D'))\n);\n\nCREATE FUNCTION fnc_trg_person_insert_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('D', NEW.id, NEW.name, NEW.age, NEW.gender, NEW.address);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_insert_audit AFTER INSERT ON person FOR EACH ROW EXECUTE FUNCTION fnc_trg_person_insert_audit();\n\nINSERT INTO person(id, name, age, gender, address) VALUES (10, 'Damir', 22, 'male', 'Irkutsk');"
+    },
+    {
+      "why": "копируется не вся строка (нет адреса)",
+      "sql": "CREATE TABLE person_audit (\n    created timestamp with time zone DEFAULT current_timestamp NOT NULL,\n    type_event char(1) DEFAULT 'I' NOT NULL,\n    row_id bigint NOT NULL,\n    name varchar,\n    age integer,\n    gender varchar,\n    address varchar,\n    CONSTRAINT ch_type_event CHECK (type_event IN ('I', 'U', 'D'))\n);\n\nCREATE FUNCTION fnc_trg_person_insert_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('I', NEW.id, NEW.name, NEW.age, NEW.gender, NULL);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_insert_audit AFTER INSERT ON person FOR EACH ROW EXECUTE FUNCTION fnc_trg_person_insert_audit();\n\nINSERT INTO person(id, name, age, gender, address) VALUES (10, 'Damir', 22, 'male', 'Irkutsk');"
+    },
+    {
+      "why": "нет значения по умолчанию у type_event",
+      "sql": "CREATE TABLE person_audit (\n    created timestamp with time zone DEFAULT current_timestamp NOT NULL,\n    type_event char(1) NOT NULL,\n    row_id bigint NOT NULL,\n    name varchar,\n    age integer,\n    gender varchar,\n    address varchar,\n    CONSTRAINT ch_type_event CHECK (type_event IN ('I', 'U', 'D'))\n);\n\nCREATE FUNCTION fnc_trg_person_insert_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('I', NEW.id, NEW.name, NEW.age, NEW.gender, NEW.address);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_insert_audit AFTER INSERT ON person FOR EACH ROW EXECUTE FUNCTION fnc_trg_person_insert_audit();\n\nINSERT INTO person(id, name, age, gender, address) VALUES (10, 'Damir', 22, 'male', 'Irkutsk');"
+    },
+    {
+      "why": "нет проверочного ограничения ch_type_event",
+      "sql": "CREATE TABLE person_audit (\n    created timestamp with time zone DEFAULT current_timestamp NOT NULL,\n    type_event char(1) DEFAULT 'I' NOT NULL,\n    row_id bigint NOT NULL,\n    name varchar,\n    age integer,\n    gender varchar,\n    address varchar\n);\n\nCREATE FUNCTION fnc_trg_person_insert_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('I', NEW.id, NEW.name, NEW.age, NEW.gender, NEW.address);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_insert_audit AFTER INSERT ON person FOR EACH ROW EXECUTE FUNCTION fnc_trg_person_insert_audit();\n\nINSERT INTO person(id, name, age, gender, address) VALUES (10, 'Damir', 22, 'male', 'Irkutsk');"
+    },
+    {
+      "why": "триггер срабатывает и на UPDATE",
+      "sql": "CREATE TABLE person_audit (\n    created timestamp with time zone DEFAULT current_timestamp NOT NULL,\n    type_event char(1) DEFAULT 'I' NOT NULL,\n    row_id bigint NOT NULL,\n    name varchar,\n    age integer,\n    gender varchar,\n    address varchar,\n    CONSTRAINT ch_type_event CHECK (type_event IN ('I', 'U', 'D'))\n);\n\nCREATE FUNCTION fnc_trg_person_insert_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('I', NEW.id, NEW.name, NEW.age, NEW.gender, NEW.address);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_insert_audit AFTER INSERT OR UPDATE ON person FOR EACH ROW EXECUTE FUNCTION fnc_trg_person_insert_audit();\n\nINSERT INTO person(id, name, age, gender, address) VALUES (10, 'Damir', 22, 'male', 'Irkutsk');"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

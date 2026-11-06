@@ -1,0 +1,29 @@
+{
+  "title": "Функция с параметром",
+  "setup": "CREATE FUNCTION fnc_persons_female() RETURNS SETOF person AS $$\n    SELECT * FROM person WHERE gender = 'female';\n$$ LANGUAGE sql;\n\nCREATE FUNCTION fnc_persons_male() RETURNS SETOF person AS $$\n    SELECT * FROM person WHERE gender = 'male';\n$$ LANGUAGE sql;",
+  "verify": "SELECT 'old_dropped' AS kind, (to_regproc('fnc_persons_female') IS NULL AND to_regproc('fnc_persons_male') IS NULL)::text AS v UNION ALL SELECT 'lang', l.lanname::text FROM pg_proc p JOIN pg_language l ON l.oid = p.prolang WHERE p.proname = 'fnc_persons' AND p.pronamespace = current_schema()::regnamespace UNION ALL SELECT 'male', f::text FROM fnc_persons(pgender := 'male') AS f UNION ALL SELECT 'default', f::text FROM fnc_persons() AS f UNION ALL SELECT 'female', f::text FROM fnc_persons('female') AS f ORDER BY 1, 2",
+  "ordered": true,
+  "required": [
+    "LANGUAGE sql"
+  ],
+  "negative": [
+    {
+      "why": "старые функции не удалены",
+      "sql": "CREATE FUNCTION fnc_persons(pgender varchar DEFAULT 'female') RETURNS SETOF person AS $$\n    SELECT * FROM person WHERE gender = pgender;\n$$ LANGUAGE sql;"
+    },
+    {
+      "why": "значение по умолчанию male",
+      "sql": "DROP FUNCTION fnc_persons_female();\nDROP FUNCTION fnc_persons_male();\n\nCREATE FUNCTION fnc_persons(pgender varchar DEFAULT 'male') RETURNS SETOF person AS $$\n    SELECT * FROM person WHERE gender = pgender;\n$$ LANGUAGE sql;"
+    },
+    {
+      "why": "параметр называется не pgender",
+      "sql": "DROP FUNCTION fnc_persons_female();\nDROP FUNCTION fnc_persons_male();\n\nCREATE FUNCTION fnc_persons(gender_p varchar DEFAULT 'female') RETURNS SETOF person AS $$\n    SELECT * FROM person WHERE gender = gender_p;\n$$ LANGUAGE sql;"
+    },
+    {
+      "why": "функция на plpgsql вместо sql",
+      "sql": "DROP FUNCTION fnc_persons_female();\nDROP FUNCTION fnc_persons_male();\nCREATE FUNCTION fnc_persons(pgender varchar DEFAULT 'female') RETURNS SETOF person AS $$ BEGIN RETURN QUERY SELECT * FROM person WHERE gender = pgender; END; $$ LANGUAGE plpgsql;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

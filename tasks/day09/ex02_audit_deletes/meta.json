@@ -1,0 +1,29 @@
+{
+  "title": "Аудит удалений",
+  "setup": "CREATE TABLE person_audit (\n    created timestamp with time zone DEFAULT current_timestamp NOT NULL,\n    type_event char(1) DEFAULT 'I' NOT NULL,\n    row_id bigint NOT NULL,\n    name varchar,\n    age integer,\n    gender varchar,\n    address varchar,\n    CONSTRAINT ch_type_event CHECK (type_event IN ('I', 'U', 'D'))\n);\n\nCREATE FUNCTION fnc_trg_person_insert_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('I', NEW.id, NEW.name, NEW.age, NEW.gender, NEW.address);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_insert_audit AFTER INSERT ON person FOR EACH ROW EXECUTE FUNCTION fnc_trg_person_insert_audit();\n\nINSERT INTO person(id, name, age, gender, address) VALUES (10, 'Damir', 22, 'male', 'Irkutsk');\nCREATE FUNCTION fnc_trg_person_update_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('U', OLD.id, OLD.name, OLD.age, OLD.gender, OLD.address);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_update_audit AFTER UPDATE ON person FOR EACH ROW EXECUTE FUNCTION fnc_trg_person_update_audit();\n\nUPDATE person SET name = 'Bulat' WHERE id = 10;\nUPDATE person SET name = 'Damir' WHERE id = 10;",
+  "verify": "INSERT INTO person (id, name, age, gender, address) VALUES (5000, 'Test A', 31, 'female', 'Perm'), (5001, 'Test B', 44, 'male', 'Omsk');\nUPDATE person SET age = 99, address = 'Ufa' WHERE id = 5000;\nDELETE FROM person WHERE id = 5001;\nINSERT INTO person_audit (row_id, name) VALUES (-1, 'default-check');\nSELECT 'trigger' AS kind, pg_get_triggerdef(t.oid) AS v FROM pg_trigger t WHERE t.tgrelid = to_regclass('person') AND NOT t.tgisinternal UNION ALL SELECT 'audit', concat_ws('|', type_event, row_id, name, age, gender, address, (created IS NOT NULL)::text) FROM person_audit UNION ALL SELECT 'func', proname::text FROM pg_proc WHERE proname LIKE 'fnc\\_trg\\_%' AND pronamespace = current_schema()::regnamespace UNION ALL SELECT 'col', concat_ws('|', column_name, data_type, is_nullable, character_maximum_length) FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'person_audit' UNION ALL SELECT 'check', conname::text FROM pg_constraint WHERE conrelid = to_regclass('person_audit') AND contype = 'c' ORDER BY 1, 2",
+  "ordered": true,
+  "required": [
+    "OLD"
+  ],
+  "negative": [
+    {
+      "why": "тип события U вместо D",
+      "sql": "CREATE FUNCTION fnc_trg_person_delete_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('U', OLD.id, OLD.name, OLD.age, OLD.gender, OLD.address);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_delete_audit AFTER DELETE ON person FOR EACH ROW EXECUTE FUNCTION fnc_trg_person_delete_audit();\n\nDELETE FROM person WHERE id = 10;"
+    },
+    {
+      "why": "триггер на UPDATE, а не на DELETE",
+      "sql": "CREATE FUNCTION fnc_trg_person_delete_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('D', OLD.id, OLD.name, OLD.age, OLD.gender, OLD.address);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_delete_audit AFTER UPDATE ON person FOR EACH ROW EXECUTE FUNCTION fnc_trg_person_delete_audit();\n\nDELETE FROM person WHERE id = 10;"
+    },
+    {
+      "why": "не сохраняется возраст",
+      "sql": "CREATE FUNCTION fnc_trg_person_delete_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('D', OLD.id, OLD.name, NULL, OLD.gender, OLD.address);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_delete_audit AFTER DELETE ON person FOR EACH ROW EXECUTE FUNCTION fnc_trg_person_delete_audit();\n\nDELETE FROM person WHERE id = 10;"
+    },
+    {
+      "why": "не выполнено удаление из задания",
+      "sql": "CREATE FUNCTION fnc_trg_person_delete_audit() RETURNS trigger AS $$\nBEGIN\n    INSERT INTO person_audit (type_event, row_id, name, age, gender, address)\n    VALUES ('D', OLD.id, OLD.name, OLD.age, OLD.gender, OLD.address);\n    RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n\nCREATE TRIGGER trg_person_delete_audit AFTER DELETE ON person FOR EACH ROW EXECUTE FUNCTION fnc_trg_person_delete_audit();"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

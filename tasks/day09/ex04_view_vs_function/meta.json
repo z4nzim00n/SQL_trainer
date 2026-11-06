@@ -1,0 +1,34 @@
+{
+  "title": "Представление против функции",
+  "verify": "SELECT 'lang' AS kind, p.proname::text AS v, l.lanname::text AS w FROM pg_proc p JOIN pg_language l ON l.oid = p.prolang WHERE p.proname IN ('fnc_persons_female', 'fnc_persons_male') AND p.pronamespace = current_schema()::regnamespace UNION ALL SELECT 'female', f::text, '' FROM fnc_persons_female() AS f UNION ALL SELECT 'male', m::text, '' FROM fnc_persons_male() AS m ORDER BY 1, 2",
+  "ordered": true,
+  "required": [
+    "LANGUAGE sql"
+  ],
+  "positive": [
+    {
+      "why": "RETURNS TABLE с перечислением столбцов",
+      "sql": "CREATE FUNCTION fnc_persons_female() RETURNS TABLE (id bigint, name varchar, age integer, gender varchar, address varchar) AS $$\n    SELECT * FROM person WHERE gender = 'female';\n$$ LANGUAGE sql;\n\nCREATE FUNCTION fnc_persons_male() RETURNS TABLE (id bigint, name varchar, age integer, gender varchar, address varchar) AS $$\n    SELECT * FROM person WHERE gender = 'male';\n$$ LANGUAGE sql;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "языки plpgsql вместо sql",
+      "sql": "CREATE FUNCTION fnc_persons_female() RETURNS SETOF person AS $$ BEGIN RETURN QUERY SELECT * FROM person WHERE gender = 'female'; END; $$ LANGUAGE plpgsql;\nCREATE FUNCTION fnc_persons_male() RETURNS SETOF person AS $$ BEGIN RETURN QUERY SELECT * FROM person WHERE gender = 'male'; END; $$ LANGUAGE plpgsql;"
+    },
+    {
+      "why": "полы перепутаны",
+      "sql": "CREATE FUNCTION fnc_persons_female() RETURNS SETOF person AS $$\n    SELECT * FROM person WHERE gender = 'male';\n$$ LANGUAGE sql;\n\nCREATE FUNCTION fnc_persons_male() RETURNS SETOF person AS $$\n    SELECT * FROM person WHERE gender = 'female';\n$$ LANGUAGE sql;"
+    },
+    {
+      "why": "вернулись не все столбцы (только имена)",
+      "sql": "CREATE FUNCTION fnc_persons_female() RETURNS TABLE (name varchar) AS $$\n    SELECT name FROM person WHERE gender = 'female';\n$$ LANGUAGE sql;\n\nCREATE FUNCTION fnc_persons_male() RETURNS SETOF person AS $$\n    SELECT * FROM person WHERE gender = 'male';\n$$ LANGUAGE sql;"
+    },
+    {
+      "why": "создана только одна функция",
+      "sql": "CREATE FUNCTION fnc_persons_female() RETURNS SETOF person AS $$\n    SELECT * FROM person WHERE gender = 'female';\n$$ LANGUAGE sql;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

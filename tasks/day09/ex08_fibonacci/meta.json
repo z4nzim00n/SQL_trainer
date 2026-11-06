@@ -1,0 +1,32 @@
+{
+  "title": "Числа Фибоначчи",
+  "verify": "SELECT '100' AS kind, f::text AS v FROM fnc_fibonacci(100) AS f UNION ALL SELECT 'default', f::text FROM fnc_fibonacci() AS f UNION ALL SELECT '8', f::text FROM fnc_fibonacci(8) AS f UNION ALL SELECT '1', f::text FROM fnc_fibonacci(1) AS f UNION ALL SELECT '0', f::text FROM fnc_fibonacci(0) AS f ORDER BY 1, 2",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "цикл на plpgsql",
+      "sql": "CREATE FUNCTION fnc_fibonacci(pstop integer DEFAULT 10) RETURNS TABLE (fibonacci integer) AS $$ DECLARE a integer := 0; b integer := 1; t integer; BEGIN WHILE a < pstop LOOP fibonacci := a; RETURN NEXT; t := a + b; a := b; b := t; END LOOP; END; $$ LANGUAGE plpgsql;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "граница нестрогая (<=): число равное pstop попадает в результат",
+      "sql": "CREATE FUNCTION fnc_fibonacci(pstop integer DEFAULT 10) RETURNS TABLE (fibonacci integer) AS $$\n    WITH RECURSIVE fib(a, b) AS (\n        SELECT 0, 1\n        UNION ALL\n        SELECT b, a + b FROM fib WHERE a <= pstop\n    )\n    SELECT a FROM fib WHERE a <= pstop;\n$$ LANGUAGE sql;"
+    },
+    {
+      "why": "нет нуля в начале",
+      "sql": "CREATE FUNCTION fnc_fibonacci(pstop integer DEFAULT 10) RETURNS TABLE (fibonacci integer) AS $$\n    WITH RECURSIVE fib(a, b) AS (\n        SELECT 0, 1\n        UNION ALL\n        SELECT b, a + b FROM fib WHERE a < pstop\n    )\n    SELECT a FROM fib WHERE a > 0 AND a < pstop;\n$$ LANGUAGE sql;"
+    },
+    {
+      "why": "значение по умолчанию 100",
+      "sql": "CREATE FUNCTION fnc_fibonacci(pstop integer DEFAULT 100) RETURNS TABLE (fibonacci integer) AS $$\n    WITH RECURSIVE fib(a, b) AS (\n        SELECT 0, 1\n        UNION ALL\n        SELECT b, a + b FROM fib WHERE a < pstop\n    )\n    SELECT a FROM fib WHERE a < pstop;\n$$ LANGUAGE sql;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "CREATE FUNCTION fnc_fibonacci(pstop integer DEFAULT 10) RETURNS TABLE (fibonacci integer) AS $$ SELECT x FROM (VALUES (0), (1), (1), (2), (3), (5), (8), (13), (21), (34), (55), (89)) AS t(x) WHERE x < 90; $$ LANGUAGE sql;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}
