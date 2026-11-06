@@ -1,0 +1,7 @@
+{
+  "title": "Non-Repeatable Read (SERIALIZABLE)",
+  "manual": true,
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

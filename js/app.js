@@ -31,7 +31,11 @@ let engine = null;
 let enginePromise = null;
 let activeTask = null;
 let activeTaskEl = null;
-let leftTab = 'readme';
+const panes = [
+    { id: 'A', tab: store.get('sql-tabA', 'readme') },
+    { id: 'B', tab: store.get('sql-tabB', 'theory') },
+];
+let split = store.get('sql-split', false);
 
 const solved = store.get('sql-solved', {});
 const hintsOpened = store.get('sql-hints', {});
@@ -328,33 +332,94 @@ function openTaskById(id) {
 /* ============================================
    LEFT PANEL (условие, схема, теория, подсказки, решение)
    ============================================ */
-const tabsEl = $('tabs');
-const leftBody = $('leftBody');
+for (const p of panes) {
+    p.tabsEl = $('tabs' + p.id);
+    p.bodyEl = $('body' + p.id);
+    p.paneEl = $('pane' + p.id);
+}
+const paneResizer = $('paneResizer');
+const splitBtn = $('splitBtn');
 
 function buildTabs() {
-    tabsEl.replaceChildren();
-    for (const t of TABS) {
-        const b = el('button', 'tab' + (t.id === leftTab ? ' active' : ''), t.label);
-        b.type = 'button';
-        b.dataset.tab = t.id;
-        b.addEventListener('click', () => {
-            leftTab = t.id;
-            tabsEl.querySelectorAll('.tab').forEach((x) => x.classList.toggle('active', x.dataset.tab === leftTab));
-            renderLeft();
-        });
-        tabsEl.appendChild(b);
+    for (const p of panes) {
+        p.tabsEl.replaceChildren();
+        for (const t of TABS) {
+            const b = el('button', 'tab' + (t.id === p.tab ? ' active' : ''), t.label);
+            b.type = 'button';
+            b.dataset.tab = t.id;
+            b.addEventListener('click', () => {
+                p.tab = t.id;
+                store.set('sql-tab' + p.id, p.tab);
+                p.tabsEl.querySelectorAll('.tab').forEach((x) => x.classList.toggle('active', x.dataset.tab === p.tab));
+                renderPane(p);
+            });
+            p.tabsEl.appendChild(b);
+        }
     }
 }
 
+function applySplit() {
+    panes[1].paneEl.hidden = !split;
+    paneResizer.hidden = !split;
+    splitBtn.hidden = split;
+    panes[0].paneEl.style.flex = '1 1 0%';
+    panes[1].paneEl.style.flex = '1 1 0%';
+    store.set('sql-split', split);
+    if (split) renderPane(panes[1]);
+}
+splitBtn.addEventListener('click', () => {
+    split = true;
+    /* вторая панель по умолчанию показывает то, чего нет в первой */
+    if (panes[1].tab === panes[0].tab) {
+        panes[1].tab = panes[0].tab === 'theory' ? 'readme' : 'theory';
+        store.set('sql-tabB', panes[1].tab);
+        buildTabs();
+    }
+    applySplit();
+});
+$('unsplitBtn').addEventListener('click', () => { split = false; applySplit(); });
+
+let paneResizing = false;
+paneResizer.addEventListener('mousedown', (e) => {
+    paneResizing = true;
+    paneResizer.classList.add('dragging');
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+});
+window.addEventListener('mousemove', (e) => {
+    if (!paneResizing) return;
+    const rect = panelLeft.getBoundingClientRect();
+    const share = ((e.clientY - rect.top) / rect.height) * 100;
+    if (share > 15 && share < 85) {
+        panes[0].paneEl.style.flex = `0 0 calc(${share}% - 8px)`;
+        panes[1].paneEl.style.flex = '1 1 0%';
+    }
+});
+window.addEventListener('mouseup', () => {
+    if (!paneResizing) return;
+    paneResizing = false;
+    paneResizer.classList.remove('dragging');
+    document.body.style.cursor = 'default';
+    document.body.style.userSelect = 'auto';
+});
+
 function renderLeft(keepScroll) {
-    const top = keepScroll ? leftBody.scrollTop : 0;
-    leftBody.replaceChildren();
+    renderPane(panes[0], keepScroll);
+    if (split) renderPane(panes[1], keepScroll);
+}
+
+function renderPane(p, keepScroll) {
+    const body = p.bodyEl;
+    const top = keepScroll ? body.scrollTop : 0;
+    body.replaceChildren();
     if (!activeTask) return;
     const task = activeTask;
     const wrap = el('div');
+    const tab = p.tab;
 
-    if (leftTab === 'readme') wrap.appendChild(renderMd(task.readme, task.meta.dataset));
-    else if (leftTab === 'theory') {
+    if (tab === 'readme') wrap.appendChild(renderMd(task.readme, task.meta.dataset));
+    else if (tab === 'theory') {
         const doc = renderMd(task.theory, task.meta.dataset);
         const terms = [...new Set([...doc.querySelectorAll('code.term')].map((c) => c.textContent.trim().toUpperCase()))];
         if (terms.length) {
@@ -370,11 +435,11 @@ function renderLeft(keepScroll) {
         }
         wrap.appendChild(doc);
     }
-    else if (leftTab === 'hints') renderHints(wrap, task);
-    else if (leftTab === 'solution') renderSolution(wrap, task);
+    else if (tab === 'hints') renderHints(wrap, task);
+    else if (tab === 'solution') renderSolution(wrap, task);
 
-    leftBody.appendChild(wrap);
-    leftBody.scrollTop = top;
+    body.appendChild(wrap);
+    body.scrollTop = top;
 }
 
 function renderHints(wrap, task) {
@@ -705,6 +770,7 @@ async function runSelfTest() {
    ============================================ */
 async function start() {
     buildTabs();
+    applySplit();
 
     try {
         const res = await fetch('tasks.json', { cache: 'no-cache' });

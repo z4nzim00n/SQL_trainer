@@ -1,0 +1,7 @@
+{
+  "title": "Lost Update (REPEATABLE READ)",
+  "manual": true,
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

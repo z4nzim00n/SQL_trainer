@@ -1,6 +1,6 @@
 {
  "version": "0.004",
- "builtAt": "2026-11-06T08:07:26.721Z",
+ "builtAt": "2026-11-06T20:52:53.249Z",
  "datasets": {
   "demo": {
    "main": "-- Учебные мини-таблицы для примеров в теории и энциклопедии.\n-- Никак не связаны с пиццериями: маленькие таблицы, чтобы результат примера было видно целиком.\n\n-- Для операторов множеств (UNION, INTERSECT, EXCEPT): есть повторы и пересечение\ncreate table a (id integer, val varchar);\ninsert into a values (1, 'red');\ninsert into a values (2, 'green');\ninsert into a values (3, 'blue');\ninsert into a values (3, 'blue');\n\ncreate table b (id integer, val varchar);\ninsert into b values (2, 'green');\ninsert into b values (3, 'blue');\ninsert into b values (4, 'yellow');\n\n-- Для JOIN: у Eve нет курса (NULL), у курса Art нет студентов\ncreate table courses (id integer primary key, title varchar not null);\ninsert into courses values (1, 'Math');\ninsert into courses values (2, 'Music');\ninsert into courses values (3, 'Art');\n\ncreate table students (\n    id integer primary key,\n    name varchar not null,\n    age integer not null,\n    city varchar,\n    course_id integer references courses (id)\n);\ninsert into students values (1, 'Ann', 20, 'Berlin', 1);\ninsert into students values (2, 'Bob', 22, 'Paris', 1);\ninsert into students values (3, 'Cleo', 19, 'Berlin', 2);\ninsert into students values (4, 'Dan', 25, null, 2);\ninsert into students values (5, 'Eve', 21, 'Rome', null);\n\n-- Для WHERE, типов, CASE, DML: есть NULL в note\ncreate table products (\n    id integer primary key,\n    title varchar not null,\n    category varchar not null,\n    price numeric(8, 2) not null,\n    added date not null,\n    note varchar\n);\ninsert into products values (1, 'Pen', 'office', 1.50, '2024-01-10', 'blue ink');\ninsert into products values (2, 'Notebook', 'office', 4.00, '2024-01-15', null);\ninsert into products values (3, 'Mug', 'home', 7.25, '2024-02-01', 'ceramic');\ninsert into products values (4, 'Lamp', 'home', 19.90, '2024-02-20', null);\ninsert into products values (5, 'Backpack', 'travel', 35.00, '2024-03-05', 'waterproof');\n\n-- Для агрегатов и оконных функций\ncreate table sales (\n    id integer primary key,\n    shop varchar not null,\n    item varchar not null,\n    qty integer not null,\n    price numeric(8, 2) not null,\n    sale_date date not null\n);\ninsert into sales values (1, 'North', 'Pen', 10, 1.50, '2024-05-01');\ninsert into sales values (2, 'North', 'Mug', 2, 7.25, '2024-05-01');\ninsert into sales values (3, 'North', 'Pen', 5, 1.50, '2024-05-02');\ninsert into sales values (4, 'South', 'Lamp', 1, 19.90, '2024-05-01');\ninsert into sales values (5, 'South', 'Pen', 8, 1.50, '2024-05-02');\ninsert into sales values (6, 'South', 'Mug', 3, 7.25, '2024-05-03');\ninsert into sales values (7, 'East', 'Lamp', 2, 19.90, '2024-05-03');\n",
@@ -5009,6 +5009,252 @@
         "sql": "SELECT address,\n       ROUND(MAX(age) - MIN(age)::numeric / MAX(age), 2) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - MIN(age)::numeric / MAX(age)) > AVG(age) AS comparison\nFROM person\nGROUP BY address\nORDER BY address DESC;"
        }
       ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    }
+   ]
+  },
+  {
+   "id": "day08",
+   "title": "Day 08. Транзакции и уровни изоляции (две сессии)",
+   "tasks": [
+    {
+     "id": "day08/ex00",
+     "dir": "ex00_simple_transaction",
+     "title": "Простая транзакция",
+     "readme": "# Задание 00. Простая транзакция\n\n**Язык:** SQL\n\nНужно проверить, **когда** изменения, сделанные в одной сессии, становятся видны другим. Для этого понадобятся два параллельных сеанса `psql`.\n\nДокажи, что параллельная сессия **не видит** изменения, пока ты не сделал `COMMIT`, и видит их сразу после.\n\n- **Session #1:** обнови рейтинг `Pizza Hut` до 5 в режиме транзакции и убедись, что ты сам видишь изменение.\n- **Session #2:** убедись, что изменения **не видны**.\n- **Session #1:** сделай `COMMIT`.\n- **Session #2:** убедись, что изменения **теперь видны**.\n\nВыполни шаги строго в этом порядке:\n\n| Шаг | Session #1 | Session #2 |\n| --- | --- | --- |\n| 1 | `BEGIN;` |  |\n| 2 | `UPDATE pizzeria SET rating = 5 WHERE name = 'Pizza Hut';` |  |\n| 3 | `SELECT * FROM pizzeria WHERE name = 'Pizza Hut';` |  |\n| 4 |  | `SELECT * FROM pizzeria WHERE name = 'Pizza Hut';` |\n| 5 | `COMMIT;` |  |\n| 6 |  | `SELECT * FROM pizzeria WHERE name = 'Pizza Hut';` |\n\n**Что должно получиться.**\n\n- шаг 3 (Session #1): рейтинг `5`: транзакция видит свои собственные изменения;\n- шаг 4 (Session #2): рейтинг `4.6`: чужая незафиксированная правка не видна;\n- шаг 6 (Session #2): рейтинг `5`: после `COMMIT` правка видна всем.\n\nОдин и тот же запрос в Session #2 возвращает разные результаты: до и после фиксации в Session #1.\n\n> **Подготовка.** Открой **два** терминала (или две консоли в DataGrip) и в каждом подключись к своей базе: `psql -d pizza_db`. Это Session #1 и Session #2. Перед заданием верни рейтинг в исходное состояние: `UPDATE pizzeria SET rating = 4.6 WHERE name = 'Pizza Hut';`.\n> Тренажёр работает с одним подключением и не умеет две параллельные сессии, поэтому автопроверки здесь нет: ты делаешь задание в psql, сверяешься с ожидаемым результатом и нажимаешь «Отметить как выполненное».\n",
+     "theory": "# Задание 00. Транзакция и видимость изменений\n\n**Транзакция** это группа команд, которая выполняется как единое целое: либо применяются все, либо ни одной. Границы задают команды:\n\n- `BEGIN`: начать транзакцию;\n- `COMMIT`: зафиксировать (применить) все изменения;\n- `ROLLBACK`: отменить все изменения с начала транзакции.\n\nПока транзакция не зафиксирована, её изменения видны **только ей самой**. Другие сессии продолжают видеть прежние данные. Именно это и нужно показать: `UPDATE` внутри `BEGIN` ещё не «опубликован».\n\nЭто свойство называется **изоляцией** (буква I в ACID). Остальные буквы: атомарность (всё или ничего), согласованность (данные не нарушают правила), долговечность (после `COMMIT` данные не пропадут).\n\nКак работать с двумя сессиями: открой два терминала с `psql`. Команды вводи в строгом порядке из таблицы шагов, переключаясь между окнами.\n\nКлючевые слова для примеров: `BEGIN`, `COMMIT`, `ROLLBACK`, `TRANSACTION`, `UPDATE`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Session #1 открывает транзакцию (`BEGIN`), меняет рейтинг, но не фиксирует. Session #2 читает ту же строку до и после `COMMIT` из Session #1."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\n-- Session #1\nBEGIN;\nUPDATE pizzeria SET rating = ______ WHERE name = 'Pizza Hut';\nSELECT * FROM pizzeria WHERE name = 'Pizza Hut';\n-- Session #2\nSELECT * FROM pizzeria WHERE name = 'Pizza Hut';   -- старое значение\n-- Session #1\n______;\n-- Session #2\nSELECT * FROM pizzeria WHERE name = 'Pizza Hut';   -- новое значение\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Всё как в каркасе: в Session #1 `rating = 5`, а завершает её команда `COMMIT`. Если в Session #2 после `COMMIT` всё ещё старое значение, проверь, что в Session #1 не осталась незавершённая команда."
+      }
+     ],
+     "solution": "-- Простая транзакция\n-- [1] Session #1\nBEGIN;\n-- [2] Session #1\nUPDATE pizzeria SET rating = 5 WHERE name = 'Pizza Hut';\n-- [3] Session #1\nSELECT * FROM pizzeria WHERE name = 'Pizza Hut';\n-- [4] Session #2\nSELECT * FROM pizzeria WHERE name = 'Pizza Hut';\n-- [5] Session #1\nCOMMIT;\n-- [6] Session #2\nSELECT * FROM pizzeria WHERE name = 'Pizza Hut';",
+     "solutionCommented": "-- Простая транзакция\n-- [1] Session #1\nBEGIN;   -- начали транзакцию\n-- [2] Session #1\nUPDATE pizzeria SET rating = 5 WHERE name = 'Pizza Hut';   -- правка внутри транзакции\n-- [3] Session #1\nSELECT * FROM pizzeria WHERE name = 'Pizza Hut';   -- видим свои изменения: 5\n-- [4] Session #2\nSELECT * FROM pizzeria WHERE name = 'Pizza Hut';\n-- [5] Session #1\nCOMMIT;   -- публикуем изменения\n-- [6] Session #2\nSELECT * FROM pizzeria WHERE name = 'Pizza Hut';",
+     "meta": {
+      "title": "Простая транзакция",
+      "manual": true,
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day08/ex01",
+     "dir": "ex01_lost_update",
+     "title": "Lost Update (READ COMMITTED)",
+     "readme": "# Задание 01. Аномалия потерянного обновления (Lost Update)\n\n**Язык:** SQL\n\nСначала убедись, что у тебя стандартный уровень изоляции:\n\n```sql\nSHOW TRANSACTION ISOLATION LEVEL;   -- должно быть: read committed\n```\n\nЕсли это не так, поставь его явно для сеанса: `SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED;`.\n\n**Потерянное обновление**: две транзакции читают одно значение, каждая считает новое и записывает его, и итог содержит только последнюю запись, а первая «потерялась».\n\nПроверь рейтинг `Pizza Hut` в обеих сессиях (в транзакциях), затем в Session #1 обнови его до `4`, а в Session #2 до `3.6`, в порядке, показанном ниже.\n\nВыполни шаги строго в этом порядке:\n\n| Шаг | Session #1 | Session #2 |\n| --- | --- | --- |\n| 1 | `BEGIN;` | `BEGIN;` |\n| 2 | `SELECT rating FROM pizzeria WHERE name = 'Pizza Hut';` | `SELECT rating FROM pizzeria WHERE name = 'Pizza Hut';` |\n| 3 | `UPDATE pizzeria SET rating = 4 WHERE name = 'Pizza Hut';` |  |\n| 4 |  | `UPDATE pizzeria SET rating = 3.6 WHERE name = 'Pizza Hut';` |\n| 5 | `COMMIT;` |  |\n| 6 |  | `COMMIT;` |\n| 7 | `SELECT rating FROM pizzeria WHERE name = 'Pizza Hut';` |  |\n\n**Что должно получиться.**\n\n- шаг 4 (Session #2): `UPDATE` **не завершается сразу**: он ждёт, пока Session #1 снимет блокировку строки;\n- после шага 5 (`COMMIT` в Session #1) команда в Session #2 выполняется;\n- шаг 7: итоговый рейтинг `3.6`. Значение `4` из Session #1 **потеряно**: Session #2 перезаписала его, ничего не заметив.\n\n> **Подготовка.** Открой **два** терминала (или две консоли в DataGrip) и в каждом подключись к своей базе: `psql -d pizza_db`. Это Session #1 и Session #2. Перед заданием верни рейтинг в исходное состояние: `UPDATE pizzeria SET rating = 4.6 WHERE name = 'Pizza Hut';`.\n> Тренажёр работает с одним подключением и не умеет две параллельные сессии, поэтому автопроверки здесь нет: ты делаешь задание в psql, сверяешься с ожидаемым результатом и нажимаешь «Отметить как выполненное».\n",
+     "theory": "# Задание 01. Lost Update на READ COMMITTED\n\nНа уровне `READ COMMITTED` каждая команда видит данные, зафиксированные **к моменту её начала**.\n\nЧто происходит по шагам:\n\n1. обе сессии читают рейтинг (например, 4.6);\n2. Session #1 меняет строку, на неё ставится блокировка;\n3. `UPDATE` в Session #2 упирается в блокировку и **ждёт**;\n4. Session #1 делает `COMMIT`, блокировка снята;\n5. Session #2 повторно читает актуальную версию строки и применяет свой `UPDATE`: `rating = 3.6` безусловно перезаписывает `4`.\n\nИтог: одно из обновлений пропало. База не нарушила правил: каждая команда по отдельности корректна. Проблема в приложении: оно записало значение, вычисленное по **устаревшему** чтению.\n\nЗащита: обновлять относительно текущего значения (`SET rating = rating + 1`), блокировать строку при чтении (`SELECT ... FOR UPDATE`), либо использовать более строгий уровень изоляции (следующее задание).\n\nКлючевые слова для примеров: `BEGIN`, `COMMIT`, `UPDATE`, `TRANSACTION`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Обе сессии открывают транзакцию и читают рейтинг. Затем Session #1 обновляет, Session #2 тоже обновляет (и зависает, пока Session #1 не закончит). Потом `COMMIT` в обеих."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\n-- обе сессии\nBEGIN;\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- Session #1\nUPDATE pizzeria SET rating = ______ WHERE name = 'Pizza Hut';\n-- Session #2 (ждёт)\nUPDATE pizzeria SET rating = ______ WHERE name = 'Pizza Hut';\n-- Session #1\nCOMMIT;\n-- Session #2\nCOMMIT;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Если Session #2 не «зависает» на своём `UPDATE`, проверь, что Session #1 действительно в открытой транзакции (до её `COMMIT`). Финальное значение читай в любой сессии после обоих `COMMIT`: оно равно `3.6`."
+      }
+     ],
+     "solution": "-- Lost Update (READ COMMITTED)\n-- [1] Session #1\nBEGIN;\n-- [1] Session #2\nBEGIN;\n-- [2] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- [2] Session #2\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- [3] Session #1\nUPDATE pizzeria SET rating = 4 WHERE name = 'Pizza Hut';\n-- [4] Session #2\nUPDATE pizzeria SET rating = 3.6 WHERE name = 'Pizza Hut';\n-- [5] Session #1\nCOMMIT;\n-- [6] Session #2\nCOMMIT;\n-- [7] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';",
+     "solutionCommented": "-- Lost Update (READ COMMITTED)\n-- [1] Session #1\nBEGIN;\n-- [1] Session #2\nBEGIN;\n-- [2] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- [2] Session #2\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- [3] Session #1\nUPDATE pizzeria SET rating = 4 WHERE name = 'Pizza Hut';   -- строка заблокирована Session #1\n-- [4] Session #2\nUPDATE pizzeria SET rating = 3.6 WHERE name = 'Pizza Hut';   -- ждёт снятия блокировки\n-- [5] Session #1\nCOMMIT;   -- блокировка снята\n-- [6] Session #2\nCOMMIT;   -- перезаписывает: 4 потеряно\n-- [7] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';   -- итог: 3.6",
+     "meta": {
+      "title": "Lost Update (READ COMMITTED)",
+      "manual": true,
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day08/ex02",
+     "dir": "ex02_lost_update_repeatable_read",
+     "title": "Lost Update (REPEATABLE READ)",
+     "readme": "# Задание 02. Потерянное обновление на REPEATABLE READ\n\n**Язык:** SQL\n\nТот же сценарий, что в задании 01, но обе транзакции работают на уровне изоляции `REPEATABLE READ`. Проверь, как PostgreSQL ведёт себя теперь.\n\nПрочитай рейтинг `Pizza Hut` в обеих сессиях, затем в Session #1 обнови его до `4`, а в Session #2 до `3.6` (последовательность на схеме ниже).\n\nВыполни шаги строго в этом порядке:\n\n| Шаг | Session #1 | Session #2 |\n| --- | --- | --- |\n| 1 | `BEGIN ISOLATION LEVEL REPEATABLE READ;` | `BEGIN ISOLATION LEVEL REPEATABLE READ;` |\n| 2 | `SELECT rating FROM pizzeria WHERE name = 'Pizza Hut';` | `SELECT rating FROM pizzeria WHERE name = 'Pizza Hut';` |\n| 3 | `UPDATE pizzeria SET rating = 4 WHERE name = 'Pizza Hut';` |  |\n| 4 |  | `UPDATE pizzeria SET rating = 3.6 WHERE name = 'Pizza Hut';` |\n| 5 | `COMMIT;` |  |\n| 6 |  | `ROLLBACK;` |\n| 7 | `SELECT rating FROM pizzeria WHERE name = 'Pizza Hut';` |  |\n\n**Что должно получиться.**\n\n- шаг 4 (Session #2): `UPDATE` ждёт, пока Session #1 закончит;\n- после шага 5 (`COMMIT` в Session #1) Session #2 получает ошибку:\n\n```\nERROR:  could not serialize access due to concurrent update\n```\n\n- транзакцию Session #2 надо завершить `ROLLBACK` (она уже в состоянии ошибки);\n- шаг 7: рейтинг `4`: обновление Session #1 **не потеряно**.\n\n> **Подготовка.** Открой **два** терминала (или две консоли в DataGrip) и в каждом подключись к своей базе: `psql -d pizza_db`. Это Session #1 и Session #2. Перед заданием верни рейтинг в исходное состояние: `UPDATE pizzeria SET rating = 4.6 WHERE name = 'Pizza Hut';`.\n> Тренажёр работает с одним подключением и не умеет две параллельные сессии, поэтому автопроверки здесь нет: ты делаешь задание в psql, сверяешься с ожидаемым результатом и нажимаешь «Отметить как выполненное».\n",
+     "theory": "# Задание 02. REPEATABLE READ защищает от потери обновления\n\nНа уровне `REPEATABLE READ` транзакция работает со **снимком данных** на момент первого запроса: все её чтения видят одно и то же состояние, что бы ни коммитили другие.\n\nЕсли такая транзакция пытается изменить строку, которую уже успела изменить и зафиксировать другая, PostgreSQL не позволяет «молча перезаписать». Он прерывает транзакцию:\n\n```\nERROR:  could not serialize access due to concurrent update\n```\n\nОшибка не катастрофа, а сигнал: «ты работал с устаревшими данными». Приложение должно **повторить** транзакцию целиком (с новым чтением). После такой ошибки транзакция считается проваленной, и её нужно завершить командой `ROLLBACK`.\n\nСравни с заданием 01: на `READ COMMITTED` то же обновление молча прошло и затёрло чужое, а здесь база его запретила.\n\nКлючевые слова для примеров: `BEGIN`, `ROLLBACK`, `COMMIT`, `TRANSACTION`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Те же шаги, что в прошлом задании, но транзакции открываются с `ISOLATION LEVEL REPEATABLE READ`. Session #2 после `COMMIT` из Session #1 получит ошибку сериализации."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\n-- обе сессии\nBEGIN ISOLATION LEVEL ______ ______;\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- Session #1: UPDATE ... SET rating = 4;\n-- Session #2: UPDATE ... SET rating = 3.6;   (ждёт)\n-- Session #1: COMMIT;\n-- Session #2: ERROR: could not serialize access... -> ______;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Уровень задаётся прямо в `BEGIN`: `BEGIN ISOLATION LEVEL REPEATABLE READ;`. После ошибки в Session #2 выполни `ROLLBACK;`, и тогда рейтинг в базе будет `4`."
+      }
+     ],
+     "solution": "-- Lost Update (REPEATABLE READ)\n-- [1] Session #1\nBEGIN ISOLATION LEVEL REPEATABLE READ;\n-- [1] Session #2\nBEGIN ISOLATION LEVEL REPEATABLE READ;\n-- [2] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- [2] Session #2\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- [3] Session #1\nUPDATE pizzeria SET rating = 4 WHERE name = 'Pizza Hut';\n-- [4] Session #2\nUPDATE pizzeria SET rating = 3.6 WHERE name = 'Pizza Hut';\n-- [5] Session #1\nCOMMIT;\n-- [6] Session #2\nROLLBACK;\n-- [7] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';",
+     "solutionCommented": "-- Lost Update (REPEATABLE READ)\n-- [1] Session #1\nBEGIN ISOLATION LEVEL REPEATABLE READ;\n-- [1] Session #2\nBEGIN ISOLATION LEVEL REPEATABLE READ;\n-- [2] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- [2] Session #2\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- [3] Session #1\nUPDATE pizzeria SET rating = 4 WHERE name = 'Pizza Hut';\n-- [4] Session #2\nUPDATE pizzeria SET rating = 3.6 WHERE name = 'Pizza Hut';   -- ждёт блокировку\n-- [5] Session #1\nCOMMIT;   -- Session #1 фиксирует\n-- [6] Session #2\nROLLBACK;   -- ERROR: could not serialize access; откатываем\n-- [7] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';   -- итог: 4",
+     "meta": {
+      "title": "Lost Update (REPEATABLE READ)",
+      "manual": true,
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day08/ex03",
+     "dir": "ex03_non_repeatable_read",
+     "title": "Non-Repeatable Read (READ COMMITTED)",
+     "readme": "# Задание 03. Неповторяющееся чтение (READ COMMITTED)\n\n**Язык:** SQL\n\n**Неповторяющееся чтение**: в рамках одной транзакции один и тот же запрос возвращает разные значения, потому что между запросами другая транзакция успела изменить данные и зафиксировать их.\n\nПроверь это на уровне `READ COMMITTED`. В Session #1 прочитай рейтинг `Pizza Hut` в транзакции, затем в Session #2 обнови его до `3.6` и зафиксируй, потом снова прочитай в Session #1.\n\nВыполни шаги строго в этом порядке:\n\n| Шаг | Session #1 | Session #2 |\n| --- | --- | --- |\n| 1 | `BEGIN;` | `BEGIN;` |\n| 2 | `SELECT rating FROM pizzeria WHERE name = 'Pizza Hut';` |  |\n| 3 |  | `UPDATE pizzeria SET rating = 3.6 WHERE name = 'Pizza Hut';` |\n| 4 |  | `COMMIT;` |\n| 5 | `SELECT rating FROM pizzeria WHERE name = 'Pizza Hut';` |  |\n| 6 | `COMMIT;` |  |\n| 7 | `SELECT rating FROM pizzeria WHERE name = 'Pizza Hut';` |  |\n\n**Что должно получиться.**\n\n- шаг 2 (Session #1): старое значение, например `4.6`;\n- шаг 5 (Session #1): **уже `3.6`**, хотя транзакция Session #1 всё ещё открыта: один и тот же запрос в одной транзакции дал два разных ответа.\n\n> **Подготовка.** Открой **два** терминала (или две консоли в DataGrip) и в каждом подключись к своей базе: `psql -d pizza_db`. Это Session #1 и Session #2. Перед заданием верни рейтинг в исходное состояние: `UPDATE pizzeria SET rating = 4.6 WHERE name = 'Pizza Hut';`.\n> Тренажёр работает с одним подключением и не умеет две параллельные сессии, поэтому автопроверки здесь нет: ты делаешь задание в psql, сверяешься с ожидаемым результатом и нажимаешь «Отметить как выполненное».\n",
+     "theory": "# Задание 03. Неповторяющееся чтение\n\nУровень по умолчанию `READ COMMITTED` гарантирует, что ты никогда не увидишь **незафиксированные** чужие данные. Но каждая команда берёт свежий снимок зафиксированных данных на момент **своего** начала.\n\nПоэтому два одинаковых `SELECT` внутри одной транзакции могут вернуть разное, если между ними кто-то сделал `COMMIT`.\n\nЧем это опасно: логика внутри транзакции предполагает, что данные не изменились, а они изменились. Например, вы проверили баланс, потом списали деньги, а между проверкой и списанием баланс уже поменялся.\n\nЛечится более строгим уровнем: на `REPEATABLE READ` и `SERIALIZABLE` (следующее задание) повторный запрос вернёт то же, что и первый.\n\nКлючевые слова для примеров: `BEGIN`, `COMMIT`, `UPDATE`, `TRANSACTION`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Session #1 дважды читает одну и ту же строку в одной транзакции, а между чтениями Session #2 меняет и фиксирует рейтинг."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\n-- Session #1: BEGIN; SELECT rating ...;   (старое значение)\n-- Session #2: BEGIN; UPDATE ... SET rating = ______; ______;\n-- Session #1: SELECT rating ...;           (новое значение!)\n--             COMMIT;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Если во втором чтении в Session #1 всё ещё старое значение, значит, в Session #2 не сделан `COMMIT`. Рейтинг должен стать `3.6` до повторного чтения."
+      }
+     ],
+     "solution": "-- Non-Repeatable Read (READ COMMITTED)\n-- [1] Session #1\nBEGIN;\n-- [1] Session #2\nBEGIN;\n-- [2] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- [3] Session #2\nUPDATE pizzeria SET rating = 3.6 WHERE name = 'Pizza Hut';\n-- [4] Session #2\nCOMMIT;\n-- [5] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- [6] Session #1\nCOMMIT;\n-- [7] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';",
+     "solutionCommented": "-- Non-Repeatable Read (READ COMMITTED)\n-- [1] Session #1\nBEGIN;\n-- [1] Session #2\nBEGIN;\n-- [2] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';   -- первое чтение\n-- [3] Session #2\nUPDATE pizzeria SET rating = 3.6 WHERE name = 'Pizza Hut';   -- меняем и фиксируем в другой сессии\n-- [4] Session #2\nCOMMIT;\n-- [5] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';   -- второе чтение: значение изменилось\n-- [6] Session #1\nCOMMIT;\n-- [7] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';",
+     "meta": {
+      "title": "Non-Repeatable Read (READ COMMITTED)",
+      "manual": true,
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day08/ex04",
+     "dir": "ex04_non_repeatable_read_serializable",
+     "title": "Non-Repeatable Read (SERIALIZABLE)",
+     "readme": "# Задание 04. Неповторяющееся чтение на SERIALIZABLE\n\n**Язык:** SQL\n\nТот же сценарий, что в задании 03, но обе транзакции работают на уровне `SERIALIZABLE`. В Session #1 прочитай рейтинг `Pizza Hut`, в Session #2 обнови его до `3.0` и зафиксируй, затем снова прочитай в Session #1, потом закончи транзакцию и прочитай ещё раз.\n\nВыполни шаги строго в этом порядке:\n\n| Шаг | Session #1 | Session #2 |\n| --- | --- | --- |\n| 1 | `BEGIN ISOLATION LEVEL SERIALIZABLE;` | `BEGIN ISOLATION LEVEL SERIALIZABLE;` |\n| 2 | `SELECT rating FROM pizzeria WHERE name = 'Pizza Hut';` |  |\n| 3 |  | `UPDATE pizzeria SET rating = 3.0 WHERE name = 'Pizza Hut';` |\n| 4 |  | `COMMIT;` |\n| 5 | `SELECT rating FROM pizzeria WHERE name = 'Pizza Hut';` |  |\n| 6 | `COMMIT;` |  |\n| 7 | `SELECT rating FROM pizzeria WHERE name = 'Pizza Hut';` |  |\n\n**Что должно получиться.**\n\n- шаг 2 (Session #1): старое значение (например `3.6` или `4.6`);\n- шаг 5 (Session #1): **то же старое значение**, несмотря на `COMMIT` в Session #2: транзакция видит свой снимок;\n- шаг 7 (после `COMMIT` в Session #1): уже `3.0`: новая транзакция видит свежие данные.\n\n> **Подготовка.** Открой **два** терминала (или две консоли в DataGrip) и в каждом подключись к своей базе: `psql -d pizza_db`. Это Session #1 и Session #2. Перед заданием верни рейтинг в исходное состояние: `UPDATE pizzeria SET rating = 4.6 WHERE name = 'Pizza Hut';`.\n> Тренажёр работает с одним подключением и не умеет две параллельные сессии, поэтому автопроверки здесь нет: ты делаешь задание в psql, сверяешься с ожидаемым результатом и нажимаешь «Отметить как выполненное».\n",
+     "theory": "# Задание 04. SERIALIZABLE: транзакции как будто идут по очереди\n\n`SERIALIZABLE` самый строгий уровень: результат параллельных транзакций такой, будто они выполнялись **одна за другой**.\n\nВ этом задании видно главное свойство снимка: Session #1 после `BEGIN` и первого чтения «замораживает» картину мира. Чужие `COMMIT` она не видит, пока сама не закончит транзакцию. Поэтому повторное чтение вернёт то же самое (в отличие от `READ COMMITTED` из задания 03).\n\nЦена строгости: иногда PostgreSQL прерывает транзакцию с ошибкой `could not serialize access due to read/write dependencies among transactions`. Приложение обязано быть готово **повторить** транзакцию. В нашем сценарии Session #1 только читает, поэтому ошибки не будет.\n\nКлючевые слова для примеров: `BEGIN`, `COMMIT`, `TRANSACTION`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Откройте обе транзакции с `ISOLATION LEVEL SERIALIZABLE`. Session #1 читает, Session #2 меняет и коммитит, Session #1 читает повторно и видит старое значение."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nBEGIN ISOLATION LEVEL ______;   -- в обеих сессиях\n-- Session #1: SELECT rating ...;\n-- Session #2: UPDATE ... SET rating = 3.0; COMMIT;\n-- Session #1: SELECT rating ...;   -- как и раньше\n-- Session #1: COMMIT; SELECT rating ...;   -- теперь 3.0\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Если в Session #1 после `COMMIT` из Session #2 видно новое значение, проверь, что `BEGIN` выполнен именно с `ISOLATION LEVEL SERIALIZABLE`: без этого транзакция работает на `READ COMMITTED`."
+      }
+     ],
+     "solution": "-- Non-Repeatable Read (SERIALIZABLE)\n-- [1] Session #1\nBEGIN ISOLATION LEVEL SERIALIZABLE;\n-- [1] Session #2\nBEGIN ISOLATION LEVEL SERIALIZABLE;\n-- [2] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- [3] Session #2\nUPDATE pizzeria SET rating = 3.0 WHERE name = 'Pizza Hut';\n-- [4] Session #2\nCOMMIT;\n-- [5] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';\n-- [6] Session #1\nCOMMIT;\n-- [7] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';",
+     "solutionCommented": "-- Non-Repeatable Read (SERIALIZABLE)\n-- [1] Session #1\nBEGIN ISOLATION LEVEL SERIALIZABLE;\n-- [1] Session #2\nBEGIN ISOLATION LEVEL SERIALIZABLE;\n-- [2] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';   -- первое чтение: фиксируется снимок\n-- [3] Session #2\nUPDATE pizzeria SET rating = 3.0 WHERE name = 'Pizza Hut';\n-- [4] Session #2\nCOMMIT;   -- Session #2 фиксирует\n-- [5] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';   -- второе чтение: то же значение\n-- [6] Session #1\nCOMMIT;\n-- [7] Session #1\nSELECT rating FROM pizzeria WHERE name = 'Pizza Hut';   -- после COMMIT: 3.0",
+     "meta": {
+      "title": "Non-Repeatable Read (SERIALIZABLE)",
+      "manual": true,
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day08/ex05",
+     "dir": "ex05_phantom_read",
+     "title": "Phantom Read (READ COMMITTED)",
+     "readme": "# Задание 05. Фантомное чтение (READ COMMITTED)\n\n**Язык:** SQL\n\n**Фантомное чтение**: в одной транзакции один и тот же запрос по условию возвращает разный **набор строк**, потому что другая транзакция добавила (или удалила) подходящие строки и зафиксировалась.\n\nВ Session #1 просумми рейтинги всех пиццерий в транзакции, затем в Session #2 добавь новую пиццерию `'Kazan Pizza'` с рейтингом `5` и `id = 10`, зафиксируй и снова просумми в Session #1.\n\nВыполни шаги строго в этом порядке:\n\n| Шаг | Session #1 | Session #2 |\n| --- | --- | --- |\n| 1 | `BEGIN;` | `BEGIN;` |\n| 2 | `SELECT SUM(rating) FROM pizzeria;` |  |\n| 3 |  | `INSERT INTO pizzeria (id, name, rating) VALUES (10, 'Kazan Pizza', 5);` |\n| 4 |  | `COMMIT;` |\n| 5 | `SELECT SUM(rating) FROM pizzeria;` |  |\n| 6 | `COMMIT;` |  |\n| 7 | `SELECT SUM(rating) FROM pizzeria;` |  |\n\n**Что должно получиться.**\n\n- шаг 2 (Session #1): сумма всех рейтингов, например `S`;\n- шаг 5 (Session #1): сумма **`S + 5`**: в выборку попала новая строка, которой не было при первом чтении;\n- шаг 7: то же `S + 5`.\n\n> **Подготовка.** Открой **два** терминала (или две консоли в DataGrip) и в каждом подключись к своей базе: `psql -d pizza_db`. Это Session #1 и Session #2. Перед заданием верни рейтинг в исходное состояние: `UPDATE pizzeria SET rating = 4.6 WHERE name = 'Pizza Hut';`.\n> Тренажёр работает с одним подключением и не умеет две параллельные сессии, поэтому автопроверки здесь нет: ты делаешь задание в psql, сверяешься с ожидаемым результатом и нажимаешь «Отметить как выполненное».\n",
+     "theory": "# Задание 05. Фантомы\n\nОт неповторяющегося чтения фантом отличается тем, что меняется не значение **одной** строки, а **состав** набора: в результат агрегата или выборки «из ниоткуда» появляются новые строки (или исчезают старые).\n\nПример: подсчёт или сумма по таблице, в которую параллельно вставляют строки. На `READ COMMITTED` каждая команда видит свежие зафиксированные данные, поэтому при втором `SUM` новая строка уже учитывается.\n\nУсловие `INSERT` в задании: пиццерия `Kazan Pizza` с `id = 10` и рейтингом `5`. Идентификатор должен быть свободен, иначе будет ошибка первичного ключа.\n\nСумма «до» и «после» отличается ровно на рейтинг добавленной строки.\n\nКлючевые слова для примеров: `BEGIN`, `COMMIT`, `INSERT`, `SUM`, `TRANSACTION`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Session #1 открывает транзакцию и считает `SUM(rating)`. Session #2 вставляет новую пиццерию и коммитит. Session #1 считает сумму ещё раз."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\n-- Session #1: BEGIN; SELECT SUM(rating) FROM pizzeria;\n-- Session #2: BEGIN; INSERT INTO pizzeria (id, name, rating) VALUES (______, '______', ______); COMMIT;\n-- Session #1: SELECT SUM(rating) FROM pizzeria;   -- сумма выросла\n-- Session #1: COMMIT;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Значения для вставки: `(10, 'Kazan Pizza', 5)`. Если вставка падает с ошибкой дублирования, значит строка с `id = 10` уже есть (например, ты уже выполнял задание): удали её командой `DELETE FROM pizzeria WHERE id = 10;`."
+      }
+     ],
+     "solution": "-- Phantom Read (READ COMMITTED)\n-- [1] Session #1\nBEGIN;\n-- [1] Session #2\nBEGIN;\n-- [2] Session #1\nSELECT SUM(rating) FROM pizzeria;\n-- [3] Session #2\nINSERT INTO pizzeria (id, name, rating) VALUES (10, 'Kazan Pizza', 5);\n-- [4] Session #2\nCOMMIT;\n-- [5] Session #1\nSELECT SUM(rating) FROM pizzeria;\n-- [6] Session #1\nCOMMIT;\n-- [7] Session #1\nSELECT SUM(rating) FROM pizzeria;",
+     "solutionCommented": "-- Phantom Read (READ COMMITTED)\n-- [1] Session #1\nBEGIN;\n-- [1] Session #2\nBEGIN;\n-- [2] Session #1\nSELECT SUM(rating) FROM pizzeria;   -- сумма до вставки\n-- [3] Session #2\nINSERT INTO pizzeria (id, name, rating) VALUES (10, 'Kazan Pizza', 5);   -- новая пиццерия\n-- [4] Session #2\nCOMMIT;   -- фиксируем\n-- [5] Session #1\nSELECT SUM(rating) FROM pizzeria;   -- сумма выросла на 5: фантом\n-- [6] Session #1\nCOMMIT;\n-- [7] Session #1\nSELECT SUM(rating) FROM pizzeria;",
+     "meta": {
+      "title": "Phantom Read (READ COMMITTED)",
+      "manual": true,
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day08/ex06",
+     "dir": "ex06_phantom_read_repeatable_read",
+     "title": "Phantom Read (REPEATABLE READ)",
+     "readme": "# Задание 06. Фантомное чтение на REPEATABLE READ\n\n**Язык:** SQL\n\nТот же сценарий, что в задании 05, но Session #1 работает на уровне `REPEATABLE READ`. В Session #1 просумми рейтинги всех пиццерий, в Session #2 добавь `'Kazan Pizza 2'` с рейтингом `4` и `id = 11`, зафиксируй и снова просумми в Session #1. Потом закончи транзакцию и просумми ещё раз.\n\nВыполни шаги строго в этом порядке:\n\n| Шаг | Session #1 | Session #2 |\n| --- | --- | --- |\n| 1 | `BEGIN ISOLATION LEVEL REPEATABLE READ;` |  |\n| 2 | `SELECT SUM(rating) FROM pizzeria;` |  |\n| 3 |  | `INSERT INTO pizzeria (id, name, rating) VALUES (11, 'Kazan Pizza 2', 4);` |\n| 4 |  | `COMMIT;` |\n| 5 | `SELECT SUM(rating) FROM pizzeria;` |  |\n| 6 | `COMMIT;` |  |\n| 7 | `SELECT SUM(rating) FROM pizzeria;` |  |\n\n**Что должно получиться.**\n\n- шаг 2 и шаг 5 (Session #1): **одна и та же сумма**: новая пиццерия не видна;\n- шаг 7 (после `COMMIT` в Session #1): сумма уже включает рейтинг `4`.\n\n> **Подготовка.** Открой **два** терминала (или две консоли в DataGrip) и в каждом подключись к своей базе: `psql -d pizza_db`. Это Session #1 и Session #2. Перед заданием верни рейтинг в исходное состояние: `UPDATE pizzeria SET rating = 4.6 WHERE name = 'Pizza Hut';`.\n> Тренажёр работает с одним подключением и не умеет две параллельные сессии, поэтому автопроверки здесь нет: ты делаешь задание в psql, сверяешься с ожидаемым результатом и нажимаешь «Отметить как выполненное».\n",
+     "theory": "# Задание 06. REPEATABLE READ и фантомы\n\nСтандарт SQL допускает фантомы на `REPEATABLE READ`. Но в PostgreSQL этот уровень реализован через **снимок**: транзакция видит базу ровно такой, какой она была в момент первого запроса, поэтому новые чужие строки ей не видны. Фантомов здесь нет.\n\nЭто отличие PostgreSQL от некоторых других СУБД (например, MySQL/InnoDB ведёт себя иначе в части блокировок). Поэтому ответы на вопрос «защищает ли REPEATABLE READ от фантомов?» зависят от СУБД.\n\nСводная таблица для PostgreSQL:\n\n| Уровень изоляции | Грязное чтение | Неповторяющееся чтение | Фантомное чтение |\n| --- | --- | --- | --- |\n| `READ UNCOMMITTED` (в PostgreSQL работает как `READ COMMITTED`) | нет | возможно | возможно |\n| `READ COMMITTED` (по умолчанию) | нет | возможно | возможно |\n| `REPEATABLE READ` | нет | нет | нет в PostgreSQL (по стандарту возможно) |\n| `SERIALIZABLE` | нет | нет | нет |\n\nКлючевые слова для примеров: `BEGIN`, `COMMIT`, `INSERT`, `SUM`, `TRANSACTION`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Как в задании 05, но Session #1 стартует с `BEGIN ISOLATION LEVEL REPEATABLE READ`. Вторая сумма совпадёт с первой."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\n-- Session #1: BEGIN ISOLATION LEVEL ______ ______; SELECT SUM(rating) FROM pizzeria;\n-- Session #2: INSERT INTO pizzeria VALUES (11, 'Kazan Pizza 2', 4);\n-- Session #1: SELECT SUM(rating) FROM pizzeria;   -- без изменений\n-- Session #1: COMMIT; SELECT SUM(rating) FROM pizzeria;   -- с учётом новой строки\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "`INSERT` в Session #2 в режиме без явной транзакции автоматически фиксируется. Если же открыт явный `BEGIN`, не забудь `COMMIT`, иначе Session #1 в любом случае ничего не увидит."
+      }
+     ],
+     "solution": "-- Phantom Read (REPEATABLE READ)\n-- [1] Session #1\nBEGIN ISOLATION LEVEL REPEATABLE READ;\n-- [2] Session #1\nSELECT SUM(rating) FROM pizzeria;\n-- [3] Session #2\nINSERT INTO pizzeria (id, name, rating) VALUES (11, 'Kazan Pizza 2', 4);\n-- [4] Session #2\nCOMMIT;\n-- [5] Session #1\nSELECT SUM(rating) FROM pizzeria;\n-- [6] Session #1\nCOMMIT;\n-- [7] Session #1\nSELECT SUM(rating) FROM pizzeria;",
+     "solutionCommented": "-- Phantom Read (REPEATABLE READ)\n-- [1] Session #1\nBEGIN ISOLATION LEVEL REPEATABLE READ;\n-- [2] Session #1\nSELECT SUM(rating) FROM pizzeria;   -- сумма: снимок зафиксирован\n-- [3] Session #2\nINSERT INTO pizzeria (id, name, rating) VALUES (11, 'Kazan Pizza 2', 4);   -- вставка в другой сессии\n-- [4] Session #2\nCOMMIT;\n-- [5] Session #1\nSELECT SUM(rating) FROM pizzeria;   -- сумма не изменилась: фантома нет\n-- [6] Session #1\nCOMMIT;\n-- [7] Session #1\nSELECT SUM(rating) FROM pizzeria;   -- после COMMIT: новая строка видна",
+     "meta": {
+      "title": "Phantom Read (REPEATABLE READ)",
+      "manual": true,
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day08/ex07",
+     "dir": "ex07_deadlock",
+     "title": "Deadlock",
+     "readme": "# Задание 07. Взаимная блокировка (Deadlock)\n\n**Язык:** SQL\n\nВоспроизведи **взаимоблокировку**: две транзакции захватили по одной строке и теперь каждая ждёт строку, которую держит другая, «крест-накрест». Любой уровень изоляции (по умолчанию подойдёт). Работай с таблицей `pizzeria`.\n\nВыполни шаги строго в этом порядке:\n\n| Шаг | Session #1 | Session #2 |\n| --- | --- | --- |\n| 1 | `BEGIN;` | `BEGIN;` |\n| 2 | `UPDATE pizzeria SET rating = 5 WHERE id = 1;` |  |\n| 3 |  | `UPDATE pizzeria SET rating = 5 WHERE id = 2;` |\n| 4 | `UPDATE pizzeria SET rating = 5 WHERE id = 2;` |  |\n| 5 |  | `UPDATE pizzeria SET rating = 5 WHERE id = 1;` |\n| 6 | `ROLLBACK;` | `ROLLBACK;` |\n\n**Что должно получиться.**\n\n- шаг 4 (Session #1): команда **зависает**: строка 2 занята Session #2;\n- шаг 5 (Session #2): после паузы около секунды PostgreSQL обнаруживает цикл ожидания и прерывает одну из транзакций:\n\n```\nERROR:  deadlock detected\nDETAIL:  Process ... waits for ShareLock on transaction ...; blocked by process ...\n```\n\n- вторая транзакция после этого может продолжить; обе в конце завершай `ROLLBACK`.\n\n> **Подготовка.** Открой **два** терминала (или две консоли в DataGrip) и в каждом подключись к своей базе: `psql -d pizza_db`. Это Session #1 и Session #2. Перед заданием верни рейтинг в исходное состояние: `UPDATE pizzeria SET rating = 4.6 WHERE name = 'Pizza Hut';`.\n> Тренажёр работает с одним подключением и не умеет две параллельные сессии, поэтому автопроверки здесь нет: ты делаешь задание в psql, сверяешься с ожидаемым результатом и нажимаешь «Отметить как выполненное».\n",
+     "theory": "# Задание 07. Deadlock\n\n**Взаимная блокировка** (deadlock) возникает, когда транзакции ждут друг друга по кругу:\n\n1. Session #1 блокирует строку A;\n2. Session #2 блокирует строку B;\n3. Session #1 хочет строку B и ждёт Session #2;\n4. Session #2 хочет строку A и ждёт Session #1.\n\nНикто не может продолжить. PostgreSQL сам находит такой цикл (проверка запускается после `deadlock_timeout`, по умолчанию 1 секунда) и **убивает одну из транзакций** с ошибкой `deadlock detected`. Остальные продолжают.\n\nКак защищаются:\n\n- блокировать строки **всегда в одном порядке** (например, по возрастанию `id`);\n- делать транзакции короткими;\n- уметь повторять транзакцию после такой ошибки.\n\nВ задании строки блокируются в разном порядке: Session #1 берёт 1, потом 2, а Session #2 берёт 2, потом 1. Именно это и даёт крест.\n\nКлючевые слова для примеров: `BEGIN`, `ROLLBACK`, `UPDATE`, `TRANSACTION`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Session #1 меняет строку с `id = 1`, Session #2 меняет строку с `id = 2`. Потом каждая пытается изменить строку другой."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\n-- Session #1: BEGIN; UPDATE pizzeria SET rating = 5 WHERE id = 1;\n-- Session #2: BEGIN; UPDATE pizzeria SET rating = 5 WHERE id = ______;\n-- Session #1: UPDATE pizzeria SET rating = 5 WHERE id = ______;   -- ждёт\n-- Session #2: UPDATE pizzeria SET rating = 5 WHERE id = ______;   -- deadlock detected\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Порядок: сессия 1 берёт строки 1 затем 2, сессия 2 берёт 2 затем 1. Как только последний `UPDATE` выполнен, PostgreSQL через секунду вернёт `ERROR: deadlock detected` в одной из сессий."
+      }
+     ],
+     "solution": "-- Deadlock\n-- [1] Session #1\nBEGIN;\n-- [1] Session #2\nBEGIN;\n-- [2] Session #1\nUPDATE pizzeria SET rating = 5 WHERE id = 1;\n-- [3] Session #2\nUPDATE pizzeria SET rating = 5 WHERE id = 2;\n-- [4] Session #1\nUPDATE pizzeria SET rating = 5 WHERE id = 2;\n-- [5] Session #2\nUPDATE pizzeria SET rating = 5 WHERE id = 1;\n-- [6] Session #1\nROLLBACK;\n-- [6] Session #2\nROLLBACK;",
+     "solutionCommented": "-- Deadlock\n-- [1] Session #1\nBEGIN;\n-- [1] Session #2\nBEGIN;\n-- [2] Session #1\nUPDATE pizzeria SET rating = 5 WHERE id = 1;   -- держим строку 1\n-- [3] Session #2\nUPDATE pizzeria SET rating = 5 WHERE id = 2;   -- держим строку 2\n-- [4] Session #1\nUPDATE pizzeria SET rating = 5 WHERE id = 2;   -- ждём строку 2 (её держит Session #2)\n-- [5] Session #2\nUPDATE pizzeria SET rating = 5 WHERE id = 1;   -- ждём строку 1: цикл; ERROR: deadlock detected\n-- [6] Session #1\nROLLBACK;   -- завершаем обе транзакции\n-- [6] Session #2\nROLLBACK;   -- завершаем обе транзакции",
+     "meta": {
+      "title": "Deadlock",
+      "manual": true,
       "dataset": "pizza",
       "forbidden": [],
       "required": []

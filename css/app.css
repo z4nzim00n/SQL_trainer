@@ -362,3 +362,38 @@
 .term-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 4px 12px; }
 .term-bar-label { color: var(--muted); font-size: calc(var(--fs-ui) - 1px); margin-right: 4px; }
 .wiki-btn-top { margin-left: auto; width: auto; padding: 4px 12px; }
+
+/* ---------- разделённая левая часть: две панели с независимым выбором вкладок ---------- */
+.pane {
+    display: flex;
+    flex: 1 1 0%;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+.pane[hidden], .pane-resizer[hidden], .split-btn[hidden] { display: none; }
+.pane + .pane { border-top: 1px solid var(--border); }
+.pane-resizer {
+    position: relative;
+    flex: 0 0 10px;
+    cursor: row-resize;
+    background: var(--panel-alt);
+    border-top: 1px solid var(--border);
+}
+.pane-resizer::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 50%;
+    width: 40px;
+    height: 4px;
+    margin-left: -20px;
+    border-radius: 2px;
+    background: var(--border);
+}
+.pane-resizer:hover::after, .pane-resizer.dragging::after { background: var(--accent); }
+.split-btn {
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    white-space: nowrap;
+}

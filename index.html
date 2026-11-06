@@ -68,14 +68,25 @@
         <div class="panels-container" id="panelsContainer">
 
             <div class="panel" id="panelLeft" style="flex:1 1 0%;">
-                <div class="panel-topbar">
-                    <div class="tabs" id="tabs"></div>
-                </div>
-                <div class="panel-body" id="leftBody">
-                    <div class="panel-empty">
-                        <div class="panel-empty-icon">📋</div>
-                        <div class="panel-empty-text">Выбери задание.<br>Условие появится здесь.<br><br>Справочник по SQL: кнопка «📖 Энциклопедия» вверху.</div>
+                <div class="pane" id="paneA">
+                    <div class="panel-topbar">
+                        <div class="tabs" id="tabsA"></div>
+                        <button class="split-btn" id="splitBtn" type="button" title="Показать две панели: например, задание и теорию одновременно">⬒ Разделить</button>
                     </div>
+                    <div class="panel-body" id="bodyA">
+                        <div class="panel-empty">
+                            <div class="panel-empty-icon">📋</div>
+                            <div class="panel-empty-text">Выбери задание.<br>Условие появится здесь.<br><br>Справочник по SQL: кнопка «📖 Энциклопедия» вверху.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pane-resizer" id="paneResizer" title="Потяни, чтобы изменить высоту панелей" hidden></div>
+                <div class="pane" id="paneB" hidden>
+                    <div class="panel-topbar">
+                        <div class="tabs" id="tabsB"></div>
+                        <button class="split-btn" id="unsplitBtn" type="button" title="Закрыть вторую панель">✕</button>
+                    </div>
+                    <div class="panel-body" id="bodyB"></div>
                 </div>
             </div>
 

@@ -1,0 +1,7 @@
+{
+  "title": "Phantom Read (REPEATABLE READ)",
+  "manual": true,
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Non-Repeatable Read (READ COMMITTED)",
+  "manual": true,
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}
