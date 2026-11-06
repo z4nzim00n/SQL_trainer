@@ -1,0 +1,25 @@
+{
+  "title": "Точки пиццерий",
+  "ordered": true,
+  "negative": [
+    {
+      "why": "группировка только по пиццерии: адреса потеряны",
+      "sql": "SELECT MIN(person.address) AS address, pizzeria.name, COUNT(*) AS count_of_orders FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name ORDER BY 1, 2;"
+    },
+    {
+      "why": "сортировка сначала по названию, потом по адресу",
+      "sql": "SELECT person.address, pizzeria.name, COUNT(*) AS count_of_orders\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nGROUP BY person.address, pizzeria.name\nORDER BY pizzeria.name, person.address;"
+    },
+    {
+      "why": "считаются разные люди, а не заказы",
+      "sql": "SELECT person.address, pizzeria.name, COUNT(DISTINCT person.id) AS count_of_orders\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nGROUP BY person.address, pizzeria.name\nORDER BY person.address, pizzeria.name;"
+    },
+    {
+      "why": "посещения вместо заказов",
+      "sql": "SELECT person.address, pizzeria.name, COUNT(*) AS count_of_orders FROM person_visits JOIN person ON person.id = person_visits.person_id JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id GROUP BY person.address, pizzeria.name ORDER BY person.address, pizzeria.name;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

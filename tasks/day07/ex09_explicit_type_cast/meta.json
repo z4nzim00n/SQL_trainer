@@ -1,0 +1,35 @@
+{
+  "title": "Явное преобразование типов",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "CAST вместо ::",
+      "sql": "SELECT address,\n       ROUND(MAX(age) - CAST(MIN(age) AS numeric) / MAX(age), 2) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - CAST(MIN(age) AS numeric) / MAX(age)) > AVG(age) AS comparison\nFROM person\nGROUP BY address\nORDER BY address;"
+    },
+    {
+      "why": "сравнение по округлённым значениям",
+      "sql": "SELECT address, ROUND(MAX(age) - MIN(age)::numeric / MAX(age), 2) AS formula, ROUND(AVG(age), 2) AS average, ROUND(MAX(age) - MIN(age)::numeric / MAX(age), 2) > ROUND(AVG(age), 2) AS comparison FROM person GROUP BY address ORDER BY address;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "целочисленное деление: дробная часть потеряна",
+      "sql": "SELECT address,\n       ROUND(MAX(age) - MIN(age) / MAX(age), 2) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - MIN(age) / MAX(age)) > AVG(age) AS comparison\nFROM person\nGROUP BY address\nORDER BY address;"
+    },
+    {
+      "why": "формула без округления",
+      "sql": "SELECT address,\n       MAX(age) - MIN(age)::numeric / MAX(age) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - MIN(age)::numeric / MAX(age)) > AVG(age) AS comparison\nFROM person\nGROUP BY address\nORDER BY address;"
+    },
+    {
+      "why": "сравнение в обратную сторону",
+      "sql": "SELECT address,\n       ROUND(MAX(age) - MIN(age)::numeric / MAX(age), 2) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - MIN(age)::numeric / MAX(age)) < AVG(age) AS comparison\nFROM person\nGROUP BY address\nORDER BY address;"
+    },
+    {
+      "why": "сортировка по убыванию адреса",
+      "sql": "SELECT address,\n       ROUND(MAX(age) - MIN(age)::numeric / MAX(age), 2) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - MIN(age)::numeric / MAX(age)) > AVG(age) AS comparison\nFROM person\nGROUP BY address\nORDER BY address DESC;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

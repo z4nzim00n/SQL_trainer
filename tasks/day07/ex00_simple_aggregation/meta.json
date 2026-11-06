@@ -1,0 +1,31 @@
+{
+  "title": "Простая агрегация",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "позиции столбцов в ORDER BY",
+      "sql": "SELECT person_id, COUNT(*) AS count_of_visits FROM person_visits GROUP BY person_id ORDER BY 2 DESC, 1;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "сортировка по количеству по возрастанию",
+      "sql": "SELECT person_id, COUNT(*) AS count_of_visits\nFROM person_visits\nGROUP BY person_id\nORDER BY count_of_visits ASC, person_id ASC;"
+    },
+    {
+      "why": "при равенстве идентификаторы по убыванию",
+      "sql": "SELECT person_id, COUNT(*) AS count_of_visits\nFROM person_visits\nGROUP BY person_id\nORDER BY count_of_visits DESC, person_id DESC;"
+    },
+    {
+      "why": "считаются только разные пиццерии, а не посещения",
+      "sql": "SELECT person_id, COUNT(DISTINCT pizzeria_id) AS count_of_visits FROM person_visits GROUP BY person_id ORDER BY count_of_visits DESC, person_id ASC;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES (9, 4), (4, 3)) AS t(person_id, count_of_visits);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

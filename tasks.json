@@ -1,6 +1,6 @@
 {
  "version": "0.004",
- "builtAt": "2026-11-06T08:00:49.836Z",
+ "builtAt": "2026-11-06T08:07:26.721Z",
  "datasets": {
   "demo": {
    "main": "-- Учебные мини-таблицы для примеров в теории и энциклопедии.\n-- Никак не связаны с пиццериями: маленькие таблицы, чтобы результат примера было видно целиком.\n\n-- Для операторов множеств (UNION, INTERSECT, EXCEPT): есть повторы и пересечение\ncreate table a (id integer, val varchar);\ninsert into a values (1, 'red');\ninsert into a values (2, 'green');\ninsert into a values (3, 'blue');\ninsert into a values (3, 'blue');\n\ncreate table b (id integer, val varchar);\ninsert into b values (2, 'green');\ninsert into b values (3, 'blue');\ninsert into b values (4, 'yellow');\n\n-- Для JOIN: у Eve нет курса (NULL), у курса Art нет студентов\ncreate table courses (id integer primary key, title varchar not null);\ninsert into courses values (1, 'Math');\ninsert into courses values (2, 'Music');\ninsert into courses values (3, 'Art');\n\ncreate table students (\n    id integer primary key,\n    name varchar not null,\n    age integer not null,\n    city varchar,\n    course_id integer references courses (id)\n);\ninsert into students values (1, 'Ann', 20, 'Berlin', 1);\ninsert into students values (2, 'Bob', 22, 'Paris', 1);\ninsert into students values (3, 'Cleo', 19, 'Berlin', 2);\ninsert into students values (4, 'Dan', 25, null, 2);\ninsert into students values (5, 'Eve', 21, 'Rome', null);\n\n-- Для WHERE, типов, CASE, DML: есть NULL в note\ncreate table products (\n    id integer primary key,\n    title varchar not null,\n    category varchar not null,\n    price numeric(8, 2) not null,\n    added date not null,\n    note varchar\n);\ninsert into products values (1, 'Pen', 'office', 1.50, '2024-01-10', 'blue ink');\ninsert into products values (2, 'Notebook', 'office', 4.00, '2024-01-15', null);\ninsert into products values (3, 'Mug', 'home', 7.25, '2024-02-01', 'ceramic');\ninsert into products values (4, 'Lamp', 'home', 19.90, '2024-02-20', null);\ninsert into products values (5, 'Backpack', 'travel', 35.00, '2024-03-05', 'waterproof');\n\n-- Для агрегатов и оконных функций\ncreate table sales (\n    id integer primary key,\n    shop varchar not null,\n    item varchar not null,\n    qty integer not null,\n    price numeric(8, 2) not null,\n    sale_date date not null\n);\ninsert into sales values (1, 'North', 'Pen', 10, 1.50, '2024-05-01');\ninsert into sales values (2, 'North', 'Mug', 2, 7.25, '2024-05-01');\ninsert into sales values (3, 'North', 'Pen', 5, 1.50, '2024-05-02');\ninsert into sales values (4, 'South', 'Lamp', 1, 19.90, '2024-05-01');\ninsert into sales values (5, 'South', 'Pen', 8, 1.50, '2024-05-02');\ninsert into sales values (6, 'South', 'Mug', 3, 7.25, '2024-05-03');\ninsert into sales values (7, 'East', 'Lamp', 2, 19.90, '2024-05-03');\n",
@@ -4475,6 +4475,543 @@
       ],
       "dataset": "pizza",
       "forbidden": []
+     }
+    }
+   ]
+  },
+  {
+   "id": "day07",
+   "title": "Day 07. Агрегация данных (GROUP BY, HAVING, агрегатные функции)",
+   "tasks": [
+    {
+     "id": "day07/ex00",
+     "dir": "ex00_simple_aggregation",
+     "title": "Простая агрегация",
+     "readme": "# Задание 00. Простая агрегация\n\n**Разрешено:** ANSI SQL\n\nВыполним простую агрегацию. Напиши запрос, который возвращает идентификаторы людей (`person_id`) и соответствующее **количество посещений** любых пиццерий (`count_of_visits`).\n\nОтсортируй результат по количеству посещений по **убыванию**, а затем по `person_id` по **возрастанию**.\n\n| person_id | count_of_visits |\n| --- | --- |\n| 9 | 4 |\n| 4 | 3 |\n| … | … |\n",
+     "theory": "# Задание 00. GROUP BY и COUNT\n\n**Агрегатные функции** сворачивают много строк в одно значение: `COUNT` (количество), `SUM` (сумма), `AVG` (среднее), `MIN`, `MAX`.\n\nБез `GROUP BY` агрегат считается по всей таблице и даёт одну строку. С `GROUP BY` таблица делится на **группы** по значению указанного столбца, и агрегат считается отдельно по каждой группе:\n\n```sql\nSELECT person_id, COUNT(*) FROM person_visits GROUP BY person_id;\n```\n\n`COUNT(*)` считает строки группы, то есть посещения каждого человека. Столбцу с агрегатом нужно дать имя через `AS`.\n\nПравило: всё, что стоит в `SELECT` и не является агрегатом, должно быть перечислено в `GROUP BY`.\n\nВ `ORDER BY` можно перечислять несколько ключей с разными направлениями: `ORDER BY count_of_visits DESC, person_id ASC`: сначала по убыванию числа, при равенстве по возрастанию номера.\n\nКлючевые слова для примеров: `GROUP BY`, `COUNT`, `AS`, `ORDER BY`, `DESC`, `ASC`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Группируй посещения по человеку и считай строки в группе. Сортировка двухуровневая: по количеству по убыванию, потом по номеру человека."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT person_id, ______(*) AS count_of_visits\nFROM person_visits\nGROUP BY ______\nORDER BY ______ DESC, ______ ASC;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT person_id, COUNT(*) AS count_of_visits\nFROM person_visits\nGROUP BY person_id\nORDER BY count_of_visits ______, person_id ASC;\n```\n\nОсталось направление первой сортировки."
+      }
+     ],
+     "solution": "SELECT person_id, COUNT(*) AS count_of_visits\nFROM person_visits\nGROUP BY person_id\nORDER BY count_of_visits DESC, person_id ASC;",
+     "solutionCommented": "-- Идея: по группе на человека, в группе считаем посещения.\nSELECT person_id, COUNT(*) AS count_of_visits\nFROM person_visits\nGROUP BY person_id                                   -- одна строка на человека\nORDER BY count_of_visits DESC, person_id ASC;        -- больше посещений выше, при равенстве меньший номер",
+     "meta": {
+      "title": "Простая агрегация",
+      "ordered": true,
+      "positive": [
+       {
+        "why": "позиции столбцов в ORDER BY",
+        "sql": "SELECT person_id, COUNT(*) AS count_of_visits FROM person_visits GROUP BY person_id ORDER BY 2 DESC, 1;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "сортировка по количеству по возрастанию",
+        "sql": "SELECT person_id, COUNT(*) AS count_of_visits\nFROM person_visits\nGROUP BY person_id\nORDER BY count_of_visits ASC, person_id ASC;"
+       },
+       {
+        "why": "при равенстве идентификаторы по убыванию",
+        "sql": "SELECT person_id, COUNT(*) AS count_of_visits\nFROM person_visits\nGROUP BY person_id\nORDER BY count_of_visits DESC, person_id DESC;"
+       },
+       {
+        "why": "считаются только разные пиццерии, а не посещения",
+        "sql": "SELECT person_id, COUNT(DISTINCT pizzeria_id) AS count_of_visits FROM person_visits GROUP BY person_id ORDER BY count_of_visits DESC, person_id ASC;"
+       },
+       {
+        "why": "ответ вписан готовыми значениями",
+        "sql": "SELECT * FROM (VALUES (9, 4), (4, 3)) AS t(person_id, count_of_visits);"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day07/ex01",
+     "dir": "ex01_real_names",
+     "title": "Настоящие имена",
+     "readme": "# Задание 01. Посмотрим на настоящие имена\n\n**Разрешено:** ANSI SQL\n\nИзмени запрос из задания 00 так, чтобы он возвращал **имя** человека (`name`), а не идентификатор. Дополнительное условие: нужно вывести только **топ-4 человека** с наибольшим количеством визитов во все пиццерии, а сам список отсортировать **по имени** человека.\n\nЕсли у нескольких людей одинаковое число визитов и они борются за последнее место в топе, выбирай того, кто идёт **раньше по алфавиту**.\n\n| name | count_of_visits |\n| --- | --- |\n| Dmitriy | 4 |\n| Denis | 3 |\n| … | … |\n",
+     "theory": "# Задание 01. Топ-N и сортировка результата топа\n\nНужно две сортировки: сначала **отбор** лучших по количеству, потом **вывод** по имени. Один `ORDER BY` с `LIMIT` решает только первое: он оставит четырёх лучших, но выдаст в порядке количества.\n\nПоэтому топ делают внутри подзапроса (с `ORDER BY ... LIMIT 4`), а внешний запрос сортирует его результат по имени:\n\n```sql\nSELECT name, count_of_visits\nFROM (SELECT ... ORDER BY count_of_visits DESC, name LIMIT 4) AS top\nORDER BY name;\n```\n\n`LIMIT n` оставляет первые `n` строк **после** сортировки. Если при равенстве количества не указать вторым ключом имя, какой из «равных» попадёт в топ, неопределённо.\n\nГруппировать лучше по `person.id` и `person.name`: так два разных человека с одинаковым именем не сольются в одну группу.\n\nКлючевые слова для примеров: `LIMIT`, `GROUP BY`, `COUNT`, `JOIN`, `ORDER BY`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Внутри подзапроса: соедини посещения с людьми, сгруппируй, отсортируй по количеству (потом по имени) и возьми `LIMIT 4`. Снаружи отсортируй по имени."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT name, count_of_visits\nFROM (SELECT person.name, COUNT(*) AS count_of_visits\n      FROM person_visits\n      JOIN person ON person.id = person_visits.______\n      GROUP BY person.id, person.name\n      ORDER BY ______ DESC, person.name\n      LIMIT ______) AS top\nORDER BY ______;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\n... ORDER BY count_of_visits DESC, person.name\n      LIMIT 4) AS top\nORDER BY ______;\n```\n\nОсталась внешняя сортировка по имени."
+      }
+     ],
+     "solution": "SELECT name, count_of_visits\nFROM (SELECT person.name, COUNT(*) AS count_of_visits\n      FROM person_visits\n      JOIN person ON person.id = person_visits.person_id\n      GROUP BY person.id, person.name\n      ORDER BY count_of_visits DESC, person.name ASC\n      LIMIT 4) AS top\nORDER BY name;",
+     "solutionCommented": "-- Идея: сначала отбираем топ-4 по числу визитов, потом сортируем отобранных по имени.\nSELECT name, count_of_visits\nFROM (SELECT person.name, COUNT(*) AS count_of_visits\n      FROM person_visits\n      JOIN person ON person.id = person_visits.person_id\n      GROUP BY person.id, person.name                       -- группа на человека\n      ORDER BY count_of_visits DESC, person.name ASC        -- лучшие вверху; при равенстве по алфавиту\n      LIMIT 4) AS top                                       -- оставляем четверых\nORDER BY name;                                              -- вывод по имени",
+     "meta": {
+      "title": "Настоящие имена",
+      "ordered": true,
+      "negative": [
+       {
+        "why": "топ-3 вместо топ-4",
+        "sql": "SELECT name, count_of_visits\nFROM (SELECT person.name, COUNT(*) AS count_of_visits\n      FROM person_visits\n      JOIN person ON person.id = person_visits.person_id\n      GROUP BY person.id, person.name\n      ORDER BY count_of_visits DESC, person.name ASC\n      LIMIT 3) AS top\nORDER BY name;"
+       },
+       {
+        "why": "результат отсортирован по количеству, а не по имени",
+        "sql": "SELECT name, count_of_visits\nFROM (SELECT person.name, COUNT(*) AS count_of_visits\n      FROM person_visits\n      JOIN person ON person.id = person_visits.person_id\n      GROUP BY person.id, person.name\n      ORDER BY count_of_visits DESC, person.name ASC\n      LIMIT 4) AS top\nORDER BY count_of_visits DESC, name;"
+       },
+       {
+        "why": "LIMIT применён к списку по алфавиту, а не к списку по количеству",
+        "sql": "SELECT person.name, COUNT(*) AS count_of_visits FROM person_visits JOIN person ON person.id = person_visits.person_id GROUP BY person.id, person.name ORDER BY person.name LIMIT 4;"
+       },
+       {
+        "why": "ответ вписан готовыми значениями",
+        "sql": "SELECT * FROM (VALUES ('Denis', 3), ('Dmitriy', 4)) AS t(name, count_of_visits) ORDER BY name;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day07/ex02",
+     "dir": "ex02_restaurant_statistics",
+     "title": "Статистика по ресторанам",
+     "readme": "# Задание 02. Статистика по ресторанам\n\n**Разрешено:** ANSI SQL\n\nНапиши запрос, который выводит **топ-3 самых популярных заведения по количеству заказов** и **топ-3 по количеству посещений**, объединив результаты в один список.\n\nДобавь столбец `action_type` со значением `'order'` (данные из заказов) или `'visit'` (данные из посещений). Столбцы результата: `name`, `count`, `action_type`.\n\nИтог отсортируй по `action_type` по возрастанию и по `count` по убыванию.\n\nПри равенстве количества в борьбе за место в топе выбирай заведение с меньшим названием по алфавиту.\n\n| name | count | action_type |\n| --- | --- | --- |\n| Dominos | 6 | order |\n| … | … | … |\n| Dominos | 7 | visit |\n| … | … | … |\n",
+     "theory": "# Задание 02. Два топа в одном списке\n\nЗдесь нужно получить два отдельных топ-3 и склеить их.\n\nКаждый топ это запрос с `GROUP BY` названию пиццерии, `ORDER BY ... DESC` и `LIMIT 3`. Различать их помогает **константный столбец**: `'order' AS action_type` в первом запросе и `'visit' AS action_type` во втором.\n\nСклеивает результаты `UNION ALL`. Так как у каждого запроса есть собственные `ORDER BY` и `LIMIT`, их нужно взять в **скобки**; общая сортировка `ORDER BY action_type, count DESC` пишется в самом конце, после последней скобки.\n\nЗаказы связаны с пиццерией через `menu`: `person_order → menu → pizzeria`. Посещения связаны напрямую: `person_visits → pizzeria`.\n\nКлючевые слова для примеров: `UNION ALL`, `LIMIT`, `GROUP BY`, `COUNT`, `AS`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Две выборки с `GROUP BY` названию пиццерии: первая по заказам (через меню), вторая по посещениям. В каждой `ORDER BY count DESC, name` и `LIMIT 3`, в каждой свой константный `action_type`. Склей через `UNION ALL`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\n(SELECT pizzeria.name, COUNT(*) AS count, 'order' AS action_type\n FROM person_order JOIN menu ON ... JOIN pizzeria ON ...\n GROUP BY pizzeria.name ORDER BY count DESC, pizzeria.name LIMIT ______)\nUNION ALL\n(SELECT pizzeria.name, COUNT(*) AS count, '______' AS action_type\n FROM person_visits JOIN pizzeria ON ...\n GROUP BY pizzeria.name ORDER BY count DESC, pizzeria.name LIMIT 3)\nORDER BY ______, ______ DESC;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\n(... заказы ...)\nUNION ALL\n(... посещения ...)\nORDER BY action_type ASC, ______ DESC;\n```\n\nОсталось имя столбца с количеством."
+      }
+     ],
+     "solution": "(SELECT pizzeria.name, COUNT(*) AS count, 'order' AS action_type\n FROM person_order\n JOIN menu ON menu.id = person_order.menu_id\n JOIN pizzeria ON pizzeria.id = menu.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nUNION ALL\n(SELECT pizzeria.name, COUNT(*) AS count, 'visit' AS action_type\n FROM person_visits\n JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nORDER BY action_type ASC, count DESC;",
+     "solutionCommented": "-- Идея: два топ-3 (по заказам и по посещениям), склеенные в один список.\n(SELECT pizzeria.name, COUNT(*) AS count, 'order' AS action_type      -- метка источника\n FROM person_order\n JOIN menu ON menu.id = person_order.menu_id\n JOIN pizzeria ON pizzeria.id = menu.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nUNION ALL\n(SELECT pizzeria.name, COUNT(*) AS count, 'visit' AS action_type\n FROM person_visits\n JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nORDER BY action_type ASC, count DESC;                                -- общая сортировка",
+     "meta": {
+      "title": "Статистика по ресторанам",
+      "ordered": true,
+      "orderKeys": [
+       "action_type",
+       "count"
+      ],
+      "positive": [
+       {
+        "why": "UNION вместо UNION ALL: метки разные, повторов нет",
+        "sql": "(SELECT pizzeria.name, COUNT(*) AS count, 'order' AS action_type\n FROM person_order\n JOIN menu ON menu.id = person_order.menu_id\n JOIN pizzeria ON pizzeria.id = menu.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nUNION\n(SELECT pizzeria.name, COUNT(*) AS count, 'visit' AS action_type\n FROM person_visits\n JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nORDER BY action_type ASC, count DESC;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "топ-2 вместо топ-3",
+        "sql": "(SELECT pizzeria.name, COUNT(*) AS count, 'order' AS action_type\n FROM person_order\n JOIN menu ON menu.id = person_order.menu_id\n JOIN pizzeria ON pizzeria.id = menu.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 2)\nUNION ALL\n(SELECT pizzeria.name, COUNT(*) AS count, 'visit' AS action_type\n FROM person_visits\n JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 2)\nORDER BY action_type ASC, count DESC;"
+       },
+       {
+        "why": "перепутаны метки источников",
+        "sql": "(SELECT pizzeria.name, COUNT(*) AS count, 'visit' AS action_type\n FROM person_order\n JOIN menu ON menu.id = person_order.menu_id\n JOIN pizzeria ON pizzeria.id = menu.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nUNION ALL\n(SELECT pizzeria.name, COUNT(*) AS count, 'order' AS action_type\n FROM person_visits\n JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nORDER BY action_type ASC, count DESC;"
+       },
+       {
+        "why": "общая сортировка по количеству по возрастанию",
+        "sql": "(SELECT pizzeria.name, COUNT(*) AS count, 'order' AS action_type\n FROM person_order\n JOIN menu ON menu.id = person_order.menu_id\n JOIN pizzeria ON pizzeria.id = menu.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nUNION ALL\n(SELECT pizzeria.name, COUNT(*) AS count, 'visit' AS action_type\n FROM person_visits\n JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nORDER BY action_type ASC, count ASC;"
+       },
+       {
+        "why": "ответ вписан готовыми значениями",
+        "sql": "SELECT * FROM (VALUES ('Dominos', 6, 'order'), ('Dominos', 7, 'visit')) AS t(name, count, action_type);"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day07/ex03",
+     "dir": "ex03_restaurant_statistics_2",
+     "title": "Статистика по ресторанам #2",
+     "readme": "# Задание 03. Статистика по ресторанам, часть 2\n\n**Разрешено:** ANSI SQL\n\nПокажи, как рестораны группируются по количеству посещений и по количеству заказов, и объедини эти данные **по названию пиццерии**. Можно использовать внутренний запрос из задания 02 **без** ограничения на количество строк (то есть все пиццерии, а не топ-3).\n\nПравила:\n\n- вычисли общую сумму заказов и посещений для каждой пиццерии (не все пиццерии могут быть в обеих таблицах);\n- отсортируй результат по `total_count` по убыванию, затем по `name` по возрастанию.\n\nСтолбцы результата: `name`, `total_count`.\n\n| name | total_count |\n| --- | --- |\n| Dominos | 13 |\n| DinoPizza | 9 |\n| … | … |\n",
+     "theory": "# Задание 03. Агрегат над объединением\n\nИдея в два шага:\n\n1. получить для каждой пиццерии количество заказов и количество посещений отдельными строками (как в задании 02, только без `LIMIT`);\n2. сложить эти количества **по названию** внешним `GROUP BY name` и `SUM(count)`.\n\nСклеивать нужно `UNION ALL`, а не `UNION`. Обычный `UNION` убирает повторяющиеся строки: если у пиццерии 4 заказа и 4 посещения, строки `(name, 4)` совпадут, и одна исчезнет, а сумма станет 4 вместо 8. `UNION ALL` сохраняет все строки.\n\nПиццерия, у которой есть только заказы (или только посещения), тоже попадёт в итог: суммироваться будет единственная строка.\n\nВнутренний запрос в `FROM` обязан получить псевдоним (`AS stats`).\n\nКлючевые слова для примеров: `UNION ALL`, `UNION`, `SUM`, `GROUP BY`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Возьми запрос из задания 02 без `LIMIT` и ORDER BY, оберни в подзапрос, а снаружи сгруппируй по названию и сложи количества."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT name, SUM(count) AS ______\nFROM (<заказы по пиццериям>\n      ______ ALL\n      <посещения по пиццериям>) AS stats\nGROUP BY ______\nORDER BY total_count DESC, name ASC;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT name, SUM(count) AS total_count\nFROM (... UNION ALL ...) AS stats\nGROUP BY name\nORDER BY ______ DESC, name ASC;\n```\n\nОсталось имя столбца, по которому сортируем по убыванию."
+      }
+     ],
+     "solution": "SELECT name, SUM(count) AS total_count\nFROM (SELECT pizzeria.name, COUNT(*) AS count FROM person_order JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name\nUNION ALL\nSELECT pizzeria.name, COUNT(*) AS count FROM person_visits JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id GROUP BY pizzeria.name) AS stats\nGROUP BY name\nORDER BY total_count DESC, name ASC;",
+     "solutionCommented": "-- Идея: сложить заказы и посещения каждой пиццерии.\nSELECT name, SUM(count) AS total_count\nFROM (SELECT pizzeria.name, COUNT(*) AS count            -- заказы по пиццериям\n      FROM person_order\n      JOIN menu ON menu.id = person_order.menu_id\n      JOIN pizzeria ON pizzeria.id = menu.pizzeria_id\n      GROUP BY pizzeria.name\n      UNION ALL                                           -- ALL: одинаковые пары не схлопываются\n      SELECT pizzeria.name, COUNT(*) AS count            -- посещения по пиццериям\n      FROM person_visits\n      JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\n      GROUP BY pizzeria.name) AS stats\nGROUP BY name\nORDER BY total_count DESC, name ASC;",
+     "meta": {
+      "title": "Статистика по ресторанам #2",
+      "ordered": true,
+      "negative": [
+       {
+        "why": "UNION вместо UNION ALL схлопывает одинаковые пары",
+        "sql": "SELECT name, SUM(count) AS total_count\nFROM (SELECT pizzeria.name, COUNT(*) AS count FROM person_order JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name\nUNION\nSELECT pizzeria.name, COUNT(*) AS count FROM person_visits JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id GROUP BY pizzeria.name) AS stats\nGROUP BY name\nORDER BY total_count DESC, name ASC;"
+       },
+       {
+        "why": "учтены только заказы",
+        "sql": "SELECT pizzeria.name, COUNT(*) AS total_count FROM person_order JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name ORDER BY total_count DESC, pizzeria.name ASC;"
+       },
+       {
+        "why": "сортировка по названию вместо суммы",
+        "sql": "SELECT name, SUM(count) AS total_count\nFROM (SELECT pizzeria.name, COUNT(*) AS count FROM person_order JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name\nUNION ALL\nSELECT pizzeria.name, COUNT(*) AS count FROM person_visits JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id GROUP BY pizzeria.name) AS stats\nGROUP BY name\nORDER BY name ASC;"
+       },
+       {
+        "why": "при равной сумме названия по убыванию",
+        "sql": "SELECT name, SUM(count) AS total_count\nFROM (SELECT pizzeria.name, COUNT(*) AS count FROM person_order JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name\nUNION ALL\nSELECT pizzeria.name, COUNT(*) AS count FROM person_visits JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id GROUP BY pizzeria.name) AS stats\nGROUP BY name\nORDER BY total_count DESC, name DESC;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day07/ex04",
+     "dir": "ex04_clause_for_groups",
+     "title": "Условие для групп",
+     "readme": "# Задание 04. Условие для групп\n\n**Разрешено:** ANSI SQL\n\n**Запрещено:** `WHERE`\n\nНапиши запрос, который возвращает **имя человека** и **количество его посещений** любых пиццерий при условии, что количество **больше 3** (`> 3`). Столбцы: `name`, `count_of_visits`.\n\n| name | count_of_visits |\n| --- | --- |\n| Dmitriy | 4 |\n\n> На небольших учебных данных запрос может вернуть пустую таблицу: на основных данных мало людей с таким числом визитов. Тренажёр сверяет ответ ещё и на другом наборе данных, где такие люди есть.\n",
+     "theory": "# Задание 04. HAVING\n\n`WHERE` фильтрует **строки до группировки**, а условие на **результат агрегата** (например, «количество больше 3») поставить в `WHERE` нельзя: агрегат ещё не посчитан. Для этого есть `HAVING`: он фильтрует **группы после группировки**.\n\n```sql\nSELECT person_id, COUNT(*)\nFROM person_visits\nGROUP BY person_id\nHAVING COUNT(*) > 3;\n```\n\nПорядок выполнения: `FROM`/`JOIN` → `WHERE` → `GROUP BY` → агрегаты → `HAVING` → `SELECT` → `ORDER BY`.\n\nВнутри `HAVING` можно использовать только агрегаты и столбцы из `GROUP BY`. Псевдонимы из `SELECT` в нём, как правило, недоступны, поэтому условие повторяют: `HAVING COUNT(*) > 3`.\n\nКлючевые слова для примеров: `HAVING`, `GROUP BY`, `COUNT`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Сгруппируй посещения по имени человека, посчитай строки и оставь группы с числом больше трёх через `HAVING`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT person.name, COUNT(*) AS count_of_visits\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nGROUP BY ______\n______ COUNT(*) > ______;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT person.name, COUNT(*) AS count_of_visits\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nGROUP BY person.name\nHAVING COUNT(*) > ______;\n```\n\nОсталось число из условия."
+      }
+     ],
+     "solution": "SELECT person.name, COUNT(*) AS count_of_visits\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nGROUP BY person.name\nHAVING COUNT(*) > 3;",
+     "solutionCommented": "-- Идея: условие на количество проверяем после группировки, в HAVING.\nSELECT person.name, COUNT(*) AS count_of_visits\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nGROUP BY person.name\nHAVING COUNT(*) > 3;      -- больше трёх визитов",
+     "meta": {
+      "title": "Условие для групп",
+      "ordered": false,
+      "forbidden": [
+       "WHERE"
+      ],
+      "positive": [
+       {
+        "why": "условие через подзапрос без WHERE",
+        "sql": "SELECT t.name, t.count_of_visits FROM (SELECT person.name, COUNT(*) AS count_of_visits FROM person_visits JOIN person ON person.id = person_visits.person_id GROUP BY person.name) AS t GROUP BY t.name, t.count_of_visits HAVING t.count_of_visits > 3;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "использован запрещённый WHERE (через подзапрос)",
+        "sql": "SELECT * FROM (SELECT person.name, COUNT(*) AS count_of_visits FROM person_visits JOIN person ON person.id = person_visits.person_id GROUP BY person.name) AS t WHERE count_of_visits > 3;"
+       },
+       {
+        "why": "условие >= 3 включает лишних людей",
+        "sql": "SELECT person.name, COUNT(*) AS count_of_visits\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nGROUP BY person.name\nHAVING COUNT(*) >= 3;"
+       },
+       {
+        "why": "условие < 3 вместо > 3",
+        "sql": "SELECT person.name, COUNT(*) AS count_of_visits\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nGROUP BY person.name\nHAVING COUNT(*) < 3;"
+       },
+       {
+        "why": "ответ вписан готовыми значениями",
+        "sql": "SELECT * FROM (VALUES ('Dmitriy', 4)) AS t(name, count_of_visits);"
+       }
+      ],
+      "dataset": "pizza",
+      "required": []
+     }
+    },
+    {
+     "id": "day07/ex05",
+     "dir": "ex05_persons_uniqueness",
+     "title": "Уникальность людей",
+     "readme": "# Задание 05. Уникальность людей\n\n**Разрешено:** ANSI SQL\n\n**Запрещено:** `GROUP BY`, а также любые операторы работы с множествами (`UNION`, `EXCEPT`, `INTERSECT`)\n\nНапиши простой запрос, который возвращает список **уникальных имён** людей, сделавших хотя бы один заказ в любой пиццерии. Отсортируй результат по имени. Столбец: `name`.\n\n| name |\n| --- |\n| Andrey |\n| Anna |\n| … |\n",
+     "theory": "# Задание 05. DISTINCT\n\nЕсли человек сделал несколько заказов, после `JOIN` его имя встретится несколько раз. Чтобы оставить каждое значение один раз, используют `SELECT DISTINCT`.\n\n```sql\nSELECT DISTINCT name FROM ...;\n```\n\n`DISTINCT` убирает повторяющиеся **строки целиком**. Если в `SELECT` несколько столбцов, уникальной должна быть их комбинация.\n\nЭто альтернатива `GROUP BY` без агрегата: `SELECT DISTINCT name` и `SELECT name ... GROUP BY name` дают одинаковый результат. Здесь `GROUP BY` запрещён, поэтому используем `DISTINCT`.\n\nТот же результат даёт `EXISTS` (человек, для которого существует заказ): тогда строки не размножаются и `DISTINCT` не нужен.\n\nКлючевые слова для примеров: `DISTINCT`, `EXISTS`, `JOIN`, `ORDER BY`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Соедини людей с заказами и убери повторы имён через `DISTINCT`. Сортировка по имени в конце."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT ______ person.name\nFROM person\nJOIN person_order ON person_order.person_id = person.______\nORDER BY ______;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT ______ person.name\nFROM person\nJOIN person_order ON person_order.person_id = person.id\nORDER BY person.name;\n```\n\nОсталось слово, убирающее повторы."
+      }
+     ],
+     "solution": "SELECT DISTINCT person.name\nFROM person\nJOIN person_order ON person_order.person_id = person.id\nORDER BY person.name;",
+     "solutionCommented": "-- Идея: JOIN размножает имена; DISTINCT оставляет каждое один раз.\nSELECT DISTINCT person.name\nFROM person\nJOIN person_order ON person_order.person_id = person.id   -- только те, у кого есть заказы\nORDER BY person.name;",
+     "meta": {
+      "title": "Уникальность людей",
+      "ordered": true,
+      "forbidden": [
+       "GROUP BY",
+       "UNION",
+       "EXCEPT",
+       "INTERSECT"
+      ],
+      "positive": [
+       {
+        "why": "через EXISTS без повторов",
+        "sql": "SELECT person.name FROM person WHERE EXISTS (SELECT 1 FROM person_order WHERE person_order.person_id = person.id) ORDER BY person.name;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "нет DISTINCT: имена повторяются",
+        "sql": "SELECT person.name\nFROM person\nJOIN person_order ON person_order.person_id = person.id\nORDER BY person.name;"
+       },
+       {
+        "why": "использован запрещённый GROUP BY",
+        "sql": "SELECT person.name FROM person JOIN person_order ON person_order.person_id = person.id GROUP BY person.name ORDER BY person.name;"
+       },
+       {
+        "why": "все люди, а не только сделавшие заказ",
+        "sql": "SELECT DISTINCT person.name FROM person ORDER BY person.name;"
+       },
+       {
+        "why": "сортировка по убыванию",
+        "sql": "SELECT DISTINCT person.name\nFROM person\nJOIN person_order ON person_order.person_id = person.id\nORDER BY person.name DESC;"
+       }
+      ],
+      "dataset": "pizza",
+      "required": []
+     }
+    },
+    {
+     "id": "day07/ex06",
+     "dir": "ex06_restaurant_metrics",
+     "title": "Метрики ресторанов",
+     "readme": "# Задание 06. Метрики ресторанов\n\n**Разрешено:** ANSI SQL\n\nНапиши запрос, который возвращает **для каждой пиццерии**:\n\n- общее количество заказов (`count_of_orders`),\n- среднюю цену (`average_price`),\n- максимальную цену (`max_price`),\n- минимальную цену (`min_price`) на заказанные пиццы.\n\nРезультат отсортируй по названию пиццерии (`name`). Среднюю цену округли до **двух** знаков после запятой.\n\n| name | count_of_orders | average_price | max_price | min_price |\n| --- | --- | --- | --- | --- |\n| Best Pizza | 5 | 780 | 850 | 700 |\n| DinoPizza | 5 | 880 | 1000 | 800 |\n| … | … | … | … | … |\n",
+     "theory": "# Задание 06. Несколько агрегатов в одном запросе\n\nВ одном `SELECT` можно считать сразу много агрегатов по одной группировке: `COUNT(*)`, `AVG(...)`, `MAX(...)`, `MIN(...)`.\n\n- `AVG(menu.price)`: среднее значение, обычно с длинным «хвостом» (`783.3333…`);\n- `ROUND(x, 2)`: округление до двух знаков после запятой;\n- `MAX`, `MIN`: наибольшее и наименьшее значение в группе.\n\n**Цены берутся из заказов, а не из всего меню:** нужны «цены на проданные пиццы». Поэтому в запросе таблица `person_order` связывается с `menu`, а не наоборот: каждая строка заказа приносит цену одной заказанной пиццы. Если взять `menu` целиком, в среднюю цену попадут и те пиццы, которые не заказывали.\n\nПиццерии без заказов в результат не попадают: к ним нечего сворачивать.\n\nКлючевые слова для примеров: `COUNT`, `AVG`, `MAX`, `MIN`, `ROUND`, `GROUP BY`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Начни с заказов, присоедини меню (цена) и пиццерии (название), сгруппируй по названию пиццерии и посчитай четыре агрегата."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT pizzeria.name, COUNT(*) AS count_of_orders,\n       ROUND(______(menu.price), 2) AS average_price,\n       ______(menu.price) AS max_price,\n       ______(menu.price) AS min_price\nFROM person_order\nJOIN menu ON menu.id = person_order.______\nJOIN pizzeria ON pizzeria.id = menu.______\nGROUP BY pizzeria.name\nORDER BY pizzeria.name;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT pizzeria.name, COUNT(*) AS count_of_orders,\n       ROUND(AVG(menu.price), 2) AS average_price,\n       MAX(menu.price) AS max_price,\n       ______(menu.price) AS min_price\nFROM person_order ...\n```\n\nОсталась функция для минимальной цены."
+      }
+     ],
+     "solution": "SELECT pizzeria.name, COUNT(*) AS count_of_orders, ROUND(AVG(menu.price), 2) AS average_price, MAX(menu.price) AS max_price, MIN(menu.price) AS min_price\nFROM person_order\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nGROUP BY pizzeria.name\nORDER BY pizzeria.name;",
+     "solutionCommented": "-- Идея: заказы -> цена из меню -> пиццерия; считаем метрики по группе.\nSELECT pizzeria.name,\n       COUNT(*) AS count_of_orders,                       -- число заказов\n       ROUND(AVG(menu.price), 2) AS average_price,        -- средняя цена, 2 знака\n       MAX(menu.price) AS max_price,\n       MIN(menu.price) AS min_price\nFROM person_order\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nGROUP BY pizzeria.name\nORDER BY pizzeria.name;",
+     "meta": {
+      "title": "Метрики ресторанов",
+      "ordered": true,
+      "negative": [
+       {
+        "why": "нет округления средней цены",
+        "sql": "SELECT pizzeria.name, COUNT(*) AS count_of_orders, AVG(menu.price) AS average_price, MAX(menu.price) AS max_price, MIN(menu.price) AS min_price\nFROM person_order\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nGROUP BY pizzeria.name\nORDER BY pizzeria.name;"
+       },
+       {
+        "why": "округление до одного знака",
+        "sql": "SELECT pizzeria.name, COUNT(*) AS count_of_orders, ROUND(AVG(menu.price), 1) AS average_price, MAX(menu.price) AS max_price, MIN(menu.price) AS min_price\nFROM person_order\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nGROUP BY pizzeria.name\nORDER BY pizzeria.name;"
+       },
+       {
+        "why": "метрики по всему меню, а не по заказанным пиццам",
+        "sql": "SELECT pizzeria.name, COUNT(*) AS count_of_orders, ROUND(AVG(menu.price), 2) AS average_price, MAX(menu.price) AS max_price, MIN(menu.price) AS min_price FROM menu JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name ORDER BY pizzeria.name;"
+       },
+       {
+        "why": "включены пиццерии без заказов (LEFT JOIN)",
+        "sql": "SELECT pizzeria.name, COUNT(person_order.id) AS count_of_orders, ROUND(AVG(menu.price), 2) AS average_price, MAX(menu.price) AS max_price, MIN(menu.price) AS min_price FROM pizzeria LEFT JOIN menu ON menu.pizzeria_id = pizzeria.id LEFT JOIN person_order ON person_order.menu_id = menu.id GROUP BY pizzeria.name ORDER BY pizzeria.name;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day07/ex07",
+     "dir": "ex07_global_rating",
+     "title": "Средний глобальный рейтинг",
+     "readme": "# Задание 07. Средний глобальный рейтинг\n\n**Разрешено:** ANSI SQL\n\nНапиши запрос, который возвращает общий средний рейтинг всех ресторанов (выходной атрибут `global_rating`). Округли среднее до **4 знаков** после запятой.\n",
+     "theory": "# Задание 07. AVG и ROUND\n\n`AVG(столбец)` считает среднее арифметическое по всем строкам (значения `NULL` пропускаются). Без `GROUP BY` агрегат применяется ко всей таблице и возвращает одну строку.\n\n`ROUND(число, n)` округляет до `n` знаков после запятой: `ROUND(4.12345, 4)` даст `4.1235`.\n\nРейтинг хранится в таблице `pizzeria`, соединять ничего не нужно: «все рестораны» это все строки этой таблицы, в том числе пиццерии без заказов и посещений.\n\nКлючевые слова для примеров: `AVG`, `ROUND`, `AS`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Один агрегат без группировки по таблице `pizzeria`: среднее значение `rating`, обёрнутое в округление."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT ROUND(______(rating), ______) AS global_rating\nFROM ______;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT ROUND(AVG(rating), ______) AS global_rating\nFROM pizzeria;\n```\n\nОсталось число знаков после запятой."
+      }
+     ],
+     "solution": "SELECT ROUND(AVG(rating), 4) AS global_rating FROM pizzeria;",
+     "solutionCommented": "-- Идея: среднее по всем строкам pizzeria, округлённое до 4 знаков.\nSELECT ROUND(AVG(rating), 4) AS global_rating\nFROM pizzeria;",
+     "meta": {
+      "title": "Средний глобальный рейтинг",
+      "ordered": false,
+      "positive": [
+       {
+        "why": "SUM / COUNT вместо AVG",
+        "sql": "SELECT ROUND(SUM(rating) / COUNT(rating), 4) AS global_rating FROM pizzeria;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "округление до 2 знаков",
+        "sql": "SELECT ROUND(AVG(rating), 2) AS global_rating FROM pizzeria;"
+       },
+       {
+        "why": "нет округления",
+        "sql": "SELECT AVG(rating) AS global_rating FROM pizzeria;"
+       },
+       {
+        "why": "рейтинг только пиццерий с заказами, а не всех",
+        "sql": "SELECT ROUND(AVG(rating), 4) AS global_rating FROM pizzeria WHERE id IN (SELECT pizzeria_id FROM menu WHERE id IN (SELECT menu_id FROM person_order));"
+       },
+       {
+        "why": "ответ вписан готовым значением",
+        "sql": "SELECT 4.0833 AS global_rating;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day07/ex08",
+     "dir": "ex08_locations",
+     "title": "Точки пиццерий",
+     "readme": "# Задание 08. Найдём точки пиццерий по городам\n\n**Разрешено:** ANSI SQL\n\nИзвестны личные адреса людей. Предположим, что человек посещает только пиццерии **в своём городе**, то есть заказы по адресу людей относят к городу пиццерии.\n\nНапиши запрос, который возвращает:\n\n- адрес (`address`);\n- название пиццерии (`name`);\n- общее количество заказов (`count_of_orders`) в этой пиццерии людьми с этим адресом.\n\nОтсортируй результат сначала по адресу, затем по названию заведения.\n\n| address | name | count_of_orders |\n| --- | --- | --- |\n| Kazan | Best Pizza | 4 |\n| Kazan | DinoPizza | 4 |\n| … | … | … |\n",
+     "theory": "# Задание 08. Группировка по двум столбцам\n\n`GROUP BY` может принимать несколько столбцов: группой становится **уникальная пара** (или тройка) значений. Здесь группа: (адрес человека, название пиццерии). Агрегат `COUNT(*)` считает заказы внутри каждой такой пары.\n\nАдрес лежит в `person`, название пиццерии в `pizzeria`, а соединяет их заказ: `person_order → person` и `person_order → menu → pizzeria`.\n\nВсё, что в `SELECT` не агрегат, должно быть и в `GROUP BY`: `person.address` и `pizzeria.name`.\n\nСортировка по двум ключам: `ORDER BY person.address, pizzeria.name`.\n\nКлючевые слова для примеров: `GROUP BY`, `COUNT`, `JOIN`, `ORDER BY`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Заказы + люди + меню + пиццерии. Группа это пара (адрес, название пиццерии), в ней считаем заказы."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT person.address, pizzeria.name, COUNT(*) AS count_of_orders\nFROM person_order\nJOIN person ON person.id = person_order.______\nJOIN menu ON menu.id = person_order.______\nJOIN pizzeria ON pizzeria.id = menu.______\nGROUP BY ______, ______\nORDER BY ______, ______;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\n... GROUP BY person.address, pizzeria.name\nORDER BY person.address, ______;\n```\n\nОсталось второе поле сортировки."
+      }
+     ],
+     "solution": "SELECT person.address, pizzeria.name, COUNT(*) AS count_of_orders\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nGROUP BY person.address, pizzeria.name\nORDER BY person.address, pizzeria.name;",
+     "solutionCommented": "-- Идея: группа = пара (адрес человека, пиццерия); считаем заказы в группе.\nSELECT person.address, pizzeria.name, COUNT(*) AS count_of_orders\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nGROUP BY person.address, pizzeria.name        -- два столбца в группировке\nORDER BY person.address, pizzeria.name;",
+     "meta": {
+      "title": "Точки пиццерий",
+      "ordered": true,
+      "negative": [
+       {
+        "why": "группировка только по пиццерии: адреса потеряны",
+        "sql": "SELECT MIN(person.address) AS address, pizzeria.name, COUNT(*) AS count_of_orders FROM person_order JOIN person ON person.id = person_order.person_id JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name ORDER BY 1, 2;"
+       },
+       {
+        "why": "сортировка сначала по названию, потом по адресу",
+        "sql": "SELECT person.address, pizzeria.name, COUNT(*) AS count_of_orders\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nGROUP BY person.address, pizzeria.name\nORDER BY pizzeria.name, person.address;"
+       },
+       {
+        "why": "считаются разные люди, а не заказы",
+        "sql": "SELECT person.address, pizzeria.name, COUNT(DISTINCT person.id) AS count_of_orders\nFROM person_order\nJOIN person ON person.id = person_order.person_id\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nGROUP BY person.address, pizzeria.name\nORDER BY person.address, pizzeria.name;"
+       },
+       {
+        "why": "посещения вместо заказов",
+        "sql": "SELECT person.address, pizzeria.name, COUNT(*) AS count_of_orders FROM person_visits JOIN person ON person.id = person_visits.person_id JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id GROUP BY person.address, pizzeria.name ORDER BY person.address, pizzeria.name;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "day07/ex09",
+     "dir": "ex09_explicit_type_cast",
+     "title": "Явное преобразование типов",
+     "readme": "# Задание 09. Явное преобразование типов\n\n**Разрешено:** ANSI SQL\n\nНапиши запрос, который возвращает агрегированную информацию по **адресу** каждого человека. В результат включи:\n\n- `formula`: значение «максимальный возраст − (минимальный возраст / максимальный возраст)», округлённое до 2 знаков;\n- `average`: средний возраст по адресу, округлённый до 2 знаков;\n- `comparison`: результат сравнения формулы и среднего возраста: `true`, если значение формулы **больше** среднего, иначе `false`.\n\nРезультат отсортируй по столбцу с адресом (`address`).\n\n| address | formula | average | comparison |\n| --- | --- | --- | --- |\n| Kazan | 44.71 | 30.33 | true |\n| Moscow | 20.24 | 18.5 | true |\n| … | … | … | … |\n",
+     "theory": "# Задание 09. Целочисленное деление и приведение типов\n\nВ PostgreSQL деление целого на целое тоже даёт **целое число**: `18 / 21` равно `0`, а не `0.857…`. Возраст у нас целого типа, поэтому формула `MIN(age) / MAX(age)` без подготовки потеряет дробную часть.\n\nРешение: явно привести один из операндов к `numeric`:\n\n```sql\nMIN(age)::numeric / MAX(age)      -- 0.857...\nCAST(MIN(age) AS numeric) / MAX(age)   -- то же самое\n```\n\nТеперь формула `MAX(age) - MIN(age)::numeric / MAX(age)` считается точно. Приоритет операций: деление выполняется раньше вычитания, скобки здесь нужны только для читаемости.\n\nСравнение `формула > AVG(age)` возвращает `true` или `false`. Выражение сравнения можно писать прямо в `SELECT`, давая ему имя через `AS`.\n\nЗаметь: в `SELECT` нельзя сослаться на псевдоним `formula` в соседнем выражении, поэтому формулу пишут заново.\n\nКлючевые слова для примеров: `::`, `CAST`, `ROUND`, `AVG`, `MAX`, `MIN`, `GROUP BY`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Группировка по адресу. Формулу пиши с приведением `MIN(age)::numeric`, чтобы деление не обрезало дробь. Для `comparison` повтори формулу и сравни с `AVG(age)`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT address,\n       ROUND(MAX(age) - MIN(age)::______ / MAX(age), 2) AS formula,\n       ROUND(______(age), 2) AS average,\n       (MAX(age) - MIN(age)::numeric / MAX(age)) ___ AVG(age) AS comparison\nFROM person\nGROUP BY ______\nORDER BY ______;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "```sql\nSELECT address,\n       ROUND(MAX(age) - MIN(age)::numeric / MAX(age), 2) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - MIN(age)::numeric / MAX(age)) > AVG(age) AS ______\nFROM person\nGROUP BY address\nORDER BY address;\n```\n\nОсталось имя последнего столбца."
+      }
+     ],
+     "solution": "SELECT address,\n       ROUND(MAX(age) - MIN(age)::numeric / MAX(age), 2) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - MIN(age)::numeric / MAX(age)) > AVG(age) AS comparison\nFROM person\nGROUP BY address\nORDER BY address;",
+     "solutionCommented": "-- Идея: по группе на адрес; деление делаем нецелочисленным (::numeric).\nSELECT address,\n       ROUND(MAX(age) - MIN(age)::numeric / MAX(age), 2) AS formula,   -- без ::numeric дробь обрезалась бы\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - MIN(age)::numeric / MAX(age)) > AVG(age) AS comparison   -- true / false\nFROM person\nGROUP BY address\nORDER BY address;",
+     "meta": {
+      "title": "Явное преобразование типов",
+      "ordered": true,
+      "positive": [
+       {
+        "why": "CAST вместо ::",
+        "sql": "SELECT address,\n       ROUND(MAX(age) - CAST(MIN(age) AS numeric) / MAX(age), 2) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - CAST(MIN(age) AS numeric) / MAX(age)) > AVG(age) AS comparison\nFROM person\nGROUP BY address\nORDER BY address;"
+       },
+       {
+        "why": "сравнение по округлённым значениям",
+        "sql": "SELECT address, ROUND(MAX(age) - MIN(age)::numeric / MAX(age), 2) AS formula, ROUND(AVG(age), 2) AS average, ROUND(MAX(age) - MIN(age)::numeric / MAX(age), 2) > ROUND(AVG(age), 2) AS comparison FROM person GROUP BY address ORDER BY address;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "целочисленное деление: дробная часть потеряна",
+        "sql": "SELECT address,\n       ROUND(MAX(age) - MIN(age) / MAX(age), 2) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - MIN(age) / MAX(age)) > AVG(age) AS comparison\nFROM person\nGROUP BY address\nORDER BY address;"
+       },
+       {
+        "why": "формула без округления",
+        "sql": "SELECT address,\n       MAX(age) - MIN(age)::numeric / MAX(age) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - MIN(age)::numeric / MAX(age)) > AVG(age) AS comparison\nFROM person\nGROUP BY address\nORDER BY address;"
+       },
+       {
+        "why": "сравнение в обратную сторону",
+        "sql": "SELECT address,\n       ROUND(MAX(age) - MIN(age)::numeric / MAX(age), 2) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - MIN(age)::numeric / MAX(age)) < AVG(age) AS comparison\nFROM person\nGROUP BY address\nORDER BY address;"
+       },
+       {
+        "why": "сортировка по убыванию адреса",
+        "sql": "SELECT address,\n       ROUND(MAX(age) - MIN(age)::numeric / MAX(age), 2) AS formula,\n       ROUND(AVG(age), 2) AS average,\n       (MAX(age) - MIN(age)::numeric / MAX(age)) > AVG(age) AS comparison\nFROM person\nGROUP BY address\nORDER BY address DESC;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
      }
     }
    ]

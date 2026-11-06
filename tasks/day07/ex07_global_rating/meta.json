@@ -1,0 +1,31 @@
+{
+  "title": "Средний глобальный рейтинг",
+  "ordered": false,
+  "positive": [
+    {
+      "why": "SUM / COUNT вместо AVG",
+      "sql": "SELECT ROUND(SUM(rating) / COUNT(rating), 4) AS global_rating FROM pizzeria;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "округление до 2 знаков",
+      "sql": "SELECT ROUND(AVG(rating), 2) AS global_rating FROM pizzeria;"
+    },
+    {
+      "why": "нет округления",
+      "sql": "SELECT AVG(rating) AS global_rating FROM pizzeria;"
+    },
+    {
+      "why": "рейтинг только пиццерий с заказами, а не всех",
+      "sql": "SELECT ROUND(AVG(rating), 4) AS global_rating FROM pizzeria WHERE id IN (SELECT pizzeria_id FROM menu WHERE id IN (SELECT menu_id FROM person_order));"
+    },
+    {
+      "why": "ответ вписан готовым значением",
+      "sql": "SELECT 4.0833 AS global_rating;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

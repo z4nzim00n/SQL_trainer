@@ -1,0 +1,36 @@
+{
+  "title": "Уникальность людей",
+  "ordered": true,
+  "forbidden": [
+    "GROUP BY",
+    "UNION",
+    "EXCEPT",
+    "INTERSECT"
+  ],
+  "positive": [
+    {
+      "why": "через EXISTS без повторов",
+      "sql": "SELECT person.name FROM person WHERE EXISTS (SELECT 1 FROM person_order WHERE person_order.person_id = person.id) ORDER BY person.name;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "нет DISTINCT: имена повторяются",
+      "sql": "SELECT person.name\nFROM person\nJOIN person_order ON person_order.person_id = person.id\nORDER BY person.name;"
+    },
+    {
+      "why": "использован запрещённый GROUP BY",
+      "sql": "SELECT person.name FROM person JOIN person_order ON person_order.person_id = person.id GROUP BY person.name ORDER BY person.name;"
+    },
+    {
+      "why": "все люди, а не только сделавшие заказ",
+      "sql": "SELECT DISTINCT person.name FROM person ORDER BY person.name;"
+    },
+    {
+      "why": "сортировка по убыванию",
+      "sql": "SELECT DISTINCT person.name\nFROM person\nJOIN person_order ON person_order.person_id = person.id\nORDER BY person.name DESC;"
+    }
+  ],
+  "dataset": "pizza",
+  "required": []
+}

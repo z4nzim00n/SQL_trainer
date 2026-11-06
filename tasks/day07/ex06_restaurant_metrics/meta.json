@@ -1,0 +1,25 @@
+{
+  "title": "Метрики ресторанов",
+  "ordered": true,
+  "negative": [
+    {
+      "why": "нет округления средней цены",
+      "sql": "SELECT pizzeria.name, COUNT(*) AS count_of_orders, AVG(menu.price) AS average_price, MAX(menu.price) AS max_price, MIN(menu.price) AS min_price\nFROM person_order\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nGROUP BY pizzeria.name\nORDER BY pizzeria.name;"
+    },
+    {
+      "why": "округление до одного знака",
+      "sql": "SELECT pizzeria.name, COUNT(*) AS count_of_orders, ROUND(AVG(menu.price), 1) AS average_price, MAX(menu.price) AS max_price, MIN(menu.price) AS min_price\nFROM person_order\nJOIN menu ON menu.id = person_order.menu_id\nJOIN pizzeria ON pizzeria.id = menu.pizzeria_id\nGROUP BY pizzeria.name\nORDER BY pizzeria.name;"
+    },
+    {
+      "why": "метрики по всему меню, а не по заказанным пиццам",
+      "sql": "SELECT pizzeria.name, COUNT(*) AS count_of_orders, ROUND(AVG(menu.price), 2) AS average_price, MAX(menu.price) AS max_price, MIN(menu.price) AS min_price FROM menu JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name ORDER BY pizzeria.name;"
+    },
+    {
+      "why": "включены пиццерии без заказов (LEFT JOIN)",
+      "sql": "SELECT pizzeria.name, COUNT(person_order.id) AS count_of_orders, ROUND(AVG(menu.price), 2) AS average_price, MAX(menu.price) AS max_price, MIN(menu.price) AS min_price FROM pizzeria LEFT JOIN menu ON menu.pizzeria_id = pizzeria.id LEFT JOIN person_order ON person_order.menu_id = menu.id GROUP BY pizzeria.name ORDER BY pizzeria.name;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

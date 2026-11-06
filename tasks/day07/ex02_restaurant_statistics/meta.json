@@ -1,0 +1,35 @@
+{
+  "title": "Статистика по ресторанам",
+  "ordered": true,
+  "orderKeys": [
+    "action_type",
+    "count"
+  ],
+  "positive": [
+    {
+      "why": "UNION вместо UNION ALL: метки разные, повторов нет",
+      "sql": "(SELECT pizzeria.name, COUNT(*) AS count, 'order' AS action_type\n FROM person_order\n JOIN menu ON menu.id = person_order.menu_id\n JOIN pizzeria ON pizzeria.id = menu.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nUNION\n(SELECT pizzeria.name, COUNT(*) AS count, 'visit' AS action_type\n FROM person_visits\n JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nORDER BY action_type ASC, count DESC;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "топ-2 вместо топ-3",
+      "sql": "(SELECT pizzeria.name, COUNT(*) AS count, 'order' AS action_type\n FROM person_order\n JOIN menu ON menu.id = person_order.menu_id\n JOIN pizzeria ON pizzeria.id = menu.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 2)\nUNION ALL\n(SELECT pizzeria.name, COUNT(*) AS count, 'visit' AS action_type\n FROM person_visits\n JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 2)\nORDER BY action_type ASC, count DESC;"
+    },
+    {
+      "why": "перепутаны метки источников",
+      "sql": "(SELECT pizzeria.name, COUNT(*) AS count, 'visit' AS action_type\n FROM person_order\n JOIN menu ON menu.id = person_order.menu_id\n JOIN pizzeria ON pizzeria.id = menu.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nUNION ALL\n(SELECT pizzeria.name, COUNT(*) AS count, 'order' AS action_type\n FROM person_visits\n JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nORDER BY action_type ASC, count DESC;"
+    },
+    {
+      "why": "общая сортировка по количеству по возрастанию",
+      "sql": "(SELECT pizzeria.name, COUNT(*) AS count, 'order' AS action_type\n FROM person_order\n JOIN menu ON menu.id = person_order.menu_id\n JOIN pizzeria ON pizzeria.id = menu.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nUNION ALL\n(SELECT pizzeria.name, COUNT(*) AS count, 'visit' AS action_type\n FROM person_visits\n JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\n GROUP BY pizzeria.name\n ORDER BY count DESC, pizzeria.name ASC\n LIMIT 3)\nORDER BY action_type ASC, count ASC;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('Dominos', 6, 'order'), ('Dominos', 7, 'visit')) AS t(name, count, action_type);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

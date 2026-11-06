@@ -1,0 +1,33 @@
+{
+  "title": "Условие для групп",
+  "ordered": false,
+  "forbidden": [
+    "WHERE"
+  ],
+  "positive": [
+    {
+      "why": "условие через подзапрос без WHERE",
+      "sql": "SELECT t.name, t.count_of_visits FROM (SELECT person.name, COUNT(*) AS count_of_visits FROM person_visits JOIN person ON person.id = person_visits.person_id GROUP BY person.name) AS t GROUP BY t.name, t.count_of_visits HAVING t.count_of_visits > 3;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "использован запрещённый WHERE (через подзапрос)",
+      "sql": "SELECT * FROM (SELECT person.name, COUNT(*) AS count_of_visits FROM person_visits JOIN person ON person.id = person_visits.person_id GROUP BY person.name) AS t WHERE count_of_visits > 3;"
+    },
+    {
+      "why": "условие >= 3 включает лишних людей",
+      "sql": "SELECT person.name, COUNT(*) AS count_of_visits\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nGROUP BY person.name\nHAVING COUNT(*) >= 3;"
+    },
+    {
+      "why": "условие < 3 вместо > 3",
+      "sql": "SELECT person.name, COUNT(*) AS count_of_visits\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nGROUP BY person.name\nHAVING COUNT(*) < 3;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('Dmitriy', 4)) AS t(name, count_of_visits);"
+    }
+  ],
+  "dataset": "pizza",
+  "required": []
+}

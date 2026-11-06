@@ -1,0 +1,25 @@
+{
+  "title": "Статистика по ресторанам #2",
+  "ordered": true,
+  "negative": [
+    {
+      "why": "UNION вместо UNION ALL схлопывает одинаковые пары",
+      "sql": "SELECT name, SUM(count) AS total_count\nFROM (SELECT pizzeria.name, COUNT(*) AS count FROM person_order JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name\nUNION\nSELECT pizzeria.name, COUNT(*) AS count FROM person_visits JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id GROUP BY pizzeria.name) AS stats\nGROUP BY name\nORDER BY total_count DESC, name ASC;"
+    },
+    {
+      "why": "учтены только заказы",
+      "sql": "SELECT pizzeria.name, COUNT(*) AS total_count FROM person_order JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name ORDER BY total_count DESC, pizzeria.name ASC;"
+    },
+    {
+      "why": "сортировка по названию вместо суммы",
+      "sql": "SELECT name, SUM(count) AS total_count\nFROM (SELECT pizzeria.name, COUNT(*) AS count FROM person_order JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name\nUNION ALL\nSELECT pizzeria.name, COUNT(*) AS count FROM person_visits JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id GROUP BY pizzeria.name) AS stats\nGROUP BY name\nORDER BY name ASC;"
+    },
+    {
+      "why": "при равной сумме названия по убыванию",
+      "sql": "SELECT name, SUM(count) AS total_count\nFROM (SELECT pizzeria.name, COUNT(*) AS count FROM person_order JOIN menu ON menu.id = person_order.menu_id JOIN pizzeria ON pizzeria.id = menu.pizzeria_id GROUP BY pizzeria.name\nUNION ALL\nSELECT pizzeria.name, COUNT(*) AS count FROM person_visits JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id GROUP BY pizzeria.name) AS stats\nGROUP BY name\nORDER BY total_count DESC, name DESC;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}

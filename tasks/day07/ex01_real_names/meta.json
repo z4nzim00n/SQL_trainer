@@ -1,0 +1,25 @@
+{
+  "title": "Настоящие имена",
+  "ordered": true,
+  "negative": [
+    {
+      "why": "топ-3 вместо топ-4",
+      "sql": "SELECT name, count_of_visits\nFROM (SELECT person.name, COUNT(*) AS count_of_visits\n      FROM person_visits\n      JOIN person ON person.id = person_visits.person_id\n      GROUP BY person.id, person.name\n      ORDER BY count_of_visits DESC, person.name ASC\n      LIMIT 3) AS top\nORDER BY name;"
+    },
+    {
+      "why": "результат отсортирован по количеству, а не по имени",
+      "sql": "SELECT name, count_of_visits\nFROM (SELECT person.name, COUNT(*) AS count_of_visits\n      FROM person_visits\n      JOIN person ON person.id = person_visits.person_id\n      GROUP BY person.id, person.name\n      ORDER BY count_of_visits DESC, person.name ASC\n      LIMIT 4) AS top\nORDER BY count_of_visits DESC, name;"
+    },
+    {
+      "why": "LIMIT применён к списку по алфавиту, а не к списку по количеству",
+      "sql": "SELECT person.name, COUNT(*) AS count_of_visits FROM person_visits JOIN person ON person.id = person_visits.person_id GROUP BY person.id, person.name ORDER BY person.name LIMIT 4;"
+    },
+    {
+      "why": "ответ вписан готовыми значениями",
+      "sql": "SELECT * FROM (VALUES ('Denis', 3), ('Dmitriy', 4)) AS t(name, count_of_visits) ORDER BY name;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": [],
+  "required": []
+}
