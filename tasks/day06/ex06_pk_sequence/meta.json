@@ -32,5 +32,6 @@
     }
   ],
   "dataset": "pizza",
-  "forbidden": []
+  "forbidden": [],
+  "forbidSetvalLiteral": true
 }

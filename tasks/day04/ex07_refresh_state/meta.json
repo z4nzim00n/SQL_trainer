@@ -1,6 +1,6 @@
 {
   "title": "Обновим снимок",
-  "setup": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800\nWITH DATA;",
+  "setup": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT DISTINCT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800\nWITH DATA;",
   "verify": "SELECT (SELECT COUNT(*) FROM mv_dmitriy_visits_and_eats) AS mv_rows, (SELECT COUNT(*) FROM (SELECT * FROM mv_dmitriy_visits_and_eats EXCEPT SELECT pizzeria.name AS pizzeria_name FROM person_visits JOIN person ON person.id = person_visits.person_id JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id JOIN menu ON menu.pizzeria_id = pizzeria.id WHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800) AS x) AS stale_rows, (SELECT COUNT(*) FROM person_visits JOIN person ON person.id = person_visits.person_id WHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08') AS dmitriy_visits",
   "ordered": false,
   "required": [
@@ -25,5 +25,8 @@
     }
   ],
   "dataset": "pizza",
-  "forbidden": []
+  "forbidden": [],
+  "forbidDirectIds": [
+    { "table": "person_visits", "columns": ["id", "person_id", "pizzeria_id"] }
+  ]
 }

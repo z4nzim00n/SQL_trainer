@@ -4,7 +4,7 @@
  * Запрос ученика выполняется внутри транзакции, которая всегда откатывается,
  * поэтому DROP/DELETE/UPDATE не ломают данные для следующих проверок.
  */
-import { normalizeCell } from './checker.js';
+import { normalizeCell, splitStatements, stripSql } from './checker.js';
 
 /* Версия 0.3.x; браузерный ES-модуль подтягивает .wasm рядом с собой */
 export const PGLITE_URL = 'https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.3/dist/index.js';
@@ -50,8 +50,15 @@ export async function createEngine(datasets, onStatus = () => {}) {
     await db.exec('SET search_path TO public');
 
     /* Выполняет запрос, возвращает последнюю таблицу результата */
-    async function run(dataset, variant, sql) {
+    async function runNow(dataset, variant, sql) {
         const schema = `${dataset}_${variant}`;
+        /* Транзакцией управляет тренажёр: COMMIT/ROLLBACK сломали бы откат */
+        const control = /^(COMMIT|END|ROLLBACK|ABORT|START\s+TRANSACTION|BEGIN)(\s|$)/i;
+        for (const stmt of splitStatements(sql)) {
+            if (control.test(stripSql(stmt).trim())) {
+                return { error: 'В тренажёре нельзя управлять транзакциями: убери COMMIT, ROLLBACK или BEGIN.' };
+            }
+        }
         try {
             await db.exec('BEGIN');
             await db.exec(`SET LOCAL search_path TO ${schema}`);
@@ -68,6 +75,14 @@ export async function createEngine(datasets, onStatus = () => {}) {
         } finally {
             try { await db.exec('ROLLBACK'); } catch (_) { /* транзакции может уже не быть */ }
         }
+    }
+
+    /* Одно соединение PGlite: выполняем запросы строго по очереди */
+    let tail = Promise.resolve();
+    function run(dataset, variant, sql) {
+        const job = tail.then(() => runNow(dataset, variant, sql));
+        tail = job.then(() => {}, () => {});
+        return job;
     }
 
     onStatus('');

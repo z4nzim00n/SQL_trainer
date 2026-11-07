@@ -56,7 +56,7 @@ for (const f of dataFiles.sort()) {
         /* скрытый набор: <имя>_alt.sql и любые <имя>_alt_*.sql (по алфавиту) дописываются поверх основного */
         alt: [main, ...dataFiles.filter((x) => x === altFile || (x.startsWith(`${name}_alt_`) && x.endsWith('.sql'))).sort().map((x) => read('data', x))].join('\n'),
         schema: dataFiles.includes(schemaFile) ? read('data', schemaFile) : '',
-        tables: [...main.matchAll(/create\s+table\s+([a-z_0-9]+)/gi)].map((m) => m[1].toLowerCase()),
+        tables: [...main.matchAll(/create\s+table\s+(?:"([^"]+)"|([a-z_0-9]+))/gi)].map((m) => (m[1] || m[2]).toLowerCase()),
     };
 }
 
@@ -132,7 +132,7 @@ for (const dayDir of dirs('tasks')) {
     days.push({ id: dayDir, title: dayMeta.title, group: dayMeta.group || '', tasks });
 }
 
-const out = { version: '0.004', builtAt: new Date().toISOString(), datasets, wiki, glossary, days };
+const out = { version: '0.010.3', builtAt: new Date().toISOString(), datasets, wiki, glossary, days };
 writeFileSync(join(root, 'tasks.json'), JSON.stringify(out, null, 1));
 const count = days.reduce((n, d) => n + d.tasks.length, 0);
 console.log(`tasks.json: дней ${days.length}, заданий ${count}, статей справочника ${wiki.length}`);

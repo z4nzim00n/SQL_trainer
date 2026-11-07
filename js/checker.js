@@ -20,7 +20,59 @@ export function normalizeCell(v) {
     return String(v);
 }
 
-/* Убираем комментарии и строки, чтобы запрещённые слова искались только в самом коде */
+/* Делит скрипт на отдельные команды (учитывает строки, комментарии и $$-блоки) */
+export function splitStatements(sql) {
+    const out = [];
+    let cur = '';
+    let i = 0;
+    while (i < sql.length) {
+        const c = sql[i];
+        const n = sql[i + 1];
+        if (c === '-' && n === '-') {
+            const e = sql.indexOf('\n', i);
+            const end = e < 0 ? sql.length : e;
+            cur += sql.slice(i, end);
+            i = end;
+        } else if (c === '/' && n === '*') {
+            let depth = 1;
+            let j = i + 2;
+            while (j < sql.length && depth > 0) {
+                if (sql[j] === '/' && sql[j + 1] === '*') { depth++; j += 2; }
+                else if (sql[j] === '*' && sql[j + 1] === '/') { depth--; j += 2; }
+                else j++;
+            }
+            cur += sql.slice(i, j);
+            i = j;
+        } else if (c === "'" || c === '"') {
+            const escaped = c === "'" && /(^|[^A-Za-z0-9_])[eE]$/.test(sql.slice(0, i));
+            let j = i + 1;
+            while (j < sql.length) {
+                if (escaped && sql[j] === '\\') { j += 2; continue; }
+                if (sql[j] === c) { if (sql[j + 1] === c) { j += 2; continue; } break; }
+                j++;
+            }
+            cur += sql.slice(i, j + 1);
+            i = j + 1;
+        } else if (c === '$') {
+            const m = sql.slice(i).match(/^\$[A-Za-z_0-9]*\$/);
+            if (m) {
+                const e = sql.indexOf(m[0], i + m[0].length);
+                const end = e < 0 ? sql.length : e + m[0].length;
+                cur += sql.slice(i, end);
+                i = end;
+            } else { cur += c; i++; }
+        } else if (c === ';') {
+            if (cur.trim()) out.push(cur.trim());
+            cur = '';
+            i++;
+        } else { cur += c; i++; }
+    }
+    if (cur.trim()) out.push(cur.trim());
+    return out.filter((st) => stripSql(st).trim());
+}
+
+/* Убираем комментарии и строковые литералы, чтобы запрещённые слова искались только в самом коде.
+   Содержимое двойных кавычек (идентификаторы) сохраняем: его тоже пишет ученик. */
 export function stripSql(sql) {
     let out = '';
     let i = 0;
@@ -31,12 +83,21 @@ export function stripSql(sql) {
             while (i < sql.length && sql[i] !== '\n') i++;
             out += ' ';
         } else if (c === '/' && n === '*') {
-            const end = sql.indexOf('*/', i + 2);
-            i = end < 0 ? sql.length : end + 2;
+            /* комментарии в PostgreSQL могут быть вложенными */
+            let depth = 1;
+            i += 2;
+            while (i < sql.length && depth > 0) {
+                if (sql[i] === '/' && sql[i + 1] === '*') { depth++; i += 2; }
+                else if (sql[i] === '*' && sql[i + 1] === '/') { depth--; i += 2; }
+                else i++;
+            }
             out += ' ';
         } else if (c === "'") {
+            /* E'...' понимает \' и \\ как escape-последовательности */
+            const escaped = /(^|[^A-Za-z0-9_])[eE]$/.test(out);
             i++;
             while (i < sql.length) {
+                if (escaped && sql[i] === '\\') { i += 2; continue; }
                 if (sql[i] === "'") {
                     if (sql[i + 1] === "'") { i += 2; continue; }
                     i++;
@@ -47,9 +108,32 @@ export function stripSql(sql) {
             out += " '' ";
         } else if (c === '"') {
             i++;
-            while (i < sql.length && sql[i] !== '"') i++;
-            i++;
-            out += ' "" ';
+            let ident = '';
+            while (i < sql.length) {
+                if (sql[i] === '"') {
+                    if (sql[i + 1] === '"') { ident += '"'; i += 2; continue; }
+                    i++;
+                    break;
+                }
+                ident += sql[i++];
+            }
+            out += ` "${ident}" `;
+        } else if (c === '$') {
+            /* $$...$$ или $tag$...$tag$: тело — это код (PL/pgSQL), поэтому чистим только литералы внутри */
+            const m = sql.slice(i).match(/^\$[A-Za-z_0-9]*\$/);
+            if (m) {
+                const end = sql.indexOf(m[0], i + m[0].length);
+                if (end < 0) {
+                    out += sql.slice(i);
+                    break;
+                }
+                const body = sql.slice(i + m[0].length, end);
+                out += m[0] + stripSql(body) + m[0];
+                i = end + m[0].length;
+            } else {
+                out += c;
+                i++;
+            }
         } else {
             out += c;
             i++;
@@ -67,6 +151,106 @@ function hasWord(text, phrase) {
     return new RegExp('(^|[^A-Za-z0-9_])' + body + '($|[^A-Za-z0-9_])', 'i').test(text);
 }
 
+/* Позиция закрывающей скобки для открывающей в pos (учитывает вложенность) */
+function findClose(text, pos) {
+    let depth = 0;
+    for (let i = pos; i < text.length; i++) {
+        if (text[i] === '(') depth++;
+        else if (text[i] === ')' && --depth === 0) return i;
+    }
+    return -1;
+}
+
+/* Делит список выражений по запятым верхнего уровня: "(a, b), c" -> ["a, b", " c"] */
+function splitExprList(text) {
+    const parts = [];
+    let depth = 0;
+    let start = 0;
+    for (let i = 0; i < text.length; i++) {
+        if (text[i] === '(') depth++;
+        else if (text[i] === ')') depth--;
+        else if (text[i] === ',' && depth === 0) {
+            parts.push(text.slice(start, i));
+            start = i + 1;
+        }
+    }
+    parts.push(text.slice(start));
+    return parts;
+}
+
+/* Ближайшее слово word на верхнем уровне или ';' */
+function findTopLevelWord(text, from, word) {
+    let depth = 0;
+    for (let i = from; i < text.length; i++) {
+        const c = text[i];
+        if (c === '(') depth++;
+        else if (c === ')') depth--;
+        else if (depth === 0) {
+            if (c === ';') return i;
+            if (/[A-Za-z_]/.test(c)) {
+                let j = i;
+                while (j < text.length && /[A-Za-z0-9_]/.test(text[j])) j++;
+                if (text.slice(i, j).toLowerCase() === word) return i;
+                i = j - 1;
+            }
+        }
+    }
+    return -1;
+}
+
+/* Находит INSERT ... VALUES/SELECT и сообщает, если ключевой столбец записан числом */
+function directIdProblems(text, rule) {
+    const problems = [];
+    const table = rule.table.toLowerCase();
+    const re = new RegExp(`\\bINSERT\\s+INTO\\s+(?:[a-z_][a-z0-9_]*\\.)?${table}\\b`, 'gi');
+    let m;
+    while ((m = re.exec(text))) {
+        let i = m.index + m[0].length;
+        const skip = () => { while (i < text.length && /\s/.test(text[i])) i++; };
+        skip();
+
+        let names = rule.columns.map((c) => c.toLowerCase());
+        if (text[i] === '(') {
+            const close = findClose(text, i);
+            if (close < 0) continue;
+            names = splitExprList(text.slice(i + 1, close)).map((x) => x.trim().toLowerCase());
+            i = close + 1;
+            skip();
+        }
+
+        const groups = [];
+        if (/^values\b/i.test(text.slice(i))) {
+            i += 6;
+            skip();
+            while (text[i] === '(') {
+                const close = findClose(text, i);
+                if (close < 0) break;
+                groups.push(splitExprList(text.slice(i + 1, close)));
+                i = close + 1;
+                skip();
+                if (text[i] !== ',') break;
+                i++;
+                skip();
+            }
+        } else if (/^select\b/i.test(text.slice(i))) {
+            i += 6;
+            const end = findTopLevelWord(text, i, 'from');
+            groups.push(splitExprList(text.slice(i, end < 0 ? text.length : end)));
+        }
+
+        for (const exprs of groups) {
+            for (const col of rule.columns) {
+                const idx = names.indexOf(col.toLowerCase());
+                if (idx < 0 || idx >= exprs.length) continue;
+                if (/^\s*-?\d+\s*$/.test(exprs[idx])) {
+                    problems.push(`В задании запрещено указывать ${table}.${col} числом.`);
+                }
+            }
+        }
+    }
+    return problems;
+}
+
 /* Запреты и обязательные конструкции из meta.json задания */
 export function staticCheck(sql, meta = {}) {
     const text = stripSql(sql);
@@ -76,6 +260,10 @@ export function staticCheck(sql, meta = {}) {
     }
     for (const w of meta.required || []) {
         if (!hasWord(text, w)) problems.push(`В задании нужно использовать: ${w}.`);
+    }
+    for (const rule of meta.forbidDirectIds || []) problems.push(...directIdProblems(text, rule));
+    if (meta.forbidSetvalLiteral && /\bSETVAL\s*\(\s*(?:''|[a-z_][a-z0-9_.]*)[^,]*,\s*-?\d+/i.test(text)) {
+        problems.push('В задании запрещено задавать значение последовательности числом.');
     }
     return problems;
 }
@@ -158,6 +346,35 @@ export async function runCheck({ run, task, sql }) {
     let shown = null;
 
     for (const variant of VARIANTS) {
+        if (meta.planContains) {
+            /* Задания на EXPLAIN: проверяем план запроса ученика, а не фиксированный план эталона */
+            const script = [meta.setup, sql].filter((x) => x && x.trim()).join('\n;\n');
+            const user = await run(dataset, variant, script);
+            if (variant === 'main') shown = user;
+
+            if (user.error) {
+                return { status: 'error', headline: 'PostgreSQL вернул ошибку', details: [user.error], userResult: null };
+            }
+            if (user.noResult) {
+                return {
+                    status: 'fail',
+                    headline: 'Запрос не вернул план',
+                    details: ['Оберни свой запрос в EXPLAIN ANALYZE, чтобы увидеть план выполнения.'],
+                    userResult: null,
+                };
+            }
+            const plan = user.rows.map((row) => row.map((c) => (c === null ? '' : c)).join(' ')).join('\n');
+            if (!plan.includes(meta.planContains)) {
+                return {
+                    status: 'fail',
+                    headline: `В плане нет ${meta.planContains}`,
+                    details: ['Проверь, что запрос из задания выполняется с использованием нужного индекса.'],
+                    userResult: shown,
+                };
+            }
+            continue;
+        }
+
         const user = await run(dataset, variant, compose(sql));
         if (variant === 'main') shown = user;
 

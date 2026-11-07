@@ -4,9 +4,11 @@
   "ordered": false,
   "required": [
     "EXPLAIN ANALYZE",
-    "enable_seqscan"
+    "enable_seqscan",
+    "pizza_name",
+    "pizzeria"
   ],
-  "verify": "ANALYZE menu, pizzeria, person, person_order, person_visits;\nCREATE FUNCTION pg_temp.plan_of(q text) RETURNS text AS $$ DECLARE r text; t text := ''; BEGIN FOR r IN EXECUTE 'EXPLAIN ' || q LOOP t := t || r || E'\\n'; END LOOP; RETURN t; END $$ LANGUAGE plpgsql;\nSELECT current_setting('enable_seqscan') AS seqscan, pg_temp.plan_of('SELECT menu.pizza_name, pizzeria.name AS pizzeria_name FROM menu JOIN pizzeria ON pizzeria.id = menu.pizzeria_id') LIKE '%idx_menu_pizzeria_id%' AS index_in_plan",
+  "planContains": "Index Scan using idx_menu_pizzeria_id on menu",
   "positive": [
     {
       "why": "то же через SET ... TO",

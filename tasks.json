@@ -1,13 +1,7 @@
 {
- "version": "0.004",
- "builtAt": "2026-11-07T10:44:23.467Z",
+ "version": "0.010.3",
+ "builtAt": "2026-11-07T19:29:35.231Z",
  "datasets": {
-  "blank": {
-   "main": "-- Пустая база: таблиц нет, все создаёшь сам.\n",
-   "alt": "-- Пустая база: таблиц нет, все создаёшь сам.\n",
-   "schema": "# Пустая база\n\nВ этой базе пока нет таблиц: их нужно создать самому.\n",
-   "tables": []
-  },
   "demo": {
    "main": "-- Учебные мини-таблицы для примеров в теории и справочнике.\n-- Никак не связаны с пиццериями: маленькие таблицы, чтобы результат примера было видно целиком.\n\n-- Для операторов множеств (UNION, INTERSECT, EXCEPT): есть повторы и пересечение\ncreate table a (id integer, val varchar);\ninsert into a values (1, 'red');\ninsert into a values (2, 'green');\ninsert into a values (3, 'blue');\ninsert into a values (3, 'blue');\n\ncreate table b (id integer, val varchar);\ninsert into b values (2, 'green');\ninsert into b values (3, 'blue');\ninsert into b values (4, 'yellow');\n\n-- Для JOIN: у Eve нет курса (NULL), у курса Art нет студентов\ncreate table courses (id integer primary key, title varchar not null);\ninsert into courses values (1, 'Math');\ninsert into courses values (2, 'Music');\ninsert into courses values (3, 'Art');\n\ncreate table students (\n    id integer primary key,\n    name varchar not null,\n    age integer not null,\n    city varchar,\n    course_id integer references courses (id)\n);\ninsert into students values (1, 'Ann', 20, 'Berlin', 1);\ninsert into students values (2, 'Bob', 22, 'Paris', 1);\ninsert into students values (3, 'Cleo', 19, 'Berlin', 2);\ninsert into students values (4, 'Dan', 25, null, 2);\ninsert into students values (5, 'Eve', 21, 'Rome', null);\n\n-- Для WHERE, типов, CASE, DML: есть NULL в note\ncreate table products (\n    id integer primary key,\n    title varchar not null,\n    category varchar not null,\n    price numeric(8, 2) not null,\n    added date not null,\n    note varchar\n);\ninsert into products values (1, 'Pen', 'office', 1.50, '2024-01-10', 'blue ink');\ninsert into products values (2, 'Notebook', 'office', 4.00, '2024-01-15', null);\ninsert into products values (3, 'Mug', 'home', 7.25, '2024-02-01', 'ceramic');\ninsert into products values (4, 'Lamp', 'home', 19.90, '2024-02-20', null);\ninsert into products values (5, 'Backpack', 'travel', 35.00, '2024-03-05', 'waterproof');\n\n-- Для агрегатов и оконных функций\ncreate table sales (\n    id integer primary key,\n    shop varchar not null,\n    item varchar not null,\n    qty integer not null,\n    price numeric(8, 2) not null,\n    sale_date date not null\n);\ninsert into sales values (1, 'North', 'Pen', 10, 1.50, '2024-05-01');\ninsert into sales values (2, 'North', 'Mug', 2, 7.25, '2024-05-01');\ninsert into sales values (3, 'North', 'Pen', 5, 1.50, '2024-05-02');\ninsert into sales values (4, 'South', 'Lamp', 1, 19.90, '2024-05-01');\ninsert into sales values (5, 'South', 'Pen', 8, 1.50, '2024-05-02');\ninsert into sales values (6, 'South', 'Mug', 3, 7.25, '2024-05-03');\ninsert into sales values (7, 'East', 'Lamp', 2, 19.90, '2024-05-03');\n",
    "alt": "-- Учебные мини-таблицы для примеров в теории и справочнике.\n-- Никак не связаны с пиццериями: маленькие таблицы, чтобы результат примера было видно целиком.\n\n-- Для операторов множеств (UNION, INTERSECT, EXCEPT): есть повторы и пересечение\ncreate table a (id integer, val varchar);\ninsert into a values (1, 'red');\ninsert into a values (2, 'green');\ninsert into a values (3, 'blue');\ninsert into a values (3, 'blue');\n\ncreate table b (id integer, val varchar);\ninsert into b values (2, 'green');\ninsert into b values (3, 'blue');\ninsert into b values (4, 'yellow');\n\n-- Для JOIN: у Eve нет курса (NULL), у курса Art нет студентов\ncreate table courses (id integer primary key, title varchar not null);\ninsert into courses values (1, 'Math');\ninsert into courses values (2, 'Music');\ninsert into courses values (3, 'Art');\n\ncreate table students (\n    id integer primary key,\n    name varchar not null,\n    age integer not null,\n    city varchar,\n    course_id integer references courses (id)\n);\ninsert into students values (1, 'Ann', 20, 'Berlin', 1);\ninsert into students values (2, 'Bob', 22, 'Paris', 1);\ninsert into students values (3, 'Cleo', 19, 'Berlin', 2);\ninsert into students values (4, 'Dan', 25, null, 2);\ninsert into students values (5, 'Eve', 21, 'Rome', null);\n\n-- Для WHERE, типов, CASE, DML: есть NULL в note\ncreate table products (\n    id integer primary key,\n    title varchar not null,\n    category varchar not null,\n    price numeric(8, 2) not null,\n    added date not null,\n    note varchar\n);\ninsert into products values (1, 'Pen', 'office', 1.50, '2024-01-10', 'blue ink');\ninsert into products values (2, 'Notebook', 'office', 4.00, '2024-01-15', null);\ninsert into products values (3, 'Mug', 'home', 7.25, '2024-02-01', 'ceramic');\ninsert into products values (4, 'Lamp', 'home', 19.90, '2024-02-20', null);\ninsert into products values (5, 'Backpack', 'travel', 35.00, '2024-03-05', 'waterproof');\n\n-- Для агрегатов и оконных функций\ncreate table sales (\n    id integer primary key,\n    shop varchar not null,\n    item varchar not null,\n    qty integer not null,\n    price numeric(8, 2) not null,\n    sale_date date not null\n);\ninsert into sales values (1, 'North', 'Pen', 10, 1.50, '2024-05-01');\ninsert into sales values (2, 'North', 'Mug', 2, 7.25, '2024-05-01');\ninsert into sales values (3, 'North', 'Pen', 5, 1.50, '2024-05-02');\ninsert into sales values (4, 'South', 'Lamp', 1, 19.90, '2024-05-01');\ninsert into sales values (5, 'South', 'Pen', 8, 1.50, '2024-05-02');\ninsert into sales values (6, 'South', 'Mug', 3, 7.25, '2024-05-03');\ninsert into sales values (7, 'East', 'Lamp', 2, 19.90, '2024-05-03');\n",
@@ -26,6 +20,7 @@
    "alt": "-- Мини-хранилище данных (DWH): пользователи, валюты с историей курсов и операции по балансу.\n-- Таблица \"user\" называется как зарезервированное слово, поэтому в запросах её пишут в двойных кавычках.\ncreate table \"user\" (id bigint primary key, name varchar, lastname varchar);\ncreate table currency (id bigint not null, name varchar not null, rate_to_usd numeric(10, 4) not null, updated timestamp not null);\ncreate table balance (user_id bigint not null, money numeric(12, 2) not null, type integer not null, currency_id bigint not null, updated timestamp not null);\n\ninsert into \"user\" values (101, 'Иван', 'Иванов');\ninsert into \"user\" values (102, 'Петр', null);\ninsert into \"user\" values (103, 'Сергей', 'Смирнов');\ninsert into \"user\" values (104, 'Мария', 'Сидорова');\ninsert into \"user\" values (105, 'Анна', 'Орлова');\ninsert into \"user\" values (106, null, 'Никитин');\n\ninsert into currency values (100, 'EUR', 0.9, '2022-03-03 13:31');\ninsert into currency values (100, 'EUR', 0.89, '2022-03-02 12:31');\ninsert into currency values (100, 'EUR', 0.87, '2022-03-02 08:00');\ninsert into currency values (100, 'EUR', 0.9, '2022-03-01 15:36');\ninsert into currency values (101, 'USD', 1, '2022-01-01 00:00');\ninsert into currency values (102, 'JPY', 0.0087, '2022-01-15 10:00');\ninsert into currency values (102, 'JPY', 0.0085, '2022-03-01 10:00');\ninsert into currency values (103, 'GBP', 1.31, '2022-03-10 12:00');\ninsert into currency values (103, 'GBP', 1.29, '2022-03-12 09:00');\n\n-- Иван: два перевода в евро и один в долларах\ninsert into balance values (101, 100, 1, 100, '2022-01-09 04:23');\ninsert into balance values (101, 310, 1, 100, '2022-03-02 12:00');\ninsert into balance values (101, 40, 0, 101, '2022-01-05 10:00');\n-- Петр: валюта 199 отсутствует в таблице currency\ninsert into balance values (102, 150, 2, 199, '2022-02-01 10:00');\ninsert into balance values (102, 53, 2, 199, '2022-02-15 11:00');\n-- Сергей\ninsert into balance values (103, 200, 0, 100, '2022-03-03 12:31');\ninsert into balance values (103, 150, 0, 100, '2022-03-02 11:29');\ninsert into balance values (103, 15, 0, 100, '2022-03-03 08:00');\ninsert into balance values (103, -100, 1, 102, '2022-03-01 15:36');\ninsert into balance values (103, 2000, 1, 102, '2021-12-12 15:36');\n-- Мария: курс фунта появился только после операции; одна операция точно в момент смены курса евро\ninsert into balance values (104, 80, 0, 103, '2022-03-01 09:00');\ninsert into balance values (104, 10, 1, 100, '2022-03-03 13:31');\n-- пользователь без имени\ninsert into balance values (106, 70, 0, 101, '2022-02-01 08:00');\n-- операции пользователя, которого нет в таблице user\ninsert into balance values (999, 500, 0, 100, '2022-03-05 09:00');\ninsert into balance values (999, 30, 1, 101, '2022-03-06 09:00');\n\n-- Скрытый набор: новые курсы, новые пользователи и операции с теми же аномалиями.\ninsert into currency values (100, 'EUR', 0.95, '2022-03-04 10:00');\ninsert into currency values (102, 'JPY', 0.0079, '2022-03-20 10:00');\ninsert into currency values (104, 'CHF', 1.08, '2022-02-10 10:00');\ninsert into currency values (104, 'CHF', 1.11, '2022-03-08 10:00');\ninsert into \"user\" values (107, 'Олег', null);\ninsert into \"user\" values (108, null, null);\ninsert into balance values (105, 300, 0, 104, '2022-02-20 12:00');\ninsert into balance values (105, -50, 0, 104, '2022-03-08 10:00');\ninsert into balance values (105, 25, 3, 100, '2022-03-01 00:00');\ninsert into balance values (107, 60, 1, 103, '2022-03-11 10:00');\ninsert into balance values (107, 90, 1, 103, '2022-03-20 10:00');\ninsert into balance values (108, 12, 0, 104, '2022-02-01 10:00');\ninsert into balance values (108, 8, 0, 105, '2022-03-01 10:00');\ninsert into balance values (888, 44, 4, 104, '2022-03-09 10:00');\ninsert into balance values (101, 19, 1, 102, '2022-03-25 10:00');\n",
    "schema": "# Хранилище данных (DWH)\n\nТаблица `\"user\"` (имя в двойных кавычках, потому что `user` зарезервировано): `id`, `name`, `lastname`. Имя и фамилия могут быть `NULL`.\n\nТаблица `currency`: `id` (повторяется!), `name`, `rate_to_usd`, `updated`. Одна валюта встречается несколько раз: по строке на каждое изменение курса, время изменения в `updated`.\n\nТаблица `balance`: `user_id`, `money`, `type`, `currency_id`, `updated`. Внешних ключей нет: в `balance` могут быть пользователи и валюты, которых нет в справочниках.\n",
    "tables": [
+    "user",
     "currency",
     "balance"
    ]
@@ -40,14 +35,6 @@
     "person_visits",
     "menu",
     "person_order"
-   ]
-  },
-  "tsp": {
-   "main": "-- Граф для задачи коммивояжёра: четыре города a, b, c, d.\n-- Стоимость одинакова в обе стороны, поэтому каждая дуга записана дважды.\ncreate table nodes (point1 varchar, point2 varchar, cost integer);\ninsert into nodes values ('a', 'b', 10);\ninsert into nodes values ('b', 'a', 10);\ninsert into nodes values ('a', 'c', 15);\ninsert into nodes values ('c', 'a', 15);\ninsert into nodes values ('a', 'd', 20);\ninsert into nodes values ('d', 'a', 20);\ninsert into nodes values ('b', 'c', 35);\ninsert into nodes values ('c', 'b', 35);\ninsert into nodes values ('b', 'd', 25);\ninsert into nodes values ('d', 'b', 25);\ninsert into nodes values ('c', 'd', 30);\ninsert into nodes values ('d', 'c', 30);\n",
-   "alt": "-- Граф для задачи коммивояжёра: четыре города a, b, c, d.\n-- Стоимость одинакова в обе стороны, поэтому каждая дуга записана дважды.\ncreate table nodes (point1 varchar, point2 varchar, cost integer);\ninsert into nodes values ('a', 'b', 10);\ninsert into nodes values ('b', 'a', 10);\ninsert into nodes values ('a', 'c', 15);\ninsert into nodes values ('c', 'a', 15);\ninsert into nodes values ('a', 'd', 20);\ninsert into nodes values ('d', 'a', 20);\ninsert into nodes values ('b', 'c', 35);\ninsert into nodes values ('c', 'b', 35);\ninsert into nodes values ('b', 'd', 25);\ninsert into nodes values ('d', 'b', 25);\ninsert into nodes values ('c', 'd', 30);\ninsert into nodes values ('d', 'c', 30);\n\n-- Скрытый набор: другие стоимости и пятый город e. Решение должно работать для любого числа городов.\nupdate nodes set cost = 40 where (point1 = 'a' and point2 = 'b') or (point1 = 'b' and point2 = 'a');\ninsert into nodes values ('a', 'e', 25);\ninsert into nodes values ('e', 'a', 25);\ninsert into nodes values ('b', 'e', 30);\ninsert into nodes values ('e', 'b', 30);\ninsert into nodes values ('c', 'e', 20);\ninsert into nodes values ('e', 'c', 20);\ninsert into nodes values ('d', 'e', 35);\ninsert into nodes values ('e', 'd', 35);\n",
-   "schema": "# Граф городов\n\nТаблица `nodes(point1, point2, cost)`: дуга из города `point1` в город `point2` со стоимостью `cost`. Стоимость одинакова в обе стороны, поэтому каждая пара городов записана двумя строками.\n\nГорода: a, b, c, d. Стоимости: a-b 10, a-c 15, a-d 20, b-c 35, b-d 25, c-d 30.\n",
-   "tables": [
-    "nodes"
    ]
   }
  },
@@ -2203,22 +2190,22 @@
       },
       {
        "title": "Каркас",
-       "body": "```sql\nSELECT menu.pizza_name, pizzeria.name AS ______\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = ______\nJOIN pizzeria ON menu.pizzeria_id = ______\nWHERE person.name = '______' OR person.name = '______'\nORDER BY ______, ______;\n```"
+       "body": "```sql\nSELECT DISTINCT menu.pizza_name, pizzeria.name AS ______\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = ______\nJOIN pizzeria ON menu.pizzeria_id = ______\nWHERE person.name = '______' OR person.name = '______'\nORDER BY ______, ______;\n```"
       },
       {
        "title": "Почти ответ",
-       "body": "```sql\nSELECT menu.pizza_name, pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nJOIN pizzeria ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Denis' OR ______\nORDER BY pizza_name, pizzeria_name;\n```\n\nОсталось второе имя."
+       "body": "```sql\nSELECT DISTINCT menu.pizza_name, pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nJOIN pizzeria ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Denis' OR ______\nORDER BY pizza_name, pizzeria_name;\n```\n\nОсталось второе имя."
       }
      ],
-     "solution": "SELECT menu.pizza_name, pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nJOIN pizzeria ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Denis' OR person.name = 'Anna'\nORDER BY pizza_name, pizzeria_name;",
-     "solutionCommented": "-- Идея: заказы -> человек -> позиция меню -> пиццерия; оставляем заказы Дениса и Анны.\nSELECT menu.pizza_name, pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person_order.person_id = person.id        -- чьи заказы\nJOIN menu ON person_order.menu_id = menu.id              -- что заказали\nJOIN pizzeria ON menu.pizzeria_id = pizzeria.id          -- где заказали\nWHERE person.name = 'Denis' OR person.name = 'Anna'\nORDER BY pizza_name, pizzeria_name;",
+     "solution": "SELECT DISTINCT menu.pizza_name, pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person_order.person_id = person.id\nJOIN menu ON person_order.menu_id = menu.id\nJOIN pizzeria ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Denis' OR person.name = 'Anna'\nORDER BY pizza_name, pizzeria_name;",
+     "solutionCommented": "-- Идея: заказы -> человек -> позиция меню -> пиццерия; оставляем заказы Дениса и Анны.\n-- DISTINCT убирает повторы, если одну и ту же пиццу заказывали несколько раз.\nSELECT DISTINCT menu.pizza_name, pizzeria.name AS pizzeria_name\nFROM person_order\nJOIN person ON person_order.person_id = person.id        -- чьи заказы\nJOIN menu ON person_order.menu_id = menu.id              -- что заказали\nJOIN pizzeria ON menu.pizzeria_id = pizzeria.id          -- где заказали\nWHERE person.name = 'Denis' OR person.name = 'Anna'\nORDER BY pizza_name, pizzeria_name;",
      "meta": {
       "title": "Любимые пиццы Дениса и Анны",
       "ordered": true,
       "positive": [
        {
         "why": "IN вместо OR (в этом задании IN разрешён)",
-        "sql": "SELECT menu.pizza_name, pizzeria.name AS pizzeria_name FROM person_order JOIN person ON person_order.person_id = person.id JOIN menu ON person_order.menu_id = menu.id JOIN pizzeria ON menu.pizzeria_id = pizzeria.id WHERE person.name IN ('Denis', 'Anna') ORDER BY 1, 2;"
+        "sql": "SELECT DISTINCT menu.pizza_name, pizzeria.name AS pizzeria_name FROM person_order JOIN person ON person_order.person_id = person.id JOIN menu ON person_order.menu_id = menu.id JOIN pizzeria ON menu.pizzeria_id = pizzeria.id WHERE person.name IN ('Denis', 'Anna') ORDER BY 1, 2;"
        }
       ],
       "negative": [
@@ -2257,15 +2244,15 @@
       },
       {
        "title": "Каркас",
-       "body": "```sql\nSELECT pizzeria.name AS ______\nFROM person_visits\nJOIN person ON person_visits.person_id = ______\nJOIN pizzeria ON person_visits.pizzeria_id = ______\nJOIN menu ON menu.pizzeria_id = ______\nWHERE person.name = '______' AND person_visits.visit_date = '______' AND menu.price ____ 800;\n```"
+       "body": "```sql\nSELECT DISTINCT pizzeria.name AS ______\nFROM person_visits\nJOIN person ON person_visits.person_id = ______\nJOIN pizzeria ON person_visits.pizzeria_id = ______\nJOIN menu ON menu.pizzeria_id = ______\nWHERE person.name = '______' AND person_visits.visit_date = '______' AND menu.price ____ 800;\n```"
       },
       {
        "title": "Почти ответ",
-       "body": "```sql\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person_visits.person_id = person.id\nJOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND ______;\n```\n\nОсталось условие на цену."
+       "body": "```sql\nSELECT DISTINCT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person_visits.person_id = person.id\nJOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND ______;\n```\n\nОсталось условие на цену."
       }
      ],
-     "solution": "SELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person_visits.person_id = person.id\nJOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800;",
-     "solutionCommented": "-- Идея: посещение Дмитрия 8 января + меню этой же пиццерии с ценой ниже 800.\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person_visits.person_id = person.id          -- кто был\nJOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id    -- где был\nJOIN menu ON menu.pizzeria_id = pizzeria.id                 -- что там продаётся\nWHERE person.name = 'Dmitriy'\n  AND person_visits.visit_date = '2022-01-08'\n  AND menu.price < 800;                                     -- строго дешевле 800",
+     "solution": "SELECT DISTINCT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person_visits.person_id = person.id\nJOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800;",
+     "solutionCommented": "-- Идея: посещение Дмитрия 8 января + меню этой же пиццерии с ценой ниже 800.\n-- DISTINCT убирает повторы, если подходящих пицц в меню несколько.\nSELECT DISTINCT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person_visits.person_id = person.id          -- кто был\nJOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id    -- где был\nJOIN menu ON menu.pizzeria_id = pizzeria.id                 -- что там продаётся\nWHERE person.name = 'Dmitriy'\n  AND person_visits.visit_date = '2022-01-08'\n  AND menu.price < 800;                                     -- строго дешевле 800",
      "meta": {
       "title": "Самая дешёвая пиццерия для Дмитрия",
       "ordered": false,
@@ -2945,6 +2932,15 @@
       ],
       "dataset": "pizza",
       "forbidden": [],
+      "forbidDirectIds": [
+       {
+        "table": "menu",
+        "columns": [
+         "id",
+         "pizzeria_id"
+        ]
+       }
+      ],
       "required": []
      }
     },
@@ -2997,6 +2993,16 @@
       ],
       "dataset": "pizza",
       "forbidden": [],
+      "forbidDirectIds": [
+       {
+        "table": "person_visits",
+        "columns": [
+         "id",
+         "person_id",
+         "pizzeria_id"
+        ]
+       }
+      ],
       "required": []
      }
     },
@@ -3043,6 +3049,16 @@
       ],
       "dataset": "pizza",
       "forbidden": [],
+      "forbidDirectIds": [
+       {
+        "table": "person_order",
+        "columns": [
+         "id",
+         "person_id",
+         "menu_id"
+        ]
+       }
+      ],
       "required": []
      }
     },
@@ -3555,15 +3571,15 @@
       },
       {
        "title": "Каркас",
-       "body": "```sql\nCREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = '______' AND person_visits.visit_date = '______' AND menu.price < ______\nWITH ______;\n```"
+       "body": "```sql\nCREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT DISTINCT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = '______' AND person_visits.visit_date = '______' AND menu.price < ______\nWITH ______;\n```"
       },
       {
        "title": "Почти ответ",
        "body": "```sql\nCREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT ... WHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800\nWITH ______;\n```\n\nОсталось, что сохранить: данные сразу."
       }
      ],
-     "solution": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800\nWITH DATA;",
-     "solutionCommented": "-- Идея: сохраняем результат запроса Дмитрия как снимок (материализованное представление).\nCREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800\nWITH DATA;   -- сразу заполнить данными",
+     "solution": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT DISTINCT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800\nWITH DATA;",
+     "solutionCommented": "-- Идея: сохраняем результат запроса Дмитрия как снимок (материализованное представление).\n-- DISTINCT гарантирует одну строку на пиццерию, даже если подходящих пицц несколько.\nCREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT DISTINCT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800\nWITH DATA;   -- сразу заполнить данными",
      "meta": {
       "title": "Материализация",
       "ordered": false,
@@ -3574,7 +3590,7 @@
       "positive": [
        {
         "why": "WITH DATA не указан: по умолчанию данные включены",
-        "sql": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800;"
+        "sql": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT DISTINCT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800;"
        }
       ],
       "negative": [
@@ -3623,7 +3639,7 @@
      "solutionCommented": "-- Идея: сначала меняем исходные данные, потом обновляем снимок.\nINSERT INTO person_visits (id, person_id, pizzeria_id, visit_date)\nVALUES ((SELECT MAX(id) FROM person_visits) + 1,                -- новый id без числа\n        (SELECT id FROM person WHERE name = 'Dmitriy'),         -- человек по имени\n        (SELECT id FROM pizzeria WHERE name = 'DoDo Pizza'),    -- другая пиццерия, где есть пицца дешевле 800\n        '2022-01-08');\n\nREFRESH MATERIALIZED VIEW mv_dmitriy_visits_and_eats;           -- пересчитать снимок",
      "meta": {
       "title": "Обновим снимок",
-      "setup": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800\nWITH DATA;",
+      "setup": "CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS\nSELECT DISTINCT pizzeria.name AS pizzeria_name\nFROM person_visits\nJOIN person ON person.id = person_visits.person_id\nJOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id\nJOIN menu ON menu.pizzeria_id = pizzeria.id\nWHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800\nWITH DATA;",
       "verify": "SELECT (SELECT COUNT(*) FROM mv_dmitriy_visits_and_eats) AS mv_rows, (SELECT COUNT(*) FROM (SELECT * FROM mv_dmitriy_visits_and_eats EXCEPT SELECT pizzeria.name AS pizzeria_name FROM person_visits JOIN person ON person.id = person_visits.person_id JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id JOIN menu ON menu.pizzeria_id = pizzeria.id WHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08' AND menu.price < 800) AS x) AS stale_rows, (SELECT COUNT(*) FROM person_visits JOIN person ON person.id = person_visits.person_id WHERE person.name = 'Dmitriy' AND person_visits.visit_date = '2022-01-08') AS dmitriy_visits",
       "ordered": false,
       "required": [
@@ -3648,7 +3664,17 @@
        }
       ],
       "dataset": "pizza",
-      "forbidden": []
+      "forbidden": [],
+      "forbidDirectIds": [
+       {
+        "table": "person_visits",
+        "columns": [
+         "id",
+         "person_id",
+         "pizzeria_id"
+        ]
+       }
+      ]
      }
     },
     {
@@ -3789,9 +3815,11 @@
       "ordered": false,
       "required": [
        "EXPLAIN ANALYZE",
-       "enable_seqscan"
+       "enable_seqscan",
+       "pizza_name",
+       "pizzeria"
       ],
-      "verify": "ANALYZE menu, pizzeria, person, person_order, person_visits;\nCREATE FUNCTION pg_temp.plan_of(q text) RETURNS text AS $$ DECLARE r text; t text := ''; BEGIN FOR r IN EXECUTE 'EXPLAIN ' || q LOOP t := t || r || E'\\n'; END LOOP; RETURN t; END $$ LANGUAGE plpgsql;\nSELECT current_setting('enable_seqscan') AS seqscan, pg_temp.plan_of('SELECT menu.pizza_name, pizzeria.name AS pizzeria_name FROM menu JOIN pizzeria ON pizzeria.id = menu.pizzeria_id') LIKE '%idx_menu_pizzeria_id%' AS index_in_plan",
+      "planContains": "Index Scan using idx_menu_pizzeria_id on menu",
       "positive": [
        {
         "why": "то же через SET ... TO",
@@ -4504,7 +4532,8 @@
        }
       ],
       "dataset": "pizza",
-      "forbidden": []
+      "forbidden": [],
+      "forbidSetvalLiteral": true
      }
     }
    ]

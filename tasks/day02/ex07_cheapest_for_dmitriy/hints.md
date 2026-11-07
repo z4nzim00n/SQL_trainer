@@ -5,7 +5,7 @@
 ## Каркас
 
 ```sql
-SELECT pizzeria.name AS ______
+SELECT DISTINCT pizzeria.name AS ______
 FROM person_visits
 JOIN person ON person_visits.person_id = ______
 JOIN pizzeria ON person_visits.pizzeria_id = ______
@@ -16,7 +16,7 @@ WHERE person.name = '______' AND person_visits.visit_date = '______' AND menu.pr
 ## Почти ответ
 
 ```sql
-SELECT pizzeria.name AS pizzeria_name
+SELECT DISTINCT pizzeria.name AS pizzeria_name
 FROM person_visits
 JOIN person ON person_visits.person_id = person.id
 JOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id

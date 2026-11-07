@@ -1,6 +1,6 @@
 {
   "name": "sql-trainer",
-  "version": "0.0.1",
+  "version": "0.010.3",
   "private": true,
   "type": "module",
   "description": "Тренажёр по SQL: настоящий PostgreSQL в браузере (PGlite)",

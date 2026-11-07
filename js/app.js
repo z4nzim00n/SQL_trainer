@@ -222,7 +222,8 @@ function exampleBlock(sql, dataset, withTables, autoRun) {
                 for (const name of names) {
                     const cell = el('div', 'example-table');
                     cell.appendChild(el('div', 'example-table-name', name));
-                    const res = await engine.run(dataset, 'main', `SELECT * FROM ${name} ORDER BY 1, 2`);
+                    const quoted = '"' + name.replace(/"/g, '""') + '"';
+                    const res = await engine.run(dataset, 'main', `SELECT * FROM ${quoted} ORDER BY 1`);
                     if (res.error) cell.appendChild(el('div', 'output-hint', res.error));
                     else cell.appendChild(resultTable(res, true));
                     row.appendChild(cell);

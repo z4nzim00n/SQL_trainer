@@ -1,6 +1,7 @@
 -- Идея: сохраняем результат запроса Дмитрия как снимок (материализованное представление).
+-- DISTINCT гарантирует одну строку на пиццерию, даже если подходящих пицц несколько.
 CREATE MATERIALIZED VIEW mv_dmitriy_visits_and_eats AS
-SELECT pizzeria.name AS pizzeria_name
+SELECT DISTINCT pizzeria.name AS pizzeria_name
 FROM person_visits
 JOIN person ON person.id = person_visits.person_id
 JOIN pizzeria ON pizzeria.id = person_visits.pizzeria_id

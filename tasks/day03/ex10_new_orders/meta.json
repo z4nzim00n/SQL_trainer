@@ -19,5 +19,8 @@
   ],
   "dataset": "pizza",
   "forbidden": [],
+  "forbidDirectIds": [
+    { "table": "person_order", "columns": ["id", "person_id", "menu_id"] }
+  ],
   "required": []
 }
