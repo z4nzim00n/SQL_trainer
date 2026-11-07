@@ -1,0 +1,30 @@
+{
+  "title": "Старт из любого города",
+  "setup": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);",
+  "verify": "CREATE TEMP TABLE r4 AS SELECT 'a' AS s, total_cost, tour::text AS tour FROM fnc_tours() UNION ALL SELECT 'c', total_cost, tour::text FROM fnc_tours('c') UNION ALL SELECT 'b', total_cost, tour::text FROM fnc_tours(pstart := 'b');\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'e', 12), ('e', 'a', 12),\n    ('b', 'e', 14), ('e', 'b', 14),\n    ('c', 'e', 16), ('e', 'c', 16),\n    ('d', 'e', 18), ('e', 'd', 18);\nSELECT 'cities4' AS kind, s, total_cost, tour FROM r4 UNION ALL SELECT 'cities5', 'd', total_cost, tour::text FROM fnc_tours('d') ORDER BY 1, 2, 3, 4",
+  "ordered": true,
+  "required": [
+    "RECURSIVE",
+    "CREATE FUNCTION"
+  ],
+  "negative": [
+    {
+      "why": "параметр игнорируется: старт всегда из a",
+      "sql": "CREATE FUNCTION fnc_tours(pstart varchar DEFAULT 'a') RETURNS TABLE (total_cost integer, tour varchar[]) AS $$\n    WITH RECURSIVE tours AS (\n        SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n        FROM nodes\n        WHERE point1 = 'a'\n        UNION ALL\n        SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n        FROM tours\n        JOIN nodes ON nodes.point1 = tours.last_point\n        WHERE NOT nodes.point2 = ANY (tours.path)\n    )\n    SELECT (tours.total_cost + nodes.cost)::integer, tours.path || nodes.point2\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\n    WHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n$$ LANGUAGE sql;"
+    },
+    {
+      "why": "значение по умолчанию b",
+      "sql": "CREATE FUNCTION fnc_tours(pstart varchar DEFAULT 'b') RETURNS TABLE (total_cost integer, tour varchar[]) AS $$\n    WITH RECURSIVE tours AS (\n        SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n        FROM nodes\n        WHERE point1 = pstart\n        UNION ALL\n        SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n        FROM tours\n        JOIN nodes ON nodes.point1 = tours.last_point\n        WHERE NOT nodes.point2 = ANY (tours.path)\n    )\n    SELECT (tours.total_cost + nodes.cost)::integer, tours.path || nodes.point2\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = pstart\n    WHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n$$ LANGUAGE sql;"
+    },
+    {
+      "why": "нет возврата в стартовый город",
+      "sql": "CREATE FUNCTION fnc_tours(pstart varchar DEFAULT 'a') RETURNS TABLE (total_cost integer, tour varchar[]) AS $$\n    WITH RECURSIVE tours AS (\n        SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n        FROM nodes\n        WHERE point1 = pstart\n        UNION ALL\n        SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n        FROM tours\n        JOIN nodes ON nodes.point1 = tours.last_point\n        WHERE NOT nodes.point2 = ANY (tours.path)\n    )\n    SELECT (tours.total_cost + nodes.cost)::integer, tours.path || nodes.point2\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 <> pstart\n    WHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n$$ LANGUAGE sql;"
+    },
+    {
+      "why": "число городов вписано числом 4",
+      "sql": "CREATE FUNCTION fnc_tours(pstart varchar DEFAULT 'a') RETURNS TABLE (total_cost integer, tour varchar[]) AS $$\n    WITH RECURSIVE tours AS (\n        SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n        FROM nodes\n        WHERE point1 = pstart\n        UNION ALL\n        SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n        FROM tours\n        JOIN nodes ON nodes.point1 = tours.last_point\n        WHERE NOT nodes.point2 = ANY (tours.path)\n    )\n    SELECT (tours.total_cost + nodes.cost)::integer, tours.path || nodes.point2\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = pstart\n    WHERE CARDINALITY(tours.path) = 4;\n$$ LANGUAGE sql;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

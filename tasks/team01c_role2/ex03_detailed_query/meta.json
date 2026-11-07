@@ -1,0 +1,42 @@
+{
+  "title": "Detailed Query",
+  "dataset": "dwh",
+  "ordered": true,
+  "setup": "insert into currency values (100, 'EUR', 0.85, '2022-01-01 13:29');\ninsert into currency values (100, 'EUR', 0.79, '2022-01-08 13:29');",
+  "required": [
+    "JOIN"
+  ],
+  "positive": [
+    {
+      "why": "через LATERAL",
+      "sql": "SELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       r.name AS currency_name,\n       b.money * r.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN LATERAL (\n    SELECT c.name, c.rate_to_usd\n    FROM currency c\n    WHERE c.id = b.currency_id\n    ORDER BY (c.updated > b.updated), ABS(EXTRACT(EPOCH FROM (c.updated - b.updated)))\n    LIMIT 1\n) r ON true\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "выбран ближайший курс в любую сторону",
+      "sql": "SELECT COALESCE(u.name, 'not defined') AS name, COALESCE(u.lastname, 'not defined') AS lastname,\n       r.name AS currency_name, b.money * r.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN LATERAL (SELECT c.name, c.rate_to_usd FROM currency c WHERE c.id = b.currency_id\n              ORDER BY ABS(EXTRACT(EPOCH FROM (c.updated - b.updated))) LIMIT 1) r ON true\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+    },
+    {
+      "why": "учтено только прошлое: операции без курса в прошлом потеряны",
+      "sql": "SELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       NULL)\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+    },
+    {
+      "why": "граница строгая (<) для прошлого",
+      "sql": "SELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated < b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated))\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+    },
+    {
+      "why": "взят последний курс вообще",
+      "sql": "SELECT COALESCE(u.name, 'not defined') AS name, COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name, b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n AND c.updated = (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id)\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+    },
+    {
+      "why": "операции без пользователя потеряны (INNER JOIN)",
+      "sql": "SELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nJOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated))\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+    },
+    {
+      "why": "операции с неизвестной валютой остались (LEFT JOIN)",
+      "sql": "SELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated))\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+    }
+  ],
+  "forbidden": []
+}

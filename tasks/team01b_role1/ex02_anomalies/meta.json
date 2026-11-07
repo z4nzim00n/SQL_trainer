@@ -1,0 +1,27 @@
+{
+  "title": "Аномалии",
+  "dataset": "dwh",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "через NOT EXISTS",
+      "sql": "SELECT DISTINCT b.user_id, b.currency_id,\n       CASE\n           WHEN NOT EXISTS (SELECT 1 FROM \"user\" u WHERE u.id = b.user_id)\n            AND NOT EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id) THEN 'no user, no currency'\n           WHEN NOT EXISTS (SELECT 1 FROM \"user\" u WHERE u.id = b.user_id) THEN 'no user'\n           ELSE 'no currency'\n       END AS problem\nFROM balance b\nWHERE NOT EXISTS (SELECT 1 FROM \"user\" u WHERE u.id = b.user_id)\n   OR NOT EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\nORDER BY b.user_id, b.currency_id;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "найдены только операции без пользователя",
+      "sql": "SELECT DISTINCT b.user_id, b.currency_id, 'no user' AS problem\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nWHERE u.id IS NULL\nORDER BY b.user_id, b.currency_id;"
+    },
+    {
+      "why": "без DISTINCT строки повторяются",
+      "sql": "SELECT b.user_id, b.currency_id,\n       CASE\n           WHEN u.id IS NULL AND c.id IS NULL THEN 'no user, no currency'\n           WHEN u.id IS NULL THEN 'no user'\n           ELSE 'no currency'\n       END AS problem\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN (SELECT DISTINCT id FROM currency) c ON c.id = b.currency_id\nWHERE u.id IS NULL OR c.id IS NULL\nORDER BY b.user_id, b.currency_id;"
+    },
+    {
+      "why": "не различены случаи: везде написано «no user»",
+      "sql": "SELECT DISTINCT b.user_id, b.currency_id,\n       CASE\n           WHEN u.id IS NULL AND c.id IS NULL THEN 'no user, no currency'\n           ELSE 'no user'\n       END AS problem\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN (SELECT DISTINCT id FROM currency) c ON c.id = b.currency_id\nWHERE u.id IS NULL OR c.id IS NULL\nORDER BY b.user_id, b.currency_id;"
+    }
+  ],
+  "forbidden": [],
+  "required": []
+}

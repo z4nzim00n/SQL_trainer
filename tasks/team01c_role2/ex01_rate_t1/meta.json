@@ -1,0 +1,32 @@
+{
+  "title": "Курс из прошлого",
+  "dataset": "dwh",
+  "ordered": true,
+  "setup": "insert into currency values (100, 'EUR', 0.85, '2022-01-01 13:29');\ninsert into currency values (100, 'EUR', 0.79, '2022-01-08 13:29');",
+  "positive": [
+    {
+      "why": "через LATERAL",
+      "sql": "SELECT b.user_id, b.currency_id, b.money, b.updated, t.rate_to_usd AS rate_t1\nFROM balance b\nLEFT JOIN LATERAL (SELECT c.rate_to_usd FROM currency c\n                   WHERE c.id = b.currency_id AND c.updated <= b.updated\n                   ORDER BY c.updated DESC LIMIT 1) t ON true\nWHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\nORDER BY b.user_id, b.updated, b.currency_id, b.money;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "граница строгая (<): курс в тот же момент не учтён",
+      "sql": "SELECT b.user_id, b.currency_id, b.money, b.updated,\n       (SELECT c.rate_to_usd\n        FROM currency c\n        WHERE c.id = b.currency_id AND c.updated < b.updated\n        ORDER BY c.updated DESC\n        LIMIT 1) AS rate_t1\nFROM balance b\nWHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\nORDER BY b.user_id, b.updated, b.currency_id, b.money;"
+    },
+    {
+      "why": "взят самый старый курс вместо ближайшего",
+      "sql": "SELECT b.user_id, b.currency_id, b.money, b.updated,\n       (SELECT c.rate_to_usd\n        FROM currency c\n        WHERE c.id = b.currency_id AND c.updated <= b.updated\n        ORDER BY c.updated ASC\n        LIMIT 1) AS rate_t1\nFROM balance b\nWHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\nORDER BY b.user_id, b.updated, b.currency_id, b.money;"
+    },
+    {
+      "why": "остались операции с неизвестной валютой",
+      "sql": "SELECT b.user_id, b.currency_id, b.money, b.updated,\n       (SELECT c.rate_to_usd\n        FROM currency c\n        WHERE c.id = b.currency_id AND c.updated <= b.updated\n        ORDER BY c.updated DESC\n        LIMIT 1) AS rate_t1\nFROM balance b\nORDER BY b.user_id, b.updated, b.currency_id, b.money;"
+    },
+    {
+      "why": "курс ищется без привязки к валюте",
+      "sql": "SELECT b.user_id, b.currency_id, b.money, b.updated,\n       (SELECT c.rate_to_usd\n        FROM currency c\n        WHERE c.updated <= b.updated\n        ORDER BY c.updated DESC\n        LIMIT 1) AS rate_t1\nFROM balance b\nWHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\nORDER BY b.user_id, b.updated, b.currency_id, b.money;"
+    }
+  ],
+  "forbidden": [],
+  "required": []
+}

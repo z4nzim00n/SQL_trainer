@@ -1,0 +1,35 @@
+{
+  "title": "Построй граф",
+  "ordered": true,
+  "required": [
+    "CREATE TABLE",
+    "INSERT"
+  ],
+  "verify": "SELECT 'col' AS kind, column_name::text AS v FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'nodes' UNION ALL SELECT 'row', point1::text || '>' || point2::text || ':' || cost::float8::text FROM nodes ORDER BY 1, 2",
+  "positive": [
+    {
+      "why": "другие типы столбцов",
+      "sql": "CREATE TABLE nodes (\n    point1 text NOT NULL,\n    point2 char(1) NOT NULL,\n    cost numeric NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);"
+    }
+  ],
+  "negative": [
+    {
+      "why": "нет обратных направлений (только 6 строк)",
+      "sql": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('a', 'c', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);"
+    },
+    {
+      "why": "неверная стоимость ребра",
+      "sql": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 36),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);"
+    },
+    {
+      "why": "столбцы названы по-другому",
+      "sql": "CREATE TABLE nodes (\n    from_point varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (from_point, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);"
+    },
+    {
+      "why": "таблица названа не nodes",
+      "sql": "CREATE TABLE graph (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO graph (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

@@ -1,0 +1,26 @@
+{
+  "title": "Курс из будущего",
+  "dataset": "dwh",
+  "ordered": true,
+  "setup": "insert into currency values (100, 'EUR', 0.85, '2022-01-01 13:29');\ninsert into currency values (100, 'EUR', 0.79, '2022-01-08 13:29');",
+  "negative": [
+    {
+      "why": "граница t2 нестрогая (>=)",
+      "sql": "WITH r AS (\n    SELECT b.user_id, b.currency_id, b.updated,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated <= b.updated\n            ORDER BY c.updated DESC LIMIT 1) AS rate_t1,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated >= b.updated\n            ORDER BY c.updated ASC LIMIT 1) AS rate_t2\n    FROM balance b\n    WHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\n)\nSELECT user_id, currency_id, updated, rate_t1, rate_t2, COALESCE(rate_t1, rate_t2) AS rate_used\nFROM r\nORDER BY user_id, updated, currency_id;"
+    },
+    {
+      "why": "t2 — самый дальний будущий курс",
+      "sql": "WITH r AS (\n    SELECT b.user_id, b.currency_id, b.updated,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated <= b.updated\n            ORDER BY c.updated DESC LIMIT 1) AS rate_t1,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated > b.updated\n            ORDER BY c.updated DESC LIMIT 1) AS rate_t2\n    FROM balance b\n    WHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\n)\nSELECT user_id, currency_id, updated, rate_t1, rate_t2, COALESCE(rate_t1, rate_t2) AS rate_used\nFROM r\nORDER BY user_id, updated, currency_id;"
+    },
+    {
+      "why": "приоритет перепутан: сначала t2",
+      "sql": "WITH r AS (\n    SELECT b.user_id, b.currency_id, b.updated,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated <= b.updated\n            ORDER BY c.updated DESC LIMIT 1) AS rate_t1,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated > b.updated\n            ORDER BY c.updated ASC LIMIT 1) AS rate_t2\n    FROM balance b\n    WHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\n)\nSELECT user_id, currency_id, updated, rate_t1, rate_t2, COALESCE(rate_t2, rate_t1) AS rate_used\nFROM r\nORDER BY user_id, updated, currency_id;"
+    },
+    {
+      "why": "граница t1 строгая (<)",
+      "sql": "WITH r AS (\n    SELECT b.user_id, b.currency_id, b.updated,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated < b.updated\n            ORDER BY c.updated DESC LIMIT 1) AS rate_t1,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated > b.updated\n            ORDER BY c.updated ASC LIMIT 1) AS rate_t2\n    FROM balance b\n    WHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\n)\nSELECT user_id, currency_id, updated, rate_t1, rate_t2, COALESCE(rate_t1, rate_t2) AS rate_used\nFROM r\nORDER BY user_id, updated, currency_id;"
+    }
+  ],
+  "forbidden": [],
+  "required": []
+}

@@ -1,0 +1,25 @@
+{
+  "title": "Общая сборка",
+  "ordered": true,
+  "required": [
+    "CREATE TABLE",
+    "RECURSIVE",
+    "CREATE VIEW"
+  ],
+  "negative": [
+    {
+      "why": "в таблице нет обратных направлений",
+      "sql": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('a', 'c', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);\n\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\n   OR total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+    },
+    {
+      "why": "выбраны только самые дешёвые маршруты",
+      "sql": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);\n\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+    },
+    {
+      "why": "неверная стоимость ребра в данных",
+      "sql": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 26),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);\n\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\n   OR total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

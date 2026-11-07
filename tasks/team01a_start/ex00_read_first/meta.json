@@ -1,0 +1,7 @@
+{
+  "title": "Читать первым",
+  "manual": true,
+  "dataset": "dwh",
+  "forbidden": [],
+  "required": []
+}

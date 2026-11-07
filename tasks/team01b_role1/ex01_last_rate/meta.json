@@ -1,0 +1,31 @@
+{
+  "title": "Последний курс",
+  "dataset": "dwh",
+  "ordered": true,
+  "positive": [
+    {
+      "why": "через оконную функцию",
+      "sql": "SELECT id, name, rate_to_usd AS last_rate_to_usd\nFROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY id ORDER BY updated DESC) AS rn FROM currency) t\nWHERE rn = 1\nORDER BY id;"
+    },
+    {
+      "why": "через MAX по updated",
+      "sql": "SELECT c.id, c.name, c.rate_to_usd AS last_rate_to_usd\nFROM currency c\nWHERE c.updated = (SELECT MAX(updated) FROM currency WHERE id = c.id)\nORDER BY c.id;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "самый большой курс вместо самого свежего",
+      "sql": "SELECT id, name, MAX(rate_to_usd) AS last_rate_to_usd\nFROM currency\nGROUP BY id, name\nORDER BY id;"
+    },
+    {
+      "why": "самый старый курс",
+      "sql": "SELECT DISTINCT ON (id) id, name, rate_to_usd AS last_rate_to_usd\nFROM currency\nORDER BY id, updated ASC;"
+    },
+    {
+      "why": "не убраны старые строки",
+      "sql": "SELECT id, name, rate_to_usd AS last_rate_to_usd\nFROM currency\nORDER BY id;"
+    }
+  ],
+  "forbidden": [],
+  "required": []
+}

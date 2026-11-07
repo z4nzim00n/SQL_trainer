@@ -1,7 +1,13 @@
 {
  "version": "0.004",
- "builtAt": "2026-11-06T21:03:58.526Z",
+ "builtAt": "2026-11-07T10:31:31.815Z",
  "datasets": {
+  "blank": {
+   "main": "-- Пустая база: таблиц нет, все создаёшь сам.\n",
+   "alt": "-- Пустая база: таблиц нет, все создаёшь сам.\n",
+   "schema": "# Пустая база\n\nВ этой базе пока нет таблиц: их нужно создать самому.\n",
+   "tables": []
+  },
   "demo": {
    "main": "-- Учебные мини-таблицы для примеров в теории и энциклопедии.\n-- Никак не связаны с пиццериями: маленькие таблицы, чтобы результат примера было видно целиком.\n\n-- Для операторов множеств (UNION, INTERSECT, EXCEPT): есть повторы и пересечение\ncreate table a (id integer, val varchar);\ninsert into a values (1, 'red');\ninsert into a values (2, 'green');\ninsert into a values (3, 'blue');\ninsert into a values (3, 'blue');\n\ncreate table b (id integer, val varchar);\ninsert into b values (2, 'green');\ninsert into b values (3, 'blue');\ninsert into b values (4, 'yellow');\n\n-- Для JOIN: у Eve нет курса (NULL), у курса Art нет студентов\ncreate table courses (id integer primary key, title varchar not null);\ninsert into courses values (1, 'Math');\ninsert into courses values (2, 'Music');\ninsert into courses values (3, 'Art');\n\ncreate table students (\n    id integer primary key,\n    name varchar not null,\n    age integer not null,\n    city varchar,\n    course_id integer references courses (id)\n);\ninsert into students values (1, 'Ann', 20, 'Berlin', 1);\ninsert into students values (2, 'Bob', 22, 'Paris', 1);\ninsert into students values (3, 'Cleo', 19, 'Berlin', 2);\ninsert into students values (4, 'Dan', 25, null, 2);\ninsert into students values (5, 'Eve', 21, 'Rome', null);\n\n-- Для WHERE, типов, CASE, DML: есть NULL в note\ncreate table products (\n    id integer primary key,\n    title varchar not null,\n    category varchar not null,\n    price numeric(8, 2) not null,\n    added date not null,\n    note varchar\n);\ninsert into products values (1, 'Pen', 'office', 1.50, '2024-01-10', 'blue ink');\ninsert into products values (2, 'Notebook', 'office', 4.00, '2024-01-15', null);\ninsert into products values (3, 'Mug', 'home', 7.25, '2024-02-01', 'ceramic');\ninsert into products values (4, 'Lamp', 'home', 19.90, '2024-02-20', null);\ninsert into products values (5, 'Backpack', 'travel', 35.00, '2024-03-05', 'waterproof');\n\n-- Для агрегатов и оконных функций\ncreate table sales (\n    id integer primary key,\n    shop varchar not null,\n    item varchar not null,\n    qty integer not null,\n    price numeric(8, 2) not null,\n    sale_date date not null\n);\ninsert into sales values (1, 'North', 'Pen', 10, 1.50, '2024-05-01');\ninsert into sales values (2, 'North', 'Mug', 2, 7.25, '2024-05-01');\ninsert into sales values (3, 'North', 'Pen', 5, 1.50, '2024-05-02');\ninsert into sales values (4, 'South', 'Lamp', 1, 19.90, '2024-05-01');\ninsert into sales values (5, 'South', 'Pen', 8, 1.50, '2024-05-02');\ninsert into sales values (6, 'South', 'Mug', 3, 7.25, '2024-05-03');\ninsert into sales values (7, 'East', 'Lamp', 2, 19.90, '2024-05-03');\n",
    "alt": "-- Учебные мини-таблицы для примеров в теории и энциклопедии.\n-- Никак не связаны с пиццериями: маленькие таблицы, чтобы результат примера было видно целиком.\n\n-- Для операторов множеств (UNION, INTERSECT, EXCEPT): есть повторы и пересечение\ncreate table a (id integer, val varchar);\ninsert into a values (1, 'red');\ninsert into a values (2, 'green');\ninsert into a values (3, 'blue');\ninsert into a values (3, 'blue');\n\ncreate table b (id integer, val varchar);\ninsert into b values (2, 'green');\ninsert into b values (3, 'blue');\ninsert into b values (4, 'yellow');\n\n-- Для JOIN: у Eve нет курса (NULL), у курса Art нет студентов\ncreate table courses (id integer primary key, title varchar not null);\ninsert into courses values (1, 'Math');\ninsert into courses values (2, 'Music');\ninsert into courses values (3, 'Art');\n\ncreate table students (\n    id integer primary key,\n    name varchar not null,\n    age integer not null,\n    city varchar,\n    course_id integer references courses (id)\n);\ninsert into students values (1, 'Ann', 20, 'Berlin', 1);\ninsert into students values (2, 'Bob', 22, 'Paris', 1);\ninsert into students values (3, 'Cleo', 19, 'Berlin', 2);\ninsert into students values (4, 'Dan', 25, null, 2);\ninsert into students values (5, 'Eve', 21, 'Rome', null);\n\n-- Для WHERE, типов, CASE, DML: есть NULL в note\ncreate table products (\n    id integer primary key,\n    title varchar not null,\n    category varchar not null,\n    price numeric(8, 2) not null,\n    added date not null,\n    note varchar\n);\ninsert into products values (1, 'Pen', 'office', 1.50, '2024-01-10', 'blue ink');\ninsert into products values (2, 'Notebook', 'office', 4.00, '2024-01-15', null);\ninsert into products values (3, 'Mug', 'home', 7.25, '2024-02-01', 'ceramic');\ninsert into products values (4, 'Lamp', 'home', 19.90, '2024-02-20', null);\ninsert into products values (5, 'Backpack', 'travel', 35.00, '2024-03-05', 'waterproof');\n\n-- Для агрегатов и оконных функций\ncreate table sales (\n    id integer primary key,\n    shop varchar not null,\n    item varchar not null,\n    qty integer not null,\n    price numeric(8, 2) not null,\n    sale_date date not null\n);\ninsert into sales values (1, 'North', 'Pen', 10, 1.50, '2024-05-01');\ninsert into sales values (2, 'North', 'Mug', 2, 7.25, '2024-05-01');\ninsert into sales values (3, 'North', 'Pen', 5, 1.50, '2024-05-02');\ninsert into sales values (4, 'South', 'Lamp', 1, 19.90, '2024-05-01');\ninsert into sales values (5, 'South', 'Pen', 8, 1.50, '2024-05-02');\ninsert into sales values (6, 'South', 'Mug', 3, 7.25, '2024-05-03');\ninsert into sales values (7, 'East', 'Lamp', 2, 19.90, '2024-05-03');\n",
@@ -15,6 +21,15 @@
     "sales"
    ]
   },
+  "dwh": {
+   "main": "-- Мини-хранилище данных (DWH): пользователи, валюты с историей курсов и операции по балансу.\n-- Таблица \"user\" называется как зарезервированное слово, поэтому в запросах её пишут в двойных кавычках.\ncreate table \"user\" (id bigint primary key, name varchar, lastname varchar);\ncreate table currency (id bigint not null, name varchar not null, rate_to_usd numeric(10, 4) not null, updated timestamp not null);\ncreate table balance (user_id bigint not null, money numeric(12, 2) not null, type integer not null, currency_id bigint not null, updated timestamp not null);\n\ninsert into \"user\" values (101, 'Иван', 'Иванов');\ninsert into \"user\" values (102, 'Петр', null);\ninsert into \"user\" values (103, 'Сергей', 'Смирнов');\ninsert into \"user\" values (104, 'Мария', 'Сидорова');\ninsert into \"user\" values (105, 'Анна', 'Орлова');\ninsert into \"user\" values (106, null, 'Никитин');\n\ninsert into currency values (100, 'EUR', 0.9, '2022-03-03 13:31');\ninsert into currency values (100, 'EUR', 0.89, '2022-03-02 12:31');\ninsert into currency values (100, 'EUR', 0.87, '2022-03-02 08:00');\ninsert into currency values (100, 'EUR', 0.9, '2022-03-01 15:36');\ninsert into currency values (101, 'USD', 1, '2022-01-01 00:00');\ninsert into currency values (102, 'JPY', 0.0087, '2022-01-15 10:00');\ninsert into currency values (102, 'JPY', 0.0085, '2022-03-01 10:00');\ninsert into currency values (103, 'GBP', 1.31, '2022-03-10 12:00');\ninsert into currency values (103, 'GBP', 1.29, '2022-03-12 09:00');\n\n-- Иван: два перевода в евро и один в долларах\ninsert into balance values (101, 100, 1, 100, '2022-01-09 04:23');\ninsert into balance values (101, 310, 1, 100, '2022-03-02 12:00');\ninsert into balance values (101, 40, 0, 101, '2022-01-05 10:00');\n-- Петр: валюта 199 отсутствует в таблице currency\ninsert into balance values (102, 150, 2, 199, '2022-02-01 10:00');\ninsert into balance values (102, 53, 2, 199, '2022-02-15 11:00');\n-- Сергей\ninsert into balance values (103, 200, 0, 100, '2022-03-03 12:31');\ninsert into balance values (103, 150, 0, 100, '2022-03-02 11:29');\ninsert into balance values (103, 15, 0, 100, '2022-03-03 08:00');\ninsert into balance values (103, -100, 1, 102, '2022-03-01 15:36');\ninsert into balance values (103, 2000, 1, 102, '2021-12-12 15:36');\n-- Мария: курс фунта появился только после операции; одна операция точно в момент смены курса евро\ninsert into balance values (104, 80, 0, 103, '2022-03-01 09:00');\ninsert into balance values (104, 10, 1, 100, '2022-03-03 13:31');\n-- пользователь без имени\ninsert into balance values (106, 70, 0, 101, '2022-02-01 08:00');\n-- операции пользователя, которого нет в таблице user\ninsert into balance values (999, 500, 0, 100, '2022-03-05 09:00');\ninsert into balance values (999, 30, 1, 101, '2022-03-06 09:00');\n",
+   "alt": "-- Мини-хранилище данных (DWH): пользователи, валюты с историей курсов и операции по балансу.\n-- Таблица \"user\" называется как зарезервированное слово, поэтому в запросах её пишут в двойных кавычках.\ncreate table \"user\" (id bigint primary key, name varchar, lastname varchar);\ncreate table currency (id bigint not null, name varchar not null, rate_to_usd numeric(10, 4) not null, updated timestamp not null);\ncreate table balance (user_id bigint not null, money numeric(12, 2) not null, type integer not null, currency_id bigint not null, updated timestamp not null);\n\ninsert into \"user\" values (101, 'Иван', 'Иванов');\ninsert into \"user\" values (102, 'Петр', null);\ninsert into \"user\" values (103, 'Сергей', 'Смирнов');\ninsert into \"user\" values (104, 'Мария', 'Сидорова');\ninsert into \"user\" values (105, 'Анна', 'Орлова');\ninsert into \"user\" values (106, null, 'Никитин');\n\ninsert into currency values (100, 'EUR', 0.9, '2022-03-03 13:31');\ninsert into currency values (100, 'EUR', 0.89, '2022-03-02 12:31');\ninsert into currency values (100, 'EUR', 0.87, '2022-03-02 08:00');\ninsert into currency values (100, 'EUR', 0.9, '2022-03-01 15:36');\ninsert into currency values (101, 'USD', 1, '2022-01-01 00:00');\ninsert into currency values (102, 'JPY', 0.0087, '2022-01-15 10:00');\ninsert into currency values (102, 'JPY', 0.0085, '2022-03-01 10:00');\ninsert into currency values (103, 'GBP', 1.31, '2022-03-10 12:00');\ninsert into currency values (103, 'GBP', 1.29, '2022-03-12 09:00');\n\n-- Иван: два перевода в евро и один в долларах\ninsert into balance values (101, 100, 1, 100, '2022-01-09 04:23');\ninsert into balance values (101, 310, 1, 100, '2022-03-02 12:00');\ninsert into balance values (101, 40, 0, 101, '2022-01-05 10:00');\n-- Петр: валюта 199 отсутствует в таблице currency\ninsert into balance values (102, 150, 2, 199, '2022-02-01 10:00');\ninsert into balance values (102, 53, 2, 199, '2022-02-15 11:00');\n-- Сергей\ninsert into balance values (103, 200, 0, 100, '2022-03-03 12:31');\ninsert into balance values (103, 150, 0, 100, '2022-03-02 11:29');\ninsert into balance values (103, 15, 0, 100, '2022-03-03 08:00');\ninsert into balance values (103, -100, 1, 102, '2022-03-01 15:36');\ninsert into balance values (103, 2000, 1, 102, '2021-12-12 15:36');\n-- Мария: курс фунта появился только после операции; одна операция точно в момент смены курса евро\ninsert into balance values (104, 80, 0, 103, '2022-03-01 09:00');\ninsert into balance values (104, 10, 1, 100, '2022-03-03 13:31');\n-- пользователь без имени\ninsert into balance values (106, 70, 0, 101, '2022-02-01 08:00');\n-- операции пользователя, которого нет в таблице user\ninsert into balance values (999, 500, 0, 100, '2022-03-05 09:00');\ninsert into balance values (999, 30, 1, 101, '2022-03-06 09:00');\n\n-- Скрытый набор: новые курсы, новые пользователи и операции с теми же аномалиями.\ninsert into currency values (100, 'EUR', 0.95, '2022-03-04 10:00');\ninsert into currency values (102, 'JPY', 0.0079, '2022-03-20 10:00');\ninsert into currency values (104, 'CHF', 1.08, '2022-02-10 10:00');\ninsert into currency values (104, 'CHF', 1.11, '2022-03-08 10:00');\ninsert into \"user\" values (107, 'Олег', null);\ninsert into \"user\" values (108, null, null);\ninsert into balance values (105, 300, 0, 104, '2022-02-20 12:00');\ninsert into balance values (105, -50, 0, 104, '2022-03-08 10:00');\ninsert into balance values (105, 25, 3, 100, '2022-03-01 00:00');\ninsert into balance values (107, 60, 1, 103, '2022-03-11 10:00');\ninsert into balance values (107, 90, 1, 103, '2022-03-20 10:00');\ninsert into balance values (108, 12, 0, 104, '2022-02-01 10:00');\ninsert into balance values (108, 8, 0, 105, '2022-03-01 10:00');\ninsert into balance values (888, 44, 4, 104, '2022-03-09 10:00');\ninsert into balance values (101, 19, 1, 102, '2022-03-25 10:00');\n",
+   "schema": "# Хранилище данных (DWH)\n\nТаблица `\"user\"` (имя в двойных кавычках, потому что `user` зарезервировано): `id`, `name`, `lastname`. Имя и фамилия могут быть `NULL`.\n\nТаблица `currency`: `id` (повторяется!), `name`, `rate_to_usd`, `updated`. Одна валюта встречается несколько раз: по строке на каждое изменение курса, время изменения в `updated`.\n\nТаблица `balance`: `user_id`, `money`, `type`, `currency_id`, `updated`. Внешних ключей нет: в `balance` могут быть пользователи и валюты, которых нет в справочниках.\n",
+   "tables": [
+    "currency",
+    "balance"
+   ]
+  },
   "pizza": {
    "main": "create table person\n( id bigint primary key ,\n  name varchar not null,\n  age integer not null default 10,\n  gender varchar default 'female' not null ,\n  address varchar\n  );\n\nalter table person add constraint ch_gender check ( gender in ('female','male') );\n\ninsert into person values (1, 'Anna', 16, 'female', 'Moscow');\ninsert into person values (2, 'Andrey', 21, 'male', 'Moscow');\ninsert into person values (3, 'Kate', 33, 'female', 'Kazan');\ninsert into person values (4, 'Denis', 13, 'male', 'Kazan');\ninsert into person values (5, 'Elvira', 45, 'female', 'Kazan');\ninsert into person values (6, 'Irina', 21, 'female', 'Saint-Petersburg');\ninsert into person values (7, 'Peter', 24, 'male', 'Saint-Petersburg');\ninsert into person values (8, 'Nataly', 30, 'female', 'Novosibirsk');\ninsert into person values (9, 'Dmitriy', 18, 'male', 'Samara');\n\n\ncreate table pizzeria\n(id bigint primary key ,\n name varchar not null ,\n rating numeric not null default 0);\n\nalter table pizzeria add constraint ch_rating check ( rating between 0 and 5);\n\ninsert into pizzeria values (1,'Pizza Hut', 4.6);\ninsert into pizzeria values (2,'Dominos', 4.3);\ninsert into pizzeria values (3,'DoDo Pizza', 3.2);\ninsert into pizzeria values (4,'Papa Johns', 4.9);\ninsert into pizzeria values (5,'Best Pizza', 2.3);\ninsert into pizzeria values (6,'DinoPizza', 4.2);\n\n\ncreate table person_visits\n(id bigint primary key ,\n person_id bigint not null ,\n pizzeria_id bigint not null ,\n visit_date date not null default current_date,\n constraint uk_person_visits unique (person_id, pizzeria_id, visit_date),\n constraint fk_person_visits_person_id foreign key  (person_id) references person(id),\n constraint fk_person_visits_pizzeria_id foreign key  (pizzeria_id) references pizzeria(id)\n );\n\ninsert into person_visits values (1, 1, 1, '2022-01-01');\ninsert into person_visits values (2, 2, 2, '2022-01-01');\ninsert into person_visits values (3, 2, 1, '2022-01-02');\ninsert into person_visits values (4, 3, 5, '2022-01-03');\ninsert into person_visits values (5, 3, 6, '2022-01-04');\ninsert into person_visits values (6, 4, 5, '2022-01-07');\ninsert into person_visits values (7, 4, 6, '2022-01-08');\ninsert into person_visits values (8, 5, 2, '2022-01-08');\ninsert into person_visits values (9, 5, 6, '2022-01-09');\ninsert into person_visits values (10, 6, 2, '2022-01-09');\ninsert into person_visits values (11, 6, 4, '2022-01-01');\ninsert into person_visits values (12, 7, 1, '2022-01-03');\ninsert into person_visits values (13, 7, 2, '2022-01-05');\ninsert into person_visits values (14, 8, 1, '2022-01-05');\ninsert into person_visits values (15, 8, 2, '2022-01-06');\ninsert into person_visits values (16, 8, 4, '2022-01-07');\ninsert into person_visits values (17, 9, 4, '2022-01-08');\ninsert into person_visits values (18, 9, 5, '2022-01-09');\ninsert into person_visits values (19, 9, 6, '2022-01-10');\n\n\ncreate table menu\n(id bigint primary key ,\n pizzeria_id bigint not null ,\n pizza_name varchar not null ,\n price numeric not null default 1,\n constraint fk_menu_pizzeria_id foreign key (pizzeria_id) references pizzeria(id));\n\ninsert into menu values (1,1,'cheese pizza', 900);\ninsert into menu values (2,1,'pepperoni pizza', 1200);\ninsert into menu values (3,1,'sausage pizza', 1200);\ninsert into menu values (4,1,'supreme pizza', 1200);\n\ninsert into menu values (5,6,'cheese pizza', 950);\ninsert into menu values (6,6,'pepperoni pizza', 800);\ninsert into menu values (7,6,'sausage pizza', 1000);\n\ninsert into menu values (8,2,'cheese pizza', 800);\ninsert into menu values (9,2,'mushroom pizza', 1100);\n\ninsert into menu values (10,3,'cheese pizza', 780);\ninsert into menu values (11,3,'supreme pizza', 850);\n\ninsert into menu values (12,4,'cheese pizza', 700);\ninsert into menu values (13,4,'mushroom pizza', 950);\ninsert into menu values (14,4,'pepperoni pizza', 1000);\ninsert into menu values (15,4,'sausage pizza', 950);\n\ninsert into menu values (16,5,'cheese pizza', 700);\ninsert into menu values (17,5,'pepperoni pizza', 800);\ninsert into menu values (18,5,'supreme pizza', 850);\n\ncreate table person_order\n(\n    id bigint primary key ,\n    person_id  bigint not null ,\n    menu_id bigint not null ,\n    order_date date not null default current_date,\n    constraint fk_order_person_id foreign key (person_id) references person(id),\n    constraint fk_order_menu_id foreign key (menu_id) references menu(id)\n);\n\ninsert into person_order values (1,1, 1, '2022-01-01');\ninsert into person_order values (2,1, 2, '2022-01-01');\n\ninsert into person_order values (3,2, 8, '2022-01-01');\ninsert into person_order values (4,2, 9, '2022-01-01');\n\ninsert into person_order values (5,3, 16, '2022-01-04');\n\ninsert into person_order values (6,4, 16, '2022-01-07');\ninsert into person_order values (7,4, 17, '2022-01-07');\ninsert into person_order values (8,4, 18, '2022-01-07');\ninsert into person_order values (9,4, 6, '2022-01-08');\ninsert into person_order values (10,4, 7, '2022-01-08');\n\ninsert into person_order values (11,5, 6, '2022-01-09');\ninsert into person_order values (12,5, 7, '2022-01-09');\n\ninsert into person_order values (13,6, 13, '2022-01-01');\n\ninsert into person_order values (14,7, 3, '2022-01-03');\ninsert into person_order values (15,7, 9, '2022-01-05');\ninsert into person_order values (16,7, 4, '2022-01-05');\n\ninsert into person_order values (17,8, 8, '2022-01-06');\ninsert into person_order values (18,8, 14, '2022-01-07');\n\ninsert into person_order values (19,9, 18, '2022-01-09');\ninsert into person_order values (20,9, 6, '2022-01-10');\n\n",
    "alt": "create table person\n( id bigint primary key ,\n  name varchar not null,\n  age integer not null default 10,\n  gender varchar default 'female' not null ,\n  address varchar\n  );\n\nalter table person add constraint ch_gender check ( gender in ('female','male') );\n\ninsert into person values (1, 'Anna', 16, 'female', 'Moscow');\ninsert into person values (2, 'Andrey', 21, 'male', 'Moscow');\ninsert into person values (3, 'Kate', 33, 'female', 'Kazan');\ninsert into person values (4, 'Denis', 13, 'male', 'Kazan');\ninsert into person values (5, 'Elvira', 45, 'female', 'Kazan');\ninsert into person values (6, 'Irina', 21, 'female', 'Saint-Petersburg');\ninsert into person values (7, 'Peter', 24, 'male', 'Saint-Petersburg');\ninsert into person values (8, 'Nataly', 30, 'female', 'Novosibirsk');\ninsert into person values (9, 'Dmitriy', 18, 'male', 'Samara');\n\n\ncreate table pizzeria\n(id bigint primary key ,\n name varchar not null ,\n rating numeric not null default 0);\n\nalter table pizzeria add constraint ch_rating check ( rating between 0 and 5);\n\ninsert into pizzeria values (1,'Pizza Hut', 4.6);\ninsert into pizzeria values (2,'Dominos', 4.3);\ninsert into pizzeria values (3,'DoDo Pizza', 3.2);\ninsert into pizzeria values (4,'Papa Johns', 4.9);\ninsert into pizzeria values (5,'Best Pizza', 2.3);\ninsert into pizzeria values (6,'DinoPizza', 4.2);\n\n\ncreate table person_visits\n(id bigint primary key ,\n person_id bigint not null ,\n pizzeria_id bigint not null ,\n visit_date date not null default current_date,\n constraint uk_person_visits unique (person_id, pizzeria_id, visit_date),\n constraint fk_person_visits_person_id foreign key  (person_id) references person(id),\n constraint fk_person_visits_pizzeria_id foreign key  (pizzeria_id) references pizzeria(id)\n );\n\ninsert into person_visits values (1, 1, 1, '2022-01-01');\ninsert into person_visits values (2, 2, 2, '2022-01-01');\ninsert into person_visits values (3, 2, 1, '2022-01-02');\ninsert into person_visits values (4, 3, 5, '2022-01-03');\ninsert into person_visits values (5, 3, 6, '2022-01-04');\ninsert into person_visits values (6, 4, 5, '2022-01-07');\ninsert into person_visits values (7, 4, 6, '2022-01-08');\ninsert into person_visits values (8, 5, 2, '2022-01-08');\ninsert into person_visits values (9, 5, 6, '2022-01-09');\ninsert into person_visits values (10, 6, 2, '2022-01-09');\ninsert into person_visits values (11, 6, 4, '2022-01-01');\ninsert into person_visits values (12, 7, 1, '2022-01-03');\ninsert into person_visits values (13, 7, 2, '2022-01-05');\ninsert into person_visits values (14, 8, 1, '2022-01-05');\ninsert into person_visits values (15, 8, 2, '2022-01-06');\ninsert into person_visits values (16, 8, 4, '2022-01-07');\ninsert into person_visits values (17, 9, 4, '2022-01-08');\ninsert into person_visits values (18, 9, 5, '2022-01-09');\ninsert into person_visits values (19, 9, 6, '2022-01-10');\n\n\ncreate table menu\n(id bigint primary key ,\n pizzeria_id bigint not null ,\n pizza_name varchar not null ,\n price numeric not null default 1,\n constraint fk_menu_pizzeria_id foreign key (pizzeria_id) references pizzeria(id));\n\ninsert into menu values (1,1,'cheese pizza', 900);\ninsert into menu values (2,1,'pepperoni pizza', 1200);\ninsert into menu values (3,1,'sausage pizza', 1200);\ninsert into menu values (4,1,'supreme pizza', 1200);\n\ninsert into menu values (5,6,'cheese pizza', 950);\ninsert into menu values (6,6,'pepperoni pizza', 800);\ninsert into menu values (7,6,'sausage pizza', 1000);\n\ninsert into menu values (8,2,'cheese pizza', 800);\ninsert into menu values (9,2,'mushroom pizza', 1100);\n\ninsert into menu values (10,3,'cheese pizza', 780);\ninsert into menu values (11,3,'supreme pizza', 850);\n\ninsert into menu values (12,4,'cheese pizza', 700);\ninsert into menu values (13,4,'mushroom pizza', 950);\ninsert into menu values (14,4,'pepperoni pizza', 1000);\ninsert into menu values (15,4,'sausage pizza', 950);\n\ninsert into menu values (16,5,'cheese pizza', 700);\ninsert into menu values (17,5,'pepperoni pizza', 800);\ninsert into menu values (18,5,'supreme pizza', 850);\n\ncreate table person_order\n(\n    id bigint primary key ,\n    person_id  bigint not null ,\n    menu_id bigint not null ,\n    order_date date not null default current_date,\n    constraint fk_order_person_id foreign key (person_id) references person(id),\n    constraint fk_order_menu_id foreign key (menu_id) references menu(id)\n);\n\ninsert into person_order values (1,1, 1, '2022-01-01');\ninsert into person_order values (2,1, 2, '2022-01-01');\n\ninsert into person_order values (3,2, 8, '2022-01-01');\ninsert into person_order values (4,2, 9, '2022-01-01');\n\ninsert into person_order values (5,3, 16, '2022-01-04');\n\ninsert into person_order values (6,4, 16, '2022-01-07');\ninsert into person_order values (7,4, 17, '2022-01-07');\ninsert into person_order values (8,4, 18, '2022-01-07');\ninsert into person_order values (9,4, 6, '2022-01-08');\ninsert into person_order values (10,4, 7, '2022-01-08');\n\ninsert into person_order values (11,5, 6, '2022-01-09');\ninsert into person_order values (12,5, 7, '2022-01-09');\n\ninsert into person_order values (13,6, 13, '2022-01-01');\n\ninsert into person_order values (14,7, 3, '2022-01-03');\ninsert into person_order values (15,7, 9, '2022-01-05');\ninsert into person_order values (16,7, 4, '2022-01-05');\n\ninsert into person_order values (17,8, 8, '2022-01-06');\ninsert into person_order values (18,8, 14, '2022-01-07');\n\ninsert into person_order values (19,9, 18, '2022-01-09');\ninsert into person_order values (20,9, 6, '2022-01-10');\n\n\n-- Скрытый набор данных: те же таблицы, но данные чуть изменены.\n-- Выполняется ПОСЛЕ pizza.sql. Нужен, чтобы нельзя было пройти задание,\n-- подогнав запрос под конкретные строки из основной базы.\n\ninsert into person values (110, 'Zoya', 27, 'female', 'Samara');\ninsert into person values (111, 'Boris', 19, 'male', 'Kazan');\n\ninsert into pizzeria values (107, 'Pizza Loft', 4.0);\n\ninsert into menu values (119, 107, 'margherita pizza', 650);\ninsert into menu values (120, 3, 'margherita pizza', 700);\ninsert into menu values (121, 2, 'supreme pizza', 900);\n\ninsert into person_visits values (120, 110, 3, '2022-01-02');\ninsert into person_visits values (121, 111, 2, '2022-01-07');\n\ninsert into person_order values (121, 110, 10, '2022-01-02');\ninsert into person_order values (122, 111, 121, '2022-01-07');\n\n-- Название с заглавной буквы: при общей сортировке оно встаёт между именами людей,\n-- поэтому ошибка «один ORDER BY на весь UNION ALL» ловится при любых настройках сортировки.\ninsert into menu values (122, 107, 'Four cheese pizza', 800);\n\n-- Скрытые данные для заданий Day 00 (идентификаторы 1000-1099).\ninsert into person values (1000, 'Lena', 40, 'female', 'Kazan');\ninsert into person values (1001, 'Oleg', 17, 'male', 'Kazan');\ninsert into person values (1002, 'Denise', 29, 'female', 'Samara');\ninsert into person values (1003, 'Timur', 20, 'male', 'Moscow');\ninsert into person values (1004, 'Vera', 23, 'female', 'Moscow');\ninsert into person values (1005, 'Egor', 10, 'male', 'Samara');\ninsert into person values (1006, 'Ilya', 9, 'male', 'Samara');\ninsert into person values (1007, 'Sasha', 31, 'male', 'Moscow');\n\ninsert into pizzeria values (1000, 'Edge Low', 3.5);\ninsert into pizzeria values (1001, 'Edge High', 5);\ninsert into pizzeria values (1002, 'Below Edge', 3.4);\n\ninsert into person_visits values (1000, 1000, 3, '2022-01-06');\ninsert into person_visits values (1001, 1001, 2, '2022-02-10');\ninsert into person_visits values (1002, 1002, 3, '2022-01-05');\ninsert into person_visits values (1003, 1003, 4, '2022-01-10');\ninsert into person_visits values (1004, 1004, 1, '2022-01-09');\ninsert into person_visits values (1005, 1005, 1000, '2022-01-07');\ninsert into person_visits values (1006, 1000, 1001, '2022-01-07');\ninsert into person_visits values (1007, 1000, 1000, '2022-01-08');\n\ninsert into person_order values (1000, 1002, 13, '2022-01-07');\ninsert into person_order values (1001, 1000, 14, '2022-01-07');\ninsert into person_order values (1002, 1003, 15, '2022-01-07');\ninsert into person_order values (1003, 1004, 18, '2022-01-08');\ninsert into person_order values (1004, 1001, 18, '2022-01-07');\ninsert into person_visits values (1008, 1007, 3, '2022-01-06');\n\n-- Скрытые данные для заданий Day 01 (идентификаторы 1100-1199).\n-- Lena (id 1000) заказывает два раза за день, в который она и посещала пиццерию.\ninsert into person_order values (1100, 1000, 14, '2022-01-08');\ninsert into person_order values (1101, 1000, 15, '2022-01-08');\n\n-- Скрытые данные для заданий Day 02 (идентификаторы 1200-1299).\ninsert into person values (1200, 'Kira', 25, 'female', 'Kazan');\ninsert into person values (1201, 'Anton', 35, 'male', 'Moscow');\n\ninsert into menu values (1200, 3, 'pepperoni pizza deluxe', 900);\ninsert into menu values (1201, 1000, 'mushroom pizza', 700);\n\n-- пропуски в датах: люди 1 и 2 тоже ходили в другие дни\ninsert into person_visits values (1200, 1, 3, '2022-01-04');\ninsert into person_visits values (1201, 2, 3, '2022-01-10');\ninsert into person_visits values (1202, 3, 2, '2022-01-05');\n-- Dmitriy 8 января: Best Pizza (есть пицца дешевле 800) и Dominos (самая дешёвая ровно 800)\ninsert into person_visits values (1203, 9, 5, '2022-01-08');\ninsert into person_visits values (1204, 9, 2, '2022-01-08');\n\n-- мужчины: Timur (Moscow) заказал и пепперони, и грибы; Egor (Samara) грибы; Oleg (Kazan) пепперони; Anton только сыр\ninsert into person_order values (1200, 1003, 6, '2022-01-02');\ninsert into person_order values (1201, 1003, 9, '2022-01-02');\ninsert into person_order values (1202, 1005, 13, '2022-01-03');\ninsert into person_order values (1203, 1001, 2, '2022-01-03');\ninsert into person_order values (1204, 1201, 1, '2022-01-03');\n-- женщины: Vera сыр и пепперони; Denise только пепперони\ninsert into person_order values (1205, 1004, 1, '2022-01-04');\ninsert into person_order values (1206, 1004, 2, '2022-01-04');\ninsert into person_order values (1207, 1002, 2, '2022-01-04');\n-- Denis заказывает новое меню (проверка Day 02 ex06)\ninsert into person_order values (1208, 4, 1201, '2022-01-05');\n\n-- Скрытые данные для заданий Day 03 (идентификаторы 1300-1399).\n-- ex00: Kate посещает ещё две пиццерии (цены 850 и ровно 1000 попадают в диапазон)\ninsert into person_visits values (1300, 3, 3, '2022-01-09');\ninsert into person_visits values (1301, 3, 4, '2022-01-10');\n-- ex03: перекос по полу в посещениях\ninsert into person_visits values (1302, 1000, 3, '2022-01-11');\ninsert into person_visits values (1303, 1005, 5, '2022-01-11');\n-- ex04: Pizza Loft (107) заказывал только мужчина Egor; в DoDo заказывала Lena (женщина), раньше там были только женщины\ninsert into person_order values (1300, 1005, 119, '2022-01-12');\ninsert into person_order values (1301, 2, 10, '2022-01-02');\n-- ex05: Andrey заходит в DoDo (и там заказывает) и в Papa Johns (заказа нет)\ninsert into person_visits values (1304, 2, 3, '2022-01-02');\ninsert into person_visits values (1305, 2, 4, '2022-01-12');\n-- ex06: третья пиццерия с cheese pizza по 700\ninsert into menu values (1300, 1000, 'cheese pizza', 700);\n\n-- Скрытые данные для заданий Day 04 (идентификаторы 1400-1499).\n-- ex04: R (2 января) и S (6 января): один только в R, один только в S, один в обеих\ninsert into person_visits values (1400, 1000, 3, '2022-01-02');\ninsert into person_visits values (1401, 1001, 3, '2022-01-06');\ninsert into person_visits values (1402, 1002, 3, '2022-01-02');\ninsert into person_visits values (1403, 1002, 3, '2022-01-06');\n-- ex05: цена с хвостом после скидки (435 * 0.9 = 391.5)\ninsert into menu values (1400, 5, 'ham pizza', 435);\ninsert into person_order values (1400, 1, 1400, '2022-01-13');\n\n-- Скрытые данные для заданий Day 06 (идентификаторы 1500-1599).\n-- ex01: пара (клиент 1, пиццерия 1) получает 4 заказа (скидка 30), пара (клиент 3, пиццерия 5) получает 2 заказа (скидка 22)\ninsert into person_order values (1500, 1, 1, '2022-01-14');\ninsert into person_order values (1501, 1, 1, '2022-01-15');\ninsert into person_order values (1502, 3, 5, '2022-01-14');\n\n-- Скрытые данные для заданий Day 09 (идентификаторы 1700-1799).\n-- ex06: в Best Pizza (5) вторая дешёвая пицца, чтобы без DISTINCT пиццерия повторялась\ninsert into menu values (1700, 5, 'plain pizza', 650);\n",
@@ -25,6 +40,14 @@
     "person_visits",
     "menu",
     "person_order"
+   ]
+  },
+  "tsp": {
+   "main": "-- Граф для задачи коммивояжёра: четыре города a, b, c, d.\n-- Стоимость одинакова в обе стороны, поэтому каждая дуга записана дважды.\ncreate table nodes (point1 varchar, point2 varchar, cost integer);\ninsert into nodes values ('a', 'b', 10);\ninsert into nodes values ('b', 'a', 10);\ninsert into nodes values ('a', 'c', 15);\ninsert into nodes values ('c', 'a', 15);\ninsert into nodes values ('a', 'd', 20);\ninsert into nodes values ('d', 'a', 20);\ninsert into nodes values ('b', 'c', 35);\ninsert into nodes values ('c', 'b', 35);\ninsert into nodes values ('b', 'd', 25);\ninsert into nodes values ('d', 'b', 25);\ninsert into nodes values ('c', 'd', 30);\ninsert into nodes values ('d', 'c', 30);\n",
+   "alt": "-- Граф для задачи коммивояжёра: четыре города a, b, c, d.\n-- Стоимость одинакова в обе стороны, поэтому каждая дуга записана дважды.\ncreate table nodes (point1 varchar, point2 varchar, cost integer);\ninsert into nodes values ('a', 'b', 10);\ninsert into nodes values ('b', 'a', 10);\ninsert into nodes values ('a', 'c', 15);\ninsert into nodes values ('c', 'a', 15);\ninsert into nodes values ('a', 'd', 20);\ninsert into nodes values ('d', 'a', 20);\ninsert into nodes values ('b', 'c', 35);\ninsert into nodes values ('c', 'b', 35);\ninsert into nodes values ('b', 'd', 25);\ninsert into nodes values ('d', 'b', 25);\ninsert into nodes values ('c', 'd', 30);\ninsert into nodes values ('d', 'c', 30);\n\n-- Скрытый набор: другие стоимости и пятый город e. Решение должно работать для любого числа городов.\nupdate nodes set cost = 40 where (point1 = 'a' and point2 = 'b') or (point1 = 'b' and point2 = 'a');\ninsert into nodes values ('a', 'e', 25);\ninsert into nodes values ('e', 'a', 25);\ninsert into nodes values ('b', 'e', 30);\ninsert into nodes values ('e', 'b', 30);\ninsert into nodes values ('c', 'e', 20);\ninsert into nodes values ('e', 'c', 20);\ninsert into nodes values ('d', 'e', 35);\ninsert into nodes values ('e', 'd', 35);\n",
+   "schema": "# Граф городов\n\nТаблица `nodes(point1, point2, cost)`: дуга из города `point1` в город `point2` со стоимостью `cost`. Стоимость одинакова в обе стороны, поэтому каждая пара городов записана двумя строками.\n\nГорода: a, b, c, d. Стоимости: a-b 10, a-c 15, a-d 20, b-c 35, b-d 25, c-d 30.\n",
+   "tables": [
+    "nodes"
    ]
   }
  },
@@ -5770,6 +5793,1006 @@
       "dataset": "pizza",
       "forbidden": [],
       "required": []
+     }
+    }
+   ]
+  },
+  {
+   "id": "team00a_start",
+   "title": "Team 00 · Старт: задача коммивояжёра (для двоих)",
+   "tasks": [
+    {
+     "id": "team00a_start/ex00",
+     "dir": "ex00_read_first",
+     "title": "Командный проект: старт",
+     "readme": "# Командный проект: задача коммивояжёра (TSP)\n\nЭтот проект выполняют **двое**. Работа поделена на две роли: у каждой свои задания и своя теория. Выберите роли и найдите их в левом списке:\n\n- **Роль 1 · «Архитектор графа»**: создаёт данные и делает итоговые выборки. Раздел «Team 00 · Роль 1».\n- **Роль 2 · «Навигатор»**: пишет рекурсивный запрос, который строит все маршруты. Раздел «Team 00 · Роль 2».\n\nКогда обе части готовы, вместе сделайте **общую сборку** (раздел «Team 00 · Общая сборка»).\n\n## Что за задача\n\nДано конечное число «городов» и стоимость перемещения между каждой парой. Нужно найти **самый дешёвый маршрут**, который проходит через все города по одному разу и возвращается в исходную точку. Это задача коммивояжёра (Travelling Salesman Problem). В терминах графов: найти гамильтонов цикл минимального суммарного веса.\n\nПеребрать все маршруты вручную нельзя, когда городов много (их число растёт как факториал), поэтому задача считается классической трудной. У нас всего четыре города, так что перебор можно честно сделать SQL-запросом.\n\n## Наш граф\n\nЧетыре города (`a`, `b`, `c`, `d`) и стоимость переездов:\n\n```\n        10\n   a --------- b\n   | \\       / |\n15 |   \\ 20 /   | 25\n   |     X     |\n   |   /   \\   |\n   c --------- d\n        30\n   (b–c: 35)\n```\n\nРёбра графа (стоимость одинакова в обе стороны):\n\n| Пара | Стоимость |\n| --- | --- |\n| a – b | 10 |\n| a – c | 15 |\n| a – d | 20 |\n| b – c | 35 |\n| b – d | 25 |\n| c – d | 30 |\n\n> Стоимости рёбер восстановлены по примеру вывода из задания: маршрут `a → b → d → c → a` стоит 10 + 25 + 30 + 15 = **80**, а `a → d → c → b → a` стоит 20 + 30 + 35 + 10 = **95**. Если на вашей картинке числа другие, замените их в данных (Роль 1), а запросы Роли 2 трогать не придётся.\n\n## Что нужно получить в итоге\n\nКлассическая задача (задание 00): все маршруты с **минимальной** суммарной стоимостью, старт в городе `a`.\nОбратная задача (задание 01): к ним добавить маршруты с **наибольшей** стоимостью.\n\nРезультат: столбцы `total_cost` и `tour` (массив городов, например `{a,b,d,c,a}`), отсортированные сначала по `total_cost`, затем по `tour`.\n\n## Договорённость между ролями (контракт)\n\nЧтобы части подошли друг к другу, договоритесь **заранее** о таких именах:\n\n| Что | Имя | Кто создаёт | Кто использует |\n| --- | --- | --- | --- |\n| таблица с рёбрами | `nodes` со столбцами `point1`, `point2`, `cost` | Роль 1 | Роль 2 |\n| представление всех маршрутов | `v_all_tours` со столбцами `total_cost`, `tour` | Роль 2 | Роль 1 |\n\nТо есть: Архитектор отдаёт Навигатору таблицу, а Навигатор отдаёт Архитектору представление. В тренажёре у каждого задания «чужая» часть уже подготовлена, чтобы вы могли работать параллельно.\n\n## Как работать вдвоём\n\n1. Выберите роли (подбросьте монетку или договоритесь).\n2. Пройдите введение своей роли: там описано, что делать.\n3. Решайте задания своей роли независимо друг от друга.\n4. Обменяйтесь готовыми SQL: Архитектор присылает скрипт создания таблицы, Навигатор присылает `CREATE VIEW`.\n5. Сделайте общую сборку: объедините оба скрипта в один и убедитесь, что итог совпадает с ожидаемым.\n6. Объясните друг другу свои части: на защите проекта спрашивают обоих про всё.\n",
+     "theory": "# Теория: что общего у обеих ролей\n\n## Граф как таблица\n\nГраф хранят таблицей рёбер: «из какой вершины, в какую вершину, какая стоимость». Если дороги двусторонние, в таблицу вносят **обе** строки: `(a, b, 10)` и `(b, a, 10)`. Тогда запрос «куда можно поехать из города X» это просто `WHERE point1 = 'X'`.\n\n## Маршрут как массив\n\nМаршрут удобно хранить массивом: `ARRAY['a','b','d','c','a']`, на экране `{a,b,d,c,a}`. С массивами нужны три приёма:\n\n- `путь || город`: дописать город в конец массива;\n- `город = ANY (путь)`: проверить, что город уже есть в пути;\n- `CARDINALITY(путь)`: длина массива.\n\n## Рекурсивный запрос\n\nПеребор маршрутов делается рекурсивным запросом `WITH RECURSIVE`. Он состоит из двух частей, соединённых `UNION ALL`:\n\n1. **стартовая часть**: первые шаги (из города `a` в любой другой);\n2. **рекурсивная часть**: как продлить уже найденный путь на один шаг. Работает, пока есть что продлевать.\n\nЗапрос повторяет рекурсивную часть, подставляя в неё строки, найденные на прошлом шаге, и останавливается, когда новых строк нет.\n\nПодробнее для каждой роли: в её теории.\n\nКлючевые слова для примеров: `CTE`, `WITH`, `UNION ALL`, `JOIN`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Распределите роли и договоритесь об именах из таблицы-контракта. После этого у каждого своя работа."
+      },
+      {
+       "title": "Каркас",
+       "body": "1. Роль 1 создаёт `nodes`.\n2. Роль 2 создаёт `v_all_tours` (по таблице `nodes`).\n3. Роль 1 делает итоговые выборки по `v_all_tours`.\n4. Вместе делаете общую сборку."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Начните с таблицы `nodes`: она нужна обоим. В тренажёре её уже подготовили для Навигатора, но в реальном проекте Навигатор ждёт скрипт Архитектора."
+      }
+     ],
+     "solution": "-- Командный проект, общий порядок:\n-- 1) Роль 1: CREATE TABLE nodes + INSERT\n-- 2) Роль 2: CREATE VIEW v_all_tours (рекурсия)\n-- 3) Роль 1: выборка самых дешёвых и самых дорогих маршрутов по v_all_tours",
+     "solutionCommented": "-- Общий порядок работы:\n-- 1) Роль 1 создаёт таблицу nodes и заполняет рёбрами в обе стороны\n-- 2) Роль 2 создаёт представление v_all_tours (WITH RECURSIVE)\n-- 3) Роль 1 выбирает минимальные (и максимальные) маршруты",
+     "meta": {
+      "title": "Командный проект: старт",
+      "manual": true,
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    }
+   ]
+  },
+  {
+   "id": "team00b_role1",
+   "title": "Team 00 · Роль 1 «Архитектор графа»",
+   "tasks": [
+    {
+     "id": "team00b_role1/ex00",
+     "dir": "ex00_role_card",
+     "title": "Роль 1: карточка",
+     "readme": "# Роль 1 · «Архитектор графа»: твоя карточка\n\nТы отвечаешь за **данные** и за **итоговые выборки**. Твой напарник (Роль 2, «Навигатор») пишет рекурсивный запрос, который перебирает маршруты. Ты даёшь ему таблицу, а он даёт тебе представление со всеми маршрутами.\n\n## Твои задания (в левом списке по порядку)\n\n1. **ex01. Построй граф**: создай таблицу `nodes` и внеси все рёбра в обе стороны.\n2. **ex02. Самые дешёвые маршруты**: классическая задача (задание 00 проекта). Работаешь с представлением `v_all_tours`, которое пишет напарник.\n3. **ex03. Пятый город**: проверь, что решение не «зашито» на четыре города.\n\n## Что тебе нужно от напарника\n\nПредставление `v_all_tours(total_cost, tour)`: все маршруты из города `a`, которые обходят все города и возвращаются в `a`. В тренажёре оно уже подготовлено для твоих заданий.\n\n## Что отдать напарнику\n\nСкрипт создания таблицы `nodes` (ex01), чтобы он мог проверить свой рекурсивный запрос на тех же данных.\n\n## Как проверить себя вместе\n\nКогда у напарника готово представление, пройдите вместе ex02: твой запрос и его представление должны дать 2 самых дешёвых маршрута по 80.\n",
+     "theory": "# Теория Роли 1: данные и итоговые выборки\n\n## Таблица рёбер\n\nГраф описывается таблицей из трёх столбцов:\n\n```sql\nCREATE TABLE nodes (\n    point1 varchar NOT NULL,   -- откуда\n    point2 varchar NOT NULL,   -- куда\n    cost   integer NOT NULL    -- стоимость перехода\n);\n```\n\nРёбра у нас двусторонние. Чтобы запросы были простыми, в таблицу вносим **две строки** на каждое ребро: `(a, b, 10)` и `(b, a, 10)`. Для 4 городов это 6 рёбер × 2 = **12 строк**.\n\nВставить много строк можно одним `INSERT`:\n\n```sql\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10), ('b', 'a', 10),\n    ('a', 'c', 15), ('c', 'a', 15);\n```\n\n## Выбор «минимум по всем»\n\nНужны строки, у которых значение равно минимуму. Приём: подзапрос с агрегатом.\n\n```sql\nSELECT * FROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours);\n```\n\nТак возвращаются **все** маршруты с минимальной стоимостью, а не один (в отличие от `ORDER BY ... LIMIT 1`). Если лучших несколько, нужны все.\n\n## Универсальность\n\nХороший запрос не знает, сколько городов в графе. Проверь: добавь пятый город и убедись, что итог пересчитывается сам. Это и есть задание ex03.\n\nКлючевые слова для примеров: `INSERT`, `MIN`, `ORDER BY`, `VIEW`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Прочитай карточку роли и договорённость с напарником об именах `nodes` и `v_all_tours`."
+      },
+      {
+       "title": "Каркас",
+       "body": "Порядок твоей работы: ex01 (таблица) → отдать скрипт напарнику → ex02 (минимумы по представлению) → ex03 (пятый город)."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Если напарник ещё не закончил представление, в тренажёре оно уже есть: бери задания ex02 и ex03 и делай их."
+      }
+     ],
+     "solution": "-- Роль 1: см. задания ex01-ex03.",
+     "solutionCommented": "-- Роль 1 «Архитектор графа»: таблица nodes (ex01), выборка минимумов (ex02), проверка на 5 городах (ex03).",
+     "meta": {
+      "title": "Роль 1: карточка",
+      "manual": true,
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "team00b_role1/ex01",
+     "dir": "ex01_build_graph",
+     "title": "Построй граф",
+     "readme": "# Задание 01 (Роль 1). Построй граф\n\n**Язык:** ANSI SQL, DDL, DML\n\nСоздай таблицу `nodes` со столбцами `point1`, `point2`, `cost` (откуда, куда, стоимость) и заполни её данными по картинке: для каждого ребра внеси **две строки**, по одной в каждую сторону.\n\n```\n        10\n   a --------- b\n   | \\       / |\n15 |   \\ 20 /   | 25\n   |     X     |\n   |   /   \\   |\n   c --------- d\n        30\n   (b–c: 35)\n```\n\nРёбра графа (стоимость одинакова в обе стороны):\n\n| Пара | Стоимость |\n| --- | --- |\n| a – b | 10 |\n| a – c | 15 |\n| a – d | 20 |\n| b – c | 35 |\n| b – d | 25 |\n| c – d | 30 |\n\nДолжно получиться **12 строк**.\n\n> Именно эту таблицу будет использовать Навигатор (Роль 2). Названия таблицы и столбцов менять нельзя: это условие договорённости.\n",
+     "theory": "# Теория: DDL для таблицы рёбер\n\n`CREATE TABLE` создаёт таблицу, `INSERT INTO ... VALUES` наполняет её. Один оператор `INSERT` может вставить сразу много строк: значения перечисляются через запятую.\n\nТип столбца для названий городов: текстовый (`varchar`). Для стоимости: число (`integer`). Ограничение `NOT NULL` запрещает пропуски: у ребра обязательно есть начало, конец и стоимость.\n\nОшибка №1 в таких заданиях: забыть обратное направление. Если внести только `(a, b, 10)`, из города `b` в `a` проехать будет нельзя, и маршруты, возвращающиеся в начало, не найдутся.\n\nКлючевые слова для примеров: `CREATE TABLE`, `INSERT`, `NOT NULL`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "`CREATE TABLE nodes (...)` и один `INSERT` на 12 строк. Для каждой пары городов две строки: туда и обратно."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nCREATE TABLE nodes (point1 varchar NOT NULL, point2 varchar NOT NULL, cost integer NOT NULL);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10), ('b', 'a', 10),\n    ('a', 'c', ______), ('c', 'a', ______),\n    ...;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Пары городов: a–b, a–c, a–d, b–c, b–d, c–d (всего шесть). Значения стоимости смотри в таблице рёбер. Итого 6 × 2 = 12 строк."
+      }
+     ],
+     "solution": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);",
+     "solutionCommented": "-- Идея: таблица рёбер; каждое ребро вносим в обе стороны.\nCREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES   -- по две строки на ребро: туда и обратно\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);",
+     "meta": {
+      "title": "Построй граф",
+      "ordered": true,
+      "required": [
+       "CREATE TABLE",
+       "INSERT"
+      ],
+      "verify": "SELECT 'col' AS kind, column_name::text AS v FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'nodes' UNION ALL SELECT 'row', point1::text || '>' || point2::text || ':' || cost::float8::text FROM nodes ORDER BY 1, 2",
+      "positive": [
+       {
+        "why": "другие типы столбцов",
+        "sql": "CREATE TABLE nodes (\n    point1 text NOT NULL,\n    point2 char(1) NOT NULL,\n    cost numeric NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);"
+       }
+      ],
+      "negative": [
+       {
+        "why": "нет обратных направлений (только 6 строк)",
+        "sql": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('a', 'c', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);"
+       },
+       {
+        "why": "неверная стоимость ребра",
+        "sql": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 36),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);"
+       },
+       {
+        "why": "столбцы названы по-другому",
+        "sql": "CREATE TABLE nodes (\n    from_point varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (from_point, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);"
+       },
+       {
+        "why": "таблица названа не nodes",
+        "sql": "CREATE TABLE graph (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO graph (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": []
+     }
+    },
+    {
+     "id": "team00b_role1/ex02",
+     "dir": "ex02_cheapest_tours",
+     "title": "Самые дешёвые маршруты",
+     "readme": "# Задание 02 (Роль 1). Классическая задача: самые дешёвые маршруты\n\n**Язык:** ANSI SQL\n\nТаблица `nodes` и представление `v_all_tours` (столбцы `total_cost`, `tour`; его пишет Роль 2) уже подготовлены: в нём **все** маршруты из города `a`, которые обходят все города и возвращаются в `a`.\n\nНапиши запрос, который возвращает **только маршруты с минимальной суммарной стоимостью**. Отсортируй результат по `total_cost`, затем по `tour`.\n\n| total_cost | tour |\n| --- | --- |\n| 80 | {a,b,d,c,a} |\n| 80 | {a,c,d,b,a} |\n\nТаких маршрутов может быть несколько: нужны **все** лучшие, а не один.\n",
+     "theory": "# Теория: все строки с минимальным значением\n\nЧтобы выбрать строки с минимальной стоимостью, сначала найди минимум подзапросом, затем оставь строки, равные ему:\n\n```sql\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;\n```\n\nСравни с `ORDER BY total_cost LIMIT 1`: он вернёт **одну** строку и потеряет остальные лучшие маршруты. А маршруты `a → b → d → c → a` и обратный `a → c → d → b → a` имеют одинаковую стоимость, значит, правильный ответ содержит оба.\n\nСортировка по массиву `tour` работает: массивы сравниваются поэлементно слева направо.\n\nКлючевые слова для примеров: `MIN`, `ORDER BY`, `LIMIT`, `VIEW`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Подзапрос находит минимальную стоимость, внешний запрос оставляет все маршруты с такой стоимостью."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT ______(total_cost) FROM v_all_tours)\nORDER BY ______, ______;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Нужна агрегатная функция `MIN`. Сортировка по двум столбцам: `total_cost`, затем `tour`."
+      }
+     ],
+     "solution": "SELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;",
+     "solutionCommented": "-- Идея: все маршруты, чья стоимость равна минимальной.\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)   -- минимальная стоимость среди всех\nORDER BY total_cost, tour;",
+     "meta": {
+      "title": "Самые дешёвые маршруты",
+      "setup": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);",
+      "ordered": true,
+      "positive": [
+       {
+        "why": "через оконную функцию",
+        "sql": "SELECT total_cost, tour FROM (SELECT total_cost, tour, MIN(total_cost) OVER () AS m FROM v_all_tours) AS t WHERE total_cost = m ORDER BY total_cost, tour;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "LIMIT 1: потерян второй лучший маршрут",
+        "sql": "SELECT total_cost, tour FROM v_all_tours ORDER BY total_cost, tour LIMIT 1;"
+       },
+       {
+        "why": "самые дорогие вместо самых дешёвых",
+        "sql": "SELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+       },
+       {
+        "why": "все маршруты без отбора",
+        "sql": "SELECT total_cost, tour FROM v_all_tours ORDER BY total_cost, tour;"
+       },
+       {
+        "why": "ответ вписан готовыми значениями",
+        "sql": "SELECT * FROM (VALUES (80, ARRAY['a','b','d','c','a']::varchar[])) AS t(total_cost, tour);"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "team00b_role1/ex03",
+     "dir": "ex03_fifth_city",
+     "title": "Пятый город",
+     "readme": "# Задание 03 (Роль 1). Пятый город\n\n**Язык:** ANSI SQL, DML\n\nХороший запрос не должен зависеть от числа городов. Проверь это: добавь в граф **пятый город `e`** со стоимостью переезда (в обе стороны):\n\n| Пара | Стоимость |\n| --- | --- |\n| a – e | 12 |\n| b – e | 14 |\n| c – e | 16 |\n| d – e | 18 |\n\nЗатем снова выведи **самые дешёвые маршруты** (как в задании 02), отсортировав по `total_cost`, затем по `tour`. Сам `v_all_tours` менять не нужно: он должен пересчитаться.\n\n> Таблица `nodes` с 4 городами и представление `v_all_tours` уже подготовлены.\n",
+     "theory": "# Теория: проверка на другом размере данных\n\nЕсли запрос работает на 4 городах только потому, что в нём «зашито» число 4 (например, четыре самосоединения таблицы вместо рекурсии), то на 5 городах он сломается. Такую ошибку находят проверкой на **другом входе**.\n\nЗдесь после добавления города `e` число маршрутов вырастает с 6 до 24 (4! перестановок). Представление `v_all_tours` вычисляется заново при каждом обращении, поэтому достаточно добавить строки в `nodes`, и итоговый запрос из задания 02 сам вернёт новые результаты.\n\nНе забудь внести рёбра **в обе стороны**: для каждой новой пары две строки.\n\nРост числа маршрутов (факториал) показывает, почему задача коммивояжёра сложная: для 20 городов маршрутов уже миллиарды миллиардов.\n\nКлючевые слова для примеров: `INSERT`, `MIN`, `VIEW`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Сначала `INSERT` восьми строк (4 новых ребра в обе стороны), затем тот же запрос выбора минимума, что в задании 02."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'e', 12), ('e', 'a', 12),\n    ('b', 'e', ______), ('e', 'b', ______),\n    ...;\n\nSELECT total_cost, tour FROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Недостающие стоимости: b–e = 14, c–e = 16, d–e = 18 (по две строки на пару)."
+      }
+     ],
+     "solution": "INSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'e', 12), ('e', 'a', 12),\n    ('b', 'e', 14), ('e', 'b', 14),\n    ('c', 'e', 16), ('e', 'c', 16),\n    ('d', 'e', 18), ('e', 'd', 18);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;",
+     "solutionCommented": "-- Идея: добавляем город e (в обе стороны) и снова выбираем минимумы.\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'e', 12), ('e', 'a', 12),\n    ('b', 'e', 14), ('e', 'b', 14),\n    ('c', 'e', 16), ('e', 'c', 16),\n    ('d', 'e', 18), ('e', 'd', 18);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;",
+     "meta": {
+      "title": "Пятый город",
+      "setup": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);",
+      "ordered": true,
+      "required": [
+       "INSERT"
+      ],
+      "negative": [
+       {
+        "why": "только прямые рёбра: вернуться из e нельзя",
+        "sql": "INSERT INTO nodes (point1, point2, cost) VALUES ('a', 'e', 12), ('b', 'e', 14), ('c', 'e', 16), ('d', 'e', 18);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+       },
+       {
+        "why": "неверная стоимость одного из рёбер",
+        "sql": "INSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'e', 12), ('e', 'a', 12),\n    ('b', 'e', 1), ('e', 'b', 1),\n    ('c', 'e', 16), ('e', 'c', 16),\n    ('d', 'e', 18), ('e', 'd', 18);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+       },
+       {
+        "why": "город не добавлен: ответ как для 4 городов",
+        "sql": "SELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+       },
+       {
+        "why": "выбраны самые дорогие маршруты",
+        "sql": "INSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'e', 12), ('e', 'a', 12),\n    ('b', 'e', 14), ('e', 'b', 14),\n    ('c', 'e', 16), ('e', 'c', 16),\n    ('d', 'e', 18), ('e', 'd', 18);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": []
+     }
+    }
+   ]
+  },
+  {
+   "id": "team00c_role2",
+   "title": "Team 00 · Роль 2 «Навигатор»",
+   "tasks": [
+    {
+     "id": "team00c_role2/ex00",
+     "dir": "ex00_role_card",
+     "title": "Роль 2: карточка",
+     "readme": "# Роль 2 · «Навигатор»: твоя карточка\n\nТы отвечаешь за **перебор маршрутов**: за рекурсивный запрос, который строит все пути по графу. Твой напарник (Роль 1, «Архитектор графа») создаёт таблицу рёбер `nodes` и делает итоговые выборки по твоему результату.\n\n## Твои задания (в левом списке по порядку)\n\n1. **ex01. Все маршруты**: создай представление `v_all_tours` с помощью `WITH RECURSIVE`.\n2. **ex02. Обратная задача**: из всех маршрутов выбери самые дешёвые **и** самые дорогие (задание 01 проекта).\n3. **ex03. Старт из любого города**: оформи запрос как функцию с параметром.\n\n## Что тебе нужно от напарника\n\nТаблица `nodes(point1, point2, cost)`: рёбра графа в **обе стороны**. В тренажёре она уже подготовлена для твоих заданий.\n\n## Что отдать напарнику\n\nСкрипт `CREATE VIEW v_all_tours` (ex01). Столбцы строго: `total_cost` (суммарная стоимость), `tour` (массив городов, маршрут начинается и заканчивается в `a`).\n\n## Как проверить себя вместе\n\nНапарник запускает свой запрос выбора минимума по твоему представлению: должно получиться 2 маршрута по 80.\n",
+     "theory": "# Теория Роли 2: рекурсия, массивы, представление\n\n## Рекурсивный запрос по шагам\n\nИдея: «маршрут это путь, который мы продлеваем на один город, пока не обойдём все».\n\n```sql\nWITH RECURSIVE tours AS (\n    -- старт: первый шаг из города a\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes WHERE point1 = 'a'\n    UNION ALL\n    -- продление: из последнего города в ещё не посещённый\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT ... FROM tours ...;\n```\n\nВ каждой строке `tours` три вещи: где мы сейчас (`last_point`), как сюда пришли (`path`) и сколько это стоило (`total_cost`).\n\n### Условие остановки\n\n`WHERE NOT nodes.point2 = ANY (tours.path)`: не заходим в город, где уже были. Без него рекурсия будет ходить кругами бесконечно. Когда все города посещены, продлевать некуда, и рекурсия останавливается сама.\n\n## Замыкание маршрута\n\nВ `tours` лежат пути, обошедшие все города, но ещё без возврата в `a`. Заключительный `SELECT` отбирает пути нужной длины и добавляет последнее ребро обратно в `a`:\n\n- **длина**: `CARDINALITY(path)` равна числу городов; число городов считай запросом, а не вписывай (иначе пятый город сломает решение);\n- **возврат**: соединяем с `nodes` по `point1 = last_point AND point2 = 'a'` и прибавляем стоимость этого ребра.\n\n## Представление\n\n`CREATE VIEW v_all_tours AS ...` сохраняет запрос под именем: напарник читает его как таблицу. Представление вычисляется заново при каждом обращении, поэтому оно подхватит новые данные в `nodes`.\n\nКлючевые слова для примеров: `WITH`, `CTE`, `UNION ALL`, `ANY`, `CREATE VIEW`, `JOIN`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Прочитай карточку и теорию: главное это рекурсивный запрос и контракт (имя представления и его столбцы)."
+      },
+      {
+       "title": "Каркас",
+       "body": "Порядок работы: ex01 (рекурсия, представление) → отдать скрипт напарнику → ex02 (минимум и максимум) → ex03 (функция)."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Если напарник ещё не прислал таблицу `nodes`, в тренажёре она уже есть: бери ex01 и делай."
+      }
+     ],
+     "solution": "-- Роль 2: см. задания ex01-ex03.",
+     "solutionCommented": "-- Роль 2 «Навигатор»: представление v_all_tours (ex01), выборка минимума и максимума (ex02), функция с параметром (ex03).",
+     "meta": {
+      "title": "Роль 2: карточка",
+      "manual": true,
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "team00c_role2/ex01",
+     "dir": "ex01_all_tours_view",
+     "title": "Все маршруты (представление)",
+     "readme": "# Задание 01 (Роль 2). Все маршруты\n\n**Язык:** ANSI SQL, DDL\n\n**Шаблон синтаксиса:** рекурсивный запрос\n\nТаблица `nodes(point1, point2, cost)` с рёбрами графа (в обе стороны) уже подготовлена. Создай представление `v_all_tours` со столбцами:\n\n- `total_cost`: суммарная стоимость маршрута;\n- `tour`: массив городов, например `{a,b,d,c,a}`.\n\nВ представлении должны быть **все** маршруты, которые:\n\n- начинаются в городе `a`;\n- проходят через каждый город ровно один раз;\n- возвращаются в `a`.\n\nДля четырёх городов это 6 маршрутов. Представление должно работать и для **другого числа городов**: число городов нельзя вписывать числом.\n\n```\n        10\n   a --------- b\n   | \\       / |\n15 |   \\ 20 /   | 25\n   |     X     |\n   |   /   \\   |\n   c --------- d\n        30\n   (b–c: 35)\n```\n\nРёбра графа (стоимость одинакова в обе стороны):\n\n| Пара | Стоимость |\n| --- | --- |\n| a – b | 10 |\n| a – c | 15 |\n| a – d | 20 |\n| b – c | 35 |\n| b – d | 25 |\n| c – d | 30 |\n\n> Тренажёр проверяет представление на этих данных, а затем сам добавляет пятый город и проверяет, что результат пересчитался (24 маршрута).\n",
+     "theory": "# Теория: рекурсивное построение маршрутов\n\nПодробная схема рекурсии есть в карточке роли (вкладка «Теория» первого задания Роли 2). Здесь главное в короткой форме.\n\n**Три составные части**\n\n1. Стартовая часть: все рёбра из `a`. Путь пока из двух городов.\n2. Рекурсивная часть: к каждому пути присоединяем ребро в город, которого в пути ещё нет (`NOT point2 = ANY (path)`).\n3. Финальный `SELECT`: оставляем пути длиной «все города» и замыкаем возвратом в `a`.\n\n**Как не «зашить» число городов.** Число городов считается так:\n\n```sql\nSELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities\n```\n\nЭто значение сравнивается с `CARDINALITY(path)`.\n\n**Типичные ошибки**\n\n- нет проверки «уже был»: рекурсия бесконечна;\n- не добавлена стоимость последнего ребра (возврат в `a`);\n- маршруты начинаются не только в `a`;\n- вписано число 4: на 5 городах решение ломается.\n\nКлючевые слова для примеров: `WITH`, `CTE`, `UNION ALL`, `ANY`, `CREATE VIEW`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Рекурсивный CTE строит пути из `a`, не заходя в посещённые города. Потом выбираешь пути нужной длины и замыкаешь возвратом в `a`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes WHERE point1 = '______'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours JOIN nodes ON nodes.point1 = tours.______\n    WHERE NOT nodes.point2 = ______ (tours.path)\n)\nSELECT ... FROM tours JOIN nodes ON ... AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (число городов);\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Финальный `SELECT`: `tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour`, соединяя `tours` с `nodes` по `nodes.point1 = tours.last_point AND nodes.point2 = 'a'`. Число городов: `(SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities)`."
+      }
+     ],
+     "solution": "CREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);",
+     "solutionCommented": "-- Идея: рекурсивный CTE строит пути, финальный SELECT замыкает маршрут возвратом в a.\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'                    -- старт: первый шаг из a\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)   -- не заходим в посещённые города\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'   -- возврат в начало\nWHERE CARDINALITY(  -- путь обошёл все города\n      tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);",
+     "meta": {
+      "title": "Все маршруты (представление)",
+      "setup": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);",
+      "verify": "CREATE TEMP TABLE t4 AS SELECT total_cost, tour FROM v_all_tours;\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'e', 12), ('e', 'a', 12),\n    ('b', 'e', 14), ('e', 'b', 14),\n    ('c', 'e', 16), ('e', 'c', 16),\n    ('d', 'e', 18), ('e', 'd', 18);\nSELECT 'cities4' AS kind, total_cost, tour::text AS tour FROM t4 UNION ALL SELECT 'cities5', total_cost, tour::text FROM v_all_tours ORDER BY 1, 2, 3",
+      "ordered": true,
+      "required": [
+       "RECURSIVE",
+       "CREATE VIEW"
+      ],
+      "negative": [
+       {
+        "why": "число городов вписано числом 4: на пяти городах неверно",
+        "sql": "CREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = 4;"
+       },
+       {
+        "why": "не добавлена стоимость последнего ребра",
+        "sql": "CREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);"
+       },
+       {
+        "why": "маршрут не замкнут: нет возврата в a",
+        "sql": "CREATE VIEW v_all_tours AS WITH RECURSIVE tours AS (SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost FROM nodes WHERE point1 = 'a' UNION ALL SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost FROM tours JOIN nodes ON nodes.point1 = tours.last_point WHERE NOT nodes.point2 = ANY (tours.path)) SELECT total_cost, path AS tour FROM tours WHERE CARDINALITY(path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);"
+       },
+       {
+        "why": "старт не только из a: лишние маршруты",
+        "sql": "CREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 IN ('a', 'b')\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);"
+       },
+       {
+        "why": "представление названо по-другому",
+        "sql": "CREATE VIEW v_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": []
+     }
+    },
+    {
+     "id": "team00c_role2/ex02",
+     "dir": "ex02_opposite_tours",
+     "title": "Обратная задача",
+     "readme": "# Задание 02 (Роль 2). Обратная задача\n\n**Язык:** ANSI SQL\n\n**Шаблон синтаксиса:** рекурсивный запрос (используется представление из задания 01)\n\nТаблица `nodes` и представление `v_all_tours` уже подготовлены. Добавь к выбору самых дешёвых маршрутов **самые дорогие**: запрос должен вернуть маршруты и с **минимальной**, и с **максимальной** суммарной стоимостью.\n\nОтсортируй результат по `total_cost`, затем по `tour`:\n\n| total_cost | tour |\n| --- | --- |\n| 80 | {a,b,d,c,a} |\n| … | … |\n| 95 | {a,d,c,b,a} |\n",
+     "theory": "# Теория: два экстремума в одном запросе\n\nНужны строки, чья стоимость равна минимуму **или** максимуму. Два подзапроса соединяются через `OR`:\n\n```sql\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\n   OR total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;\n```\n\nДругой путь: два запроса (минимум и максимум), склеенных `UNION`, но тогда `ORDER BY` нужен один общий в конце.\n\nЗаметь: итоговый запрос ничего не знает про рекурсию. Всю сложность спрятало представление. Это и есть смысл разделения на «Навигатора» и «Архитектора»: интерфейс (`v_all_tours`) один, а внутри можно менять как угодно.\n\nКлючевые слова для примеров: `MIN`, `MAX`, `UNION`, `ORDER BY`, `VIEW`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Условие `WHERE`: стоимость равна минимальной или максимальной по представлению."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\n   ______ total_cost = (SELECT ______(total_cost) FROM v_all_tours)\nORDER BY ______, ______;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Между условиями нужно `OR` (а не `AND`), для второго подзапроса функция `MAX`."
+      }
+     ],
+     "solution": "SELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\n   OR total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;",
+     "solutionCommented": "-- Идея: маршруты с минимальной ИЛИ максимальной стоимостью.\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\n   OR total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;",
+     "meta": {
+      "title": "Обратная задача",
+      "setup": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);",
+      "ordered": true,
+      "positive": [
+       {
+        "why": "UNION двух выборок",
+        "sql": "SELECT total_cost, tour FROM (SELECT total_cost, tour FROM v_all_tours WHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours) UNION SELECT total_cost, tour FROM v_all_tours WHERE total_cost = (SELECT MAX(total_cost) FROM v_all_tours)) AS t ORDER BY total_cost, tour;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "только самые дешёвые",
+        "sql": "SELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+       },
+       {
+        "why": "только самые дорогие",
+        "sql": "SELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+       },
+       {
+        "why": "AND вместо OR: пустой результат",
+        "sql": "SELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\n  AND total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+       },
+       {
+        "why": "сортировка по маршруту раньше стоимости",
+        "sql": "SELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\n   OR total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY tour, total_cost;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "team00c_role2/ex03",
+     "dir": "ex03_tours_function",
+     "title": "Старт из любого города",
+     "readme": "# Задание 03 (Роль 2). Старт из любого города\n\n**Язык:** ANSI SQL, DDL\n\nСделай запрос универсальным: оформи его как **SQL-функцию** `fnc_tours` с параметром `pstart` (город, откуда стартует маршрут; значение по умолчанию `'a'`). Функция возвращает таблицу (`total_cost integer`, `tour varchar[]`) со всеми маршрутами, которые стартуют в `pstart`, обходят все города и возвращаются в `pstart`.\n\nПроверка:\n\n```sql\nSELECT * FROM fnc_tours();\nSELECT * FROM fnc_tours('c');\nSELECT * FROM fnc_tours(pstart := 'b');\n```\n\n> Таблица `nodes` подготовлена. Тренажёр вызывает функцию с разными стартами и на 4, и на 5 городах.\n",
+     "theory": "# Теория: параметризация\n\nЭто тема из Day 09: функции с параметрами и значениями по умолчанию.\n\n```sql\nCREATE FUNCTION fnc_tours(pstart varchar DEFAULT 'a')\nRETURNS TABLE (total_cost integer, tour varchar[]) AS $$\n    WITH RECURSIVE ... WHERE point1 = pstart ...\n$$ LANGUAGE sql;\n```\n\nЧто поменять в запросе из задания 01:\n\n- стартовую точку `'a'` заменить на параметр `pstart` (и в стартовой части рекурсии, и при возврате в конце);\n- типы столбцов результата должны совпасть с `RETURNS TABLE`: сумма целых это `integer` (при необходимости приведи через `::integer`), массив городов это `varchar[]`.\n\nТеперь одну и ту же логику можно применить к любому городу. Для симметричного графа стоимости маршрутов от разных стартов совпадают (маршрут тот же, просто «повёрнут»).\n\nКлючевые слова для примеров: `CREATE FUNCTION`, `DEFAULT`, `WITH`, `CTE`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Возьми тело из ex01, замени `'a'` на параметр `pstart` и обёрни в `CREATE FUNCTION ... LANGUAGE sql`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nCREATE FUNCTION fnc_tours(pstart varchar DEFAULT '______') RETURNS TABLE (total_cost integer, tour varchar[]) AS $$\n    WITH RECURSIVE tours AS (... WHERE point1 = ______ ...)\n    SELECT (tours.total_cost + nodes.cost)::integer, tours.path || nodes.point2\n    FROM tours JOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = ______\n    WHERE CARDINALITY(tours.path) = (число городов);\n$$ LANGUAGE sql;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Параметр `pstart` встречается дважды: в стартовой части рекурсии (`WHERE point1 = pstart`) и в замыкании (`nodes.point2 = pstart`)."
+      }
+     ],
+     "solution": "CREATE FUNCTION fnc_tours(pstart varchar DEFAULT 'a') RETURNS TABLE (total_cost integer, tour varchar[]) AS $$\n    WITH RECURSIVE tours AS (\n        SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n        FROM nodes\n        WHERE point1 = pstart\n        UNION ALL\n        SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n        FROM tours\n        JOIN nodes ON nodes.point1 = tours.last_point\n        WHERE NOT nodes.point2 = ANY (tours.path)\n    )\n    SELECT (tours.total_cost + nodes.cost)::integer, tours.path || nodes.point2\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = pstart\n    WHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n$$ LANGUAGE sql;",
+     "solutionCommented": "-- Идея: тот же рекурсивный запрос, но стартовый город приходит параметром.\nCREATE FUNCTION fnc_tours(pstart varchar DEFAULT 'a') RETURNS TABLE (total_cost integer, tour varchar[]) AS $$\n    WITH RECURSIVE tours AS (\n        SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n        FROM nodes\n        WHERE point1 = pstart          -- старт из заданного города\n        UNION ALL\n        SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n        FROM tours\n        JOIN nodes ON nodes.point1 = tours.last_point\n        WHERE NOT nodes.point2 = ANY (tours.path)\n    )\n    SELECT (tours.total_cost + nodes.cost)::integer, tours.path || nodes.point2\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = pstart   -- возврат в него же\n    WHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n$$ LANGUAGE sql;",
+     "meta": {
+      "title": "Старт из любого города",
+      "setup": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);",
+      "verify": "CREATE TEMP TABLE r4 AS SELECT 'a' AS s, total_cost, tour::text AS tour FROM fnc_tours() UNION ALL SELECT 'c', total_cost, tour::text FROM fnc_tours('c') UNION ALL SELECT 'b', total_cost, tour::text FROM fnc_tours(pstart := 'b');\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'e', 12), ('e', 'a', 12),\n    ('b', 'e', 14), ('e', 'b', 14),\n    ('c', 'e', 16), ('e', 'c', 16),\n    ('d', 'e', 18), ('e', 'd', 18);\nSELECT 'cities4' AS kind, s, total_cost, tour FROM r4 UNION ALL SELECT 'cities5', 'd', total_cost, tour::text FROM fnc_tours('d') ORDER BY 1, 2, 3, 4",
+      "ordered": true,
+      "required": [
+       "RECURSIVE",
+       "CREATE FUNCTION"
+      ],
+      "negative": [
+       {
+        "why": "параметр игнорируется: старт всегда из a",
+        "sql": "CREATE FUNCTION fnc_tours(pstart varchar DEFAULT 'a') RETURNS TABLE (total_cost integer, tour varchar[]) AS $$\n    WITH RECURSIVE tours AS (\n        SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n        FROM nodes\n        WHERE point1 = 'a'\n        UNION ALL\n        SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n        FROM tours\n        JOIN nodes ON nodes.point1 = tours.last_point\n        WHERE NOT nodes.point2 = ANY (tours.path)\n    )\n    SELECT (tours.total_cost + nodes.cost)::integer, tours.path || nodes.point2\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\n    WHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n$$ LANGUAGE sql;"
+       },
+       {
+        "why": "значение по умолчанию b",
+        "sql": "CREATE FUNCTION fnc_tours(pstart varchar DEFAULT 'b') RETURNS TABLE (total_cost integer, tour varchar[]) AS $$\n    WITH RECURSIVE tours AS (\n        SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n        FROM nodes\n        WHERE point1 = pstart\n        UNION ALL\n        SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n        FROM tours\n        JOIN nodes ON nodes.point1 = tours.last_point\n        WHERE NOT nodes.point2 = ANY (tours.path)\n    )\n    SELECT (tours.total_cost + nodes.cost)::integer, tours.path || nodes.point2\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = pstart\n    WHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n$$ LANGUAGE sql;"
+       },
+       {
+        "why": "нет возврата в стартовый город",
+        "sql": "CREATE FUNCTION fnc_tours(pstart varchar DEFAULT 'a') RETURNS TABLE (total_cost integer, tour varchar[]) AS $$\n    WITH RECURSIVE tours AS (\n        SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n        FROM nodes\n        WHERE point1 = pstart\n        UNION ALL\n        SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n        FROM tours\n        JOIN nodes ON nodes.point1 = tours.last_point\n        WHERE NOT nodes.point2 = ANY (tours.path)\n    )\n    SELECT (tours.total_cost + nodes.cost)::integer, tours.path || nodes.point2\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 <> pstart\n    WHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n$$ LANGUAGE sql;"
+       },
+       {
+        "why": "число городов вписано числом 4",
+        "sql": "CREATE FUNCTION fnc_tours(pstart varchar DEFAULT 'a') RETURNS TABLE (total_cost integer, tour varchar[]) AS $$\n    WITH RECURSIVE tours AS (\n        SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n        FROM nodes\n        WHERE point1 = pstart\n        UNION ALL\n        SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n        FROM tours\n        JOIN nodes ON nodes.point1 = tours.last_point\n        WHERE NOT nodes.point2 = ANY (tours.path)\n    )\n    SELECT (tours.total_cost + nodes.cost)::integer, tours.path || nodes.point2\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = pstart\n    WHERE CARDINALITY(tours.path) = 4;\n$$ LANGUAGE sql;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": []
+     }
+    }
+   ]
+  },
+  {
+   "id": "team00d_assembly",
+   "title": "Team 00 · Общая сборка",
+   "tasks": [
+    {
+     "id": "team00d_assembly/ex00",
+     "dir": "ex00_assemble",
+     "title": "Общая сборка",
+     "readme": "# Общая сборка: оба решения вместе\n\nРоли выполнены. Теперь соберите итог в один скрипт, как если бы вы сдавали проект.\n\n**Задание.** Напишите единый скрипт, который по порядку:\n\n1. создаёт таблицу `nodes` и заполняет её рёбрами в обе стороны (часть Роли 1);\n2. создаёт представление `v_all_tours` с рекурсивным запросом (часть Роли 2);\n3. завершается запросом **обратной задачи**: маршруты с минимальной и с максимальной суммарной стоимостью, сортировка по `total_cost`, затем по `tour`.\n\nОжидаемый результат (4 города):\n\n| total_cost | tour |\n| --- | --- |\n| 80 | {a,b,d,c,a} |\n| 80 | {a,c,d,b,a} |\n| 95 | {a,b,c,d,a} |\n| 95 | {a,c,b,d,a} |\n| 95 | {a,d,b,c,a} |\n| 95 | {a,d,c,b,a} |\n\nЗдесь нет подготовленных данных: всё создаётся вашим скриптом с нуля.\n",
+     "theory": "# Теория: интеграция частей\n\nКомандная работа держится на **интерфейсах**: части совместимы, если совпадают имена и форма данных.\n\nЗдесь два интерфейса:\n\n- таблица `nodes(point1, point2, cost)`: Архитектор отдаёт, Навигатор читает;\n- представление `v_all_tours(total_cost, tour)`: Навигатор отдаёт, Архитектор читает.\n\n**Порядок выполнения важен:** сначала таблица (иначе представлению нечего читать), потом представление, потом итоговый запрос.\n\nПеред сдачей проверьте вдвоём:\n\n1. скрипт выполняется «с чистого листа» без ошибок;\n2. результат совпадает с таблицей из задания;\n3. каждый может объяснить обе части (на защите спрашивают обоих про всё).\n\nБонус: в разделе Роли 1 есть проверка «пятый город». Прогоните собранный скрипт и на ней.\n\nКлючевые слова для примеров: `CREATE TABLE`, `CREATE VIEW`, `WITH`, `CTE`, `UNION ALL`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Склей три куска по порядку: данные, представление, итоговый запрос. Куски уже написаны вами в заданиях ролей."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\n-- 1) Роль 1: CREATE TABLE nodes ...; INSERT ...;\n-- 2) Роль 2: CREATE VIEW v_all_tours AS WITH RECURSIVE ...;\n-- 3) итог: SELECT ... min OR max ...;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Если скрипт падает, проверьте порядок и имена: таблица `nodes`, представление `v_all_tours`. Ошибка «relation does not exist» почти всегда означает неверный порядок или опечатку в имени."
+      }
+     ],
+     "solution": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);\n\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\n   OR total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;",
+     "solutionCommented": "-- Сборка: данные (Роль 1) -> представление (Роль 2) -> итоговый запрос.\nCREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);\n\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\n   OR total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;",
+     "meta": {
+      "title": "Общая сборка",
+      "ordered": true,
+      "required": [
+       "CREATE TABLE",
+       "RECURSIVE",
+       "CREATE VIEW"
+      ],
+      "negative": [
+       {
+        "why": "в таблице нет обратных направлений",
+        "sql": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('a', 'c', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);\n\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\n   OR total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+       },
+       {
+        "why": "выбраны только самые дешёвые маршруты",
+        "sql": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);\n\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+       },
+       {
+        "why": "неверная стоимость ребра в данных",
+        "sql": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 26),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);\n\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\n   OR total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+       }
+      ],
+      "dataset": "pizza",
+      "forbidden": []
+     }
+    }
+   ]
+  },
+  {
+   "id": "team01a_start",
+   "title": "Team 01 · Старт: хранилище данных (для двоих)",
+   "tasks": [
+    {
+     "id": "team01a_start/ex00",
+     "dir": "ex00_read_first",
+     "title": "Читать первым",
+     "readme": "# Командный проект: хранилище данных (DWH)\n\nПроект выполняют **двое**. Выберите роли и найдите их в левом списке:\n\n- **Роль 1 · «Аналитик хранилища»**: учитывает все операции по балансу и считает итоговый объём в долларах по **последнему** курсу валюты. Раздел «Team 01 · Роль 1».\n- **Роль 2 · «Инженер курсов»**: для каждой операции находит курс, который действовал **на момент операции**. Раздел «Team 01 · Роль 2».\n\nКогда обе части готовы, сделайте **общую сборку**: раздел «Team 01 · Общая сборка».\n\n## Идея проекта\n\nХранилище данных (DWH) собирает данные из разных систем, чтобы по ним можно было строить отчёты. Два классика предлагали разные способы его строить: Билл Инмон («предметно-ориентированная, интегрированная, неизменяемая и изменяемая во времени коллекция данных для принятия решений») и Ральф Кимбал (данные очищаются и загружаются в хранилище измерений). Сегодня к ним добавился LakeHouse: смесь DataLake и DataWareHouse.\n\nВ этом проекте вы работаете с первым слоем хранилища: **ODS** (Operational Data Store). Это копия данных из источников со всеми их недостатками.\n\n## Источники данных\n\nТри независимых системы (в духе микросервисов):\n\n- **Green**: пользователи.\n- **Red**: валюты и курсы.\n- **Blue**: операции по балансу.\n\nВ хранилище лежат три таблицы:\n\n| Таблица | Столбцы | Комментарий |\n| --- | --- | --- |\n| `\"user\"` | `id`, `name`, `lastname` | имя и фамилия могут быть `NULL` |\n| `currency` | `id`, `name`, `rate_to_usd`, `updated` | `id` повторяется: строка на каждое изменение курса |\n| `balance` | `user_id`, `money`, `type`, `currency_id`, `updated` | внешних ключей нет |\n\n`currency` хранит **историю**: каждый раз, когда курс менялся, добавлялась новая строка с отметкой `updated`. Так таблица становится *временной* (temporal): `id` в ней уже не уникален.\n\nПример для `EUR`:\n\n| id | name | rate_to_usd | updated |\n| --- | --- | --- | --- |\n| 100 | EUR | 0.9 | 2022-03-03 13:31 |\n| 100 | EUR | 0.89 | 2022-03-02 12:31 |\n| 100 | EUR | 0.87 | 2022-03-02 08:00 |\n| 100 | EUR | 0.9 | 2022-03-01 15:36 |\n\n## Аномалии данных\n\nИсточники независимы, поэтому данные несогласованы:\n\n- в `balance` есть пользователь, которого нет в `\"user\"` (и наоборот: пользователь без единой операции);\n- в `balance` есть валюта, которой нет в `currency`;\n- в `\"user\"` бывают `NULL` в `name` и `lastname`.\n\nСтроки-«сироты» удалять нельзя: деньги были, значит, их надо учесть. Поэтому в запросах нужны `LEFT JOIN` и `COALESCE`.\n\n## Договорённость между ролями\n\n| Что | Имя | Кто создаёт |\n| --- | --- | --- |\n| итоговые объёмы по пользователям (задание 00 проекта) | `v_total_volume` | Роль 1 |\n| операции в долларах по курсу на момент операции (задание 01 проекта) | `v_balance_usd` | Роль 2 |\n\nИменно эти два представления вы соедините в общей сборке.\n\n## Про таблицу `\"user\"`\n\nСлово `user` в PostgreSQL зарезервировано, поэтому таблицу пишут в **двойных кавычках**: `\"user\"`. Без кавычек запрос вернёт не таблицу, а имя текущего пользователя.\n\n## Как работать вдвоём\n\n1. Выберите роли.\n2. Прочитайте карточку и теорию своей роли.\n3. Решайте задания независимо.\n4. Обменяйтесь готовыми запросами и соберите их вместе.\n5. Объясните друг другу свои части: на защите спрашивают обоих про всё.\n",
+     "theory": "# Теория: что общего у обеих ролей\n\n## Что такое ODS\n\nODS (Operational Data Store) хранит данные почти так, как они пришли из систем-источников. Здесь их ещё не «чистят»: все дефекты источников видны. Поэтому первое, что делает аналитик: выясняет, какие аномалии есть, и пишет запросы, которые их переживают.\n\n## Временная таблица\n\nЕсли таблица хранит только текущее состояние (как в OLTP), старые значения теряются. В хранилище нужна история: добавляют столбец с отметкой времени (`updated`), и каждое изменение превращается в **новую строку**. Чтобы узнать значение на нужный момент, надо выбрать строку по времени:\n\n- **последнее** значение: строка с максимальным `updated`;\n- значение **на момент T**: строка с максимальным `updated`, не позже T.\n\n## Связи без внешних ключей\n\nМежду таблицами нет `FOREIGN KEY`, поэтому нельзя быть уверенным, что `balance.user_id` есть в `\"user\"`. Для таких связей используют `LEFT JOIN`: он оставляет строки левой таблицы, даже если пары нет. Недостающие значения станут `NULL`, а `COALESCE` заменит их на запасные.\n\n```sql\nSELECT COALESCE(u.name, 'not defined') AS name\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id;\n```\n\nКлючевые слова для примеров: `LEFT JOIN`, `COALESCE`, `NULL`, `VIEW`, `GROUP BY`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Прочитайте описание проекта и договоритесь: кто какую роль берёт и как называются представления `v_total_volume` и `v_balance_usd`."
+      },
+      {
+       "title": "Каркас",
+       "body": "Порядок: роли → свои задания → обмен запросами → общая сборка."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Пока выбирайте роль: в каждой есть подготовительные задания и итоговое задание проекта."
+      }
+     ],
+     "solution": "-- Старт: см. описание проекта.",
+     "solutionCommented": "-- Командный проект Team 01: хранилище данных. Роли описаны в левом списке.",
+     "meta": {
+      "title": "Читать первым",
+      "manual": true,
+      "dataset": "dwh",
+      "forbidden": [],
+      "required": []
+     }
+    }
+   ]
+  },
+  {
+   "id": "team01b_role1",
+   "title": "Team 01 · Роль 1 «Аналитик хранилища»",
+   "tasks": [
+    {
+     "id": "team01b_role1/ex00",
+     "dir": "ex00_role_card",
+     "title": "Роль 1: карточка",
+     "readme": "# Роль 1 · «Аналитик хранилища»: твоя карточка\n\nТы отвечаешь за **итоговый объём средств** по пользователям. Напарник (Роль 2, «Инженер курсов») считает суммы по курсу на момент каждой операции. Вы вместе получите две разные оценки в долларах и сверите их.\n\n## Твои задания\n\n1. **ex01. Последний курс**: для каждой валюты найди самый свежий курс.\n2. **ex02. Аномалии**: найди операции, для которых нет пользователя или валюты.\n3. **ex03. Classical DWH**: итоговый запрос (задание 00 проекта).\n\n## Что отдать напарнику\n\nЗапрос из ex03, оформленный как представление `v_total_volume` (для общей сборки).\n\n## Что получить от напарника\n\nПредставление `v_balance_usd` (его задание 01 проекта).\n\n## Как работать\n\nДанные в тренажёре уже загружены, ничего создавать не нужно. Таблицы: `\"user\"`, `currency`, `balance`.\n",
+     "theory": "# Теория Роли 1: последние значения и аномалии\n\n## Последняя строка в группе\n\nВ `currency` у валюты несколько строк. Нужна последняя по `updated`. Три способа.\n\n**1. `DISTINCT ON`** (особенность PostgreSQL): оставляет первую строку каждой группы в заданной сортировке.\n\n```sql\nSELECT DISTINCT ON (id) id, name, rate_to_usd\nFROM currency\nORDER BY id, updated DESC;\n```\n\n**2. Оконная функция:**\n\n```sql\nSELECT id, name, rate_to_usd\nFROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY id ORDER BY updated DESC) AS rn\n      FROM currency) t\nWHERE rn = 1;\n```\n\n**3. Подзапрос с `MAX`:**\n\n```sql\nSELECT c.*\nFROM currency c\nWHERE c.updated = (SELECT MAX(updated) FROM currency WHERE id = c.id);\n```\n\n## Аномалии: LEFT JOIN\n\nЧтобы найти строки без пары, соединяют `LEFT JOIN` и отбирают те, у кого справа `NULL`:\n\n```sql\nSELECT b.user_id\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nWHERE u.id IS NULL;\n```\n\nЕсли справа несколько строк на ключ (как в `currency`), сначала сверните справа до одной строки на ключ, иначе левые строки размножатся.\n\n## Группировка по нескольким столбцам\n\n`GROUP BY user_id, type, currency_id`: одна строка на каждое сочетание. Суммы считаются внутри группы: `SUM(money)`.\n\nСтолбец в `SELECT` должен быть либо в `GROUP BY`, либо внутри агрегата. Если вы берёте `u.name`, добавьте его в `GROUP BY`.\n\n## Значения по умолчанию\n\n`COALESCE(x, 'not defined')` возвращает первое не-`NULL`. Для курса значение по умолчанию: **1** (пишите именно `1`).\n\nКлючевые слова для примеров: `DISTINCT`, `ROW_NUMBER`, `PARTITION BY`, `MAX`, `SUM`, `LEFT JOIN`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Прочитайте карточку и теорию. Делайте задания по порядку: каждое — заготовка для следующего."
+      },
+      {
+       "title": "Каркас",
+       "body": "ex01 → последний курс. ex02 → осиротевшие операции. ex03 → итог, где оба знания работают вместе."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Если сомневаетесь, откройте подсказки у конкретного задания."
+      }
+     ],
+     "solution": "-- Роль 1: см. задания ex01-ex03.",
+     "solutionCommented": "-- Роль 1: последний курс (ex01), аномалии (ex02), итоговые объёмы (ex03).",
+     "meta": {
+      "title": "Роль 1: карточка",
+      "manual": true,
+      "dataset": "dwh",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "team01b_role1/ex01",
+     "dir": "ex01_last_rate",
+     "title": "Последний курс",
+     "readme": "# Задание 01. Последний курс\n\n**Разрешено:** SQL\n\nВ таблице `currency` у валюты несколько строк: по одной на каждое изменение курса. Для каждой валюты верни **последний** курс.\n\nСтолбцы результата: `id`, `name`, `last_rate_to_usd`.\n\nОтсортируй по `id`.\n\n| id | name | last_rate_to_usd |\n| --- | --- | --- |\n| 100 | EUR | 0.9000 |\n| 101 | USD | 1.0000 |\n| … | … | … |\n",
+     "theory": "# Теория: последняя строка в группе\n\nВ истории курсов нужна одна строка на валюту: с самым поздним `updated`.\n\n```sql\nSELECT DISTINCT ON (id) id, name, rate_to_usd\nFROM currency\nORDER BY id, updated DESC;\n```\n\n`DISTINCT ON (id)` оставляет первую строку каждой группы `id` в порядке `ORDER BY`. Поэтому сортировка начинается с `id`, а затем идёт `updated DESC`: свежая строка будет первой.\n\nДругие способы: `ROW_NUMBER() OVER (PARTITION BY id ORDER BY updated DESC)` и подзапрос `MAX(updated)`.\n\nОшибка: взять `MAX(rate_to_usd)`. Это самый большой курс, а не самый свежий.\n\nКлючевые слова для примеров: `DISTINCT`, `ROW_NUMBER`, `MAX`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Нужна одна строка на `id`: с самым поздним `updated`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT DISTINCT ON (id) id, name, ... AS last_rate_to_usd\nFROM currency\nORDER BY id, ...;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "После `ORDER BY id` добавьте `updated DESC`."
+      }
+     ],
+     "solution": "SELECT DISTINCT ON (id) id, name, rate_to_usd AS last_rate_to_usd\nFROM currency\nORDER BY id, updated DESC;",
+     "solutionCommented": "-- DISTINCT ON оставляет первую строку каждой группы id\nSELECT DISTINCT ON (id) id, name, rate_to_usd AS last_rate_to_usd\nFROM currency\nORDER BY id, updated DESC;   -- в группе первой окажется самая свежая строка",
+     "meta": {
+      "title": "Последний курс",
+      "dataset": "dwh",
+      "ordered": true,
+      "positive": [
+       {
+        "why": "через оконную функцию",
+        "sql": "SELECT id, name, rate_to_usd AS last_rate_to_usd\nFROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY id ORDER BY updated DESC) AS rn FROM currency) t\nWHERE rn = 1\nORDER BY id;"
+       },
+       {
+        "why": "через MAX по updated",
+        "sql": "SELECT c.id, c.name, c.rate_to_usd AS last_rate_to_usd\nFROM currency c\nWHERE c.updated = (SELECT MAX(updated) FROM currency WHERE id = c.id)\nORDER BY c.id;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "самый большой курс вместо самого свежего",
+        "sql": "SELECT id, name, MAX(rate_to_usd) AS last_rate_to_usd\nFROM currency\nGROUP BY id, name\nORDER BY id;"
+       },
+       {
+        "why": "самый старый курс",
+        "sql": "SELECT DISTINCT ON (id) id, name, rate_to_usd AS last_rate_to_usd\nFROM currency\nORDER BY id, updated ASC;"
+       },
+       {
+        "why": "не убраны старые строки",
+        "sql": "SELECT id, name, rate_to_usd AS last_rate_to_usd\nFROM currency\nORDER BY id;"
+       }
+      ],
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "team01b_role1/ex02",
+     "dir": "ex02_anomalies",
+     "title": "Аномалии",
+     "readme": "# Задание 02. Аномалии\n\n**Разрешено:** SQL\n\nНайди «осиротевшие» операции: в `balance` есть пользователь, которого нет в `\"user\"`, или валюта, которой нет в `currency`.\n\nВерни **уникальные** сочетания `user_id`, `currency_id` и текст проблемы в столбце `problem`:\n\n| Что случилось | `problem` |\n| --- | --- |\n| нет пользователя | `no user` |\n| нет валюты | `no currency` |\n| нет ни того, ни другого | `no user, no currency` |\n\nОтсортируй по `user_id`, затем по `currency_id`.\n\n| user_id | currency_id | problem |\n| --- | --- | --- |\n| 102 | 199 | no currency |\n| 999 | 100 | no user |\n| … | … | … |\n",
+     "theory": "# Теория: поиск строк без пары\n\nНужны строки левой таблицы, для которых справа ничего не нашлось. Два приёма.\n\n**`LEFT JOIN ... IS NULL`:**\n\n```sql\nSELECT b.user_id\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nWHERE u.id IS NULL;\n```\n\n**`NOT EXISTS`:**\n\n```sql\nSELECT b.user_id\nFROM balance b\nWHERE NOT EXISTS (SELECT 1 FROM \"user\" u WHERE u.id = b.user_id);\n```\n\nВалюты в `currency` повторяются, поэтому справа сначала нужна одна строка на `id` (`SELECT DISTINCT id FROM currency`), иначе левые строки размножатся.\n\nТекст проблемы собирается через `CASE WHEN ... THEN ... END`. Уникальные строки даёт `DISTINCT`.\n\nКлючевые слова для примеров: `LEFT JOIN`, `NOT EXISTS`, `CASE`, `DISTINCT`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Нужны операции, у которых нет пары в `\"user\"` или в `currency`. Для каждой определите, чего именно не хватает."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT DISTINCT b.user_id, b.currency_id, CASE ... END AS problem\nFROM balance b\nLEFT JOIN \"user\" u ON ...\nLEFT JOIN (SELECT DISTINCT id FROM currency) c ON ...\nWHERE u.id IS NULL OR c.id IS NULL\nORDER BY ...;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "В `CASE` сначала проверьте случай «нет обоих», потом по одному."
+      }
+     ],
+     "solution": "SELECT DISTINCT b.user_id, b.currency_id,\n       CASE\n           WHEN u.id IS NULL AND c.id IS NULL THEN 'no user, no currency'\n           WHEN u.id IS NULL THEN 'no user'\n           ELSE 'no currency'\n       END AS problem\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN (SELECT DISTINCT id FROM currency) c ON c.id = b.currency_id\nWHERE u.id IS NULL OR c.id IS NULL\nORDER BY b.user_id, b.currency_id;",
+     "solutionCommented": "-- Ищем операции без пары в user или в currency\nSELECT DISTINCT b.user_id, b.currency_id,\n       CASE\n           WHEN u.id IS NULL AND c.id IS NULL THEN 'no user, no currency'  -- обе пары отсутствуют\n           WHEN u.id IS NULL THEN 'no user'\n           ELSE 'no currency'\n       END AS problem\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN (SELECT DISTINCT id FROM currency) c ON c.id = b.currency_id   -- одна строка на валюту\nWHERE u.id IS NULL OR c.id IS NULL\nORDER BY b.user_id, b.currency_id;",
+     "meta": {
+      "title": "Аномалии",
+      "dataset": "dwh",
+      "ordered": true,
+      "positive": [
+       {
+        "why": "через NOT EXISTS",
+        "sql": "SELECT DISTINCT b.user_id, b.currency_id,\n       CASE\n           WHEN NOT EXISTS (SELECT 1 FROM \"user\" u WHERE u.id = b.user_id)\n            AND NOT EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id) THEN 'no user, no currency'\n           WHEN NOT EXISTS (SELECT 1 FROM \"user\" u WHERE u.id = b.user_id) THEN 'no user'\n           ELSE 'no currency'\n       END AS problem\nFROM balance b\nWHERE NOT EXISTS (SELECT 1 FROM \"user\" u WHERE u.id = b.user_id)\n   OR NOT EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\nORDER BY b.user_id, b.currency_id;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "найдены только операции без пользователя",
+        "sql": "SELECT DISTINCT b.user_id, b.currency_id, 'no user' AS problem\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nWHERE u.id IS NULL\nORDER BY b.user_id, b.currency_id;"
+       },
+       {
+        "why": "без DISTINCT строки повторяются",
+        "sql": "SELECT b.user_id, b.currency_id,\n       CASE\n           WHEN u.id IS NULL AND c.id IS NULL THEN 'no user, no currency'\n           WHEN u.id IS NULL THEN 'no user'\n           ELSE 'no currency'\n       END AS problem\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN (SELECT DISTINCT id FROM currency) c ON c.id = b.currency_id\nWHERE u.id IS NULL OR c.id IS NULL\nORDER BY b.user_id, b.currency_id;"
+       },
+       {
+        "why": "не различены случаи: везде написано «no user»",
+        "sql": "SELECT DISTINCT b.user_id, b.currency_id,\n       CASE\n           WHEN u.id IS NULL AND c.id IS NULL THEN 'no user, no currency'\n           ELSE 'no user'\n       END AS problem\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN (SELECT DISTINCT id FROM currency) c ON c.id = b.currency_id\nWHERE u.id IS NULL OR c.id IS NULL\nORDER BY b.user_id, b.currency_id;"
+       }
+      ],
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "team01b_role1/ex03",
+     "dir": "ex03_classical_dwh",
+     "title": "Classical DWH",
+     "readme": "# Задание 03. Classical DWH\n\n**Разрешено:** SQL\n\nЭто задание 00 проекта. Напиши запрос, который возвращает **общий объём средств** по балансам, сгруппированный по пользователям и типам балансов.\n\nНужно учесть **все** данные, включая аномалии.\n\n| Поле | Формула |\n| --- | --- |\n| `name` | `user.name`; если `NULL` (или пользователя нет), то `'not defined'` |\n| `lastname` | `user.lastname`; если `NULL` (или пользователя нет), то `'not defined'` |\n| `type` | `balance.type` |\n| `volume` | сумма `balance.money` по группе |\n| `currency_name` | `currency.name`; если валюты нет, то `'not defined'` |\n| `last_rate_to_usd` | **последний** `rate_to_usd` этой валюты; если валюты нет, то `1` (пиши именно `1`) |\n| `total_volume_in_usd` | `volume` умножить на `last_rate_to_usd` |\n\nОдна строка соответствует одному сочетанию «пользователь + тип баланса + валюта».\n\nОтсортируй по `name` **по убыванию**, затем по `lastname`, `type` и `currency_name` **по возрастанию**.\n\nОбразец:\n\n| name | lastname | type | volume | currency_name | last_rate_to_usd | total_volume_in_usd |\n| --- | --- | --- | --- | --- | --- | --- |\n| Петр | not defined | 2 | 203.00 | not defined | 1 | 203.00 |\n| Иван | Иванов | 1 | 410.00 | EUR | 0.9000 | 369.000000 |\n| … | … | … | … | … | … | … |\n",
+     "theory": "# Теория: итог по хранилищу с аномалиями\n\nЗадача складывается из трёх знакомых кусков.\n\n**1. Последний курс валюты.** Сделайте во временной таблице (`WITH`) одну строку на валюту: `DISTINCT ON` или `ROW_NUMBER`. Если соединить `balance` с полной `currency`, курсы размножат строки, и суммы удвоятся.\n\n**2. Соединения, не теряющие данные.** Основа запроса: `balance`. К ней `LEFT JOIN \"user\"` и `LEFT JOIN` последнего курса. Тогда операции без пользователя или без валюты не пропадут.\n\n**3. Группировка и подстановка значений.**\n\n```sql\nCOALESCE(u.name, 'not defined') AS name\nSUM(b.money) AS volume\nCOALESCE(c.rate_to_usd, 1) AS last_rate_to_usd\n```\n\nГруппировать нужно по тому, что определяет строку: пользователь (`b.user_id`), тип, валюта (`b.currency_id`). Остальные столбцы (`u.name`, `c.name`, ...) добавляются в `GROUP BY` ради синтаксиса.\n\nГруппируйте по `user_id`, а не только по имени: у разных пользователей могут совпасть имена.\n\nПорядок: `ORDER BY name DESC, lastname, type, currency_name`. Здесь `name` и `lastname` — это уже подставленные значения.\n\nКлючевые слова для примеров: `WITH`, `LEFT JOIN`, `COALESCE`, `SUM`, `GROUP BY`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Сначала подготовьте последний курс на валюту (одна строка), потом присоедините его и пользователя к `balance` через `LEFT JOIN`, потом сгруппируйте."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nWITH last_rate AS (\n    -- одна строка на валюту\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       ...,\n       SUM(b.money) AS volume,\n       ...\nFROM balance b\nLEFT JOIN \"user\" u ON ...\nLEFT JOIN last_rate c ON ...\nGROUP BY ...\nORDER BY ...;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Группируйте по `b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd`. Для курса: `COALESCE(c.rate_to_usd, 1)`."
+      }
+     ],
+     "solution": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;",
+     "solutionCommented": "-- Итоговый объём по пользователям и типам, с учётом аномалий\nWITH last_rate AS (   -- по одной строке на валюту: последний курс\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id   -- LEFT: операции без пользователя не теряем\nLEFT JOIN last_rate c ON c.id = b.currency_id   -- LEFT: операции с неизвестной валютой не теряем\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;",
+     "meta": {
+      "title": "Classical DWH",
+      "dataset": "dwh",
+      "ordered": true,
+      "required": [
+       "LEFT JOIN"
+      ],
+      "positive": [
+       {
+        "why": "последний курс через ROW_NUMBER",
+        "sql": "WITH last_rate AS (\n    SELECT id, name, rate_to_usd\n    FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY id ORDER BY updated DESC) AS rn FROM currency) t\n    WHERE rn = 1\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+       },
+       {
+        "why": "последний курс через MAX(updated)",
+        "sql": "WITH last_rate AS (\n    SELECT c.id, c.name, c.rate_to_usd\n    FROM currency c\n    WHERE c.updated = (SELECT MAX(updated) FROM currency WHERE id = c.id)\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "взят самый старый курс",
+        "sql": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd FROM currency ORDER BY id, updated ASC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+       },
+       {
+        "why": "операции без валюты потеряны (INNER JOIN)",
+        "sql": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+       },
+       {
+        "why": "операции без пользователя потеряны (INNER JOIN)",
+        "sql": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nJOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+       },
+       {
+        "why": "нет курса по умолчанию: итог NULL",
+        "sql": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       c.rate_to_usd AS last_rate_to_usd,\n       SUM(b.money) * c.rate_to_usd AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+       },
+       {
+        "why": "курс по умолчанию 0",
+        "sql": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 0) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 0) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+       },
+       {
+        "why": "курсы не сведены к последнему: суммы размножены",
+        "sql": "WITH last_rate AS (\n    SELECT id, name, rate_to_usd FROM currency\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+       },
+       {
+        "why": "сортировка по имени по возрастанию",
+        "sql": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name, lastname, type, currency_name;"
+       }
+      ],
+      "forbidden": []
+     }
+    }
+   ]
+  },
+  {
+   "id": "team01c_role2",
+   "title": "Team 01 · Роль 2 «Инженер курсов»",
+   "tasks": [
+    {
+     "id": "team01c_role2/ex00",
+     "dir": "ex00_role_card",
+     "title": "Роль 2: карточка",
+     "readme": "# Роль 2 · «Инженер курсов»: твоя карточка\n\nТы отвечаешь за **курс на момент операции**. Курс валюты менялся, и деньги, потраченные в январе, надо пересчитывать по январскому курсу, а не по последнему. Напарник (Роль 1) считает по последнему курсу.\n\n## Твои задания\n\n1. **ex01. Курс из прошлого (t1)**: для каждой операции найди ближайший курс **до** операции.\n2. **ex02. Курс из будущего (t2)**: добавь ближайший курс **после** и выбери итоговый.\n3. **ex03. Detailed Query**: итоговый запрос (задание 01 проекта).\n\n## Особенность данных\n\nПеред заданиями проекта выполняются два `INSERT` (они уже сделаны в тренажёре за тебя, в настоящем проекте их нужно выполнить самому):\n\n```sql\nINSERT INTO currency VALUES (100, 'EUR', 0.85, '2022-01-01 13:29');\nINSERT INTO currency VALUES (100, 'EUR', 0.79, '2022-01-08 13:29');\n```\n\nОни добавляют в историю евро два старых курса.\n\n## Что отдать напарнику\n\nЗапрос из ex03, оформленный как представление `v_balance_usd` (для общей сборки).\n\n## Что получить от напарника\n\nПредставление `v_total_volume` (его задание 00 проекта).\n",
+     "theory": "# Теория Роли 2: курс на момент времени\n\n## Ближайший курс в прошлом\n\nКурс, действовавший на момент `b.updated`: самая свежая строка `currency` с `updated` **не позже** этого момента. Коррелированный подзапрос:\n\n```sql\nSELECT (SELECT c.rate_to_usd\n        FROM currency c\n        WHERE c.id = b.currency_id AND c.updated <= b.updated\n        ORDER BY c.updated DESC\n        LIMIT 1) AS rate_t1\nFROM balance b;\n```\n\nЕсли подходящих строк нет, подзапрос вернёт `NULL`.\n\nВажна граница: если курс изменился **в ту же секунду**, что и операция, он уже действует, поэтому нужно `<=`, а не `<`.\n\n## Ближайший курс в будущем\n\nЗеркально: `c.updated > b.updated` и `ORDER BY c.updated ASC LIMIT 1`.\n\n## Выбор между t1 и t2\n\n`COALESCE(t1, t2)` берёт t1, а если его нет, то t2. Это ровно правило задания: «если в прошлом курса нет, берём ближайший в будущем».\n\n## Операции с неизвестной валютой\n\nДля валюты, которой вообще нет в `currency`, ни t1, ни t2 не существует. По условию такие операции игнорируются: `WHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)` или обычный `JOIN`.\n\n## Выбор строки целиком\n\nЧтобы получить и `name`, и `rate_to_usd` одной строки, найдите подходящее время `updated` и присоедините строку по `id` и `updated`:\n\n```sql\nJOIN currency c ON c.id = b.currency_id\n               AND c.updated = COALESCE(\n                   (SELECT MAX(updated) FROM currency WHERE id = b.currency_id AND updated <= b.updated),\n                   (SELECT MIN(updated) FROM currency WHERE id = b.currency_id AND updated >  b.updated))\n```\n\nКлючевые слова для примеров: `SUBQUERY`, `COALESCE`, `LIMIT`, `EXISTS`, `MAX`, `MIN`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Прочитайте карточку и теорию. Идите по порядку: сначала t1, потом t2, потом всё вместе."
+      },
+      {
+       "title": "Каркас",
+       "body": "ex01 → курс в прошлом. ex02 → курс в будущем и выбор. ex03 → итог с пользователями и суммой."
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Если запутались с границей времени: `<=` для прошлого, `>` для будущего."
+      }
+     ],
+     "solution": "-- Роль 2: см. задания ex01-ex03.",
+     "solutionCommented": "-- Роль 2: курс в прошлом (ex01), в будущем (ex02), итог с пересчётом (ex03).",
+     "meta": {
+      "title": "Роль 2: карточка",
+      "manual": true,
+      "dataset": "dwh",
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "team01c_role2/ex01",
+     "dir": "ex01_rate_t1",
+     "title": "Курс из прошлого",
+     "readme": "# Задание 01. Курс из прошлого (t1)\n\n**Разрешено:** SQL\n\nПеред запросом выполнены два `INSERT` из карточки роли.\n\nДля каждой операции из `balance`, у которой валюта есть в `currency`, найди **ближайший курс в прошлом**: самый свежий `rate_to_usd` с `updated` не позже `balance.updated`. Если такого нет, в `rate_t1` должен быть `NULL`.\n\nСтолбцы: `user_id`, `currency_id`, `money`, `updated`, `rate_t1`.\n\nОперации с валютой, которой нет в `currency`, в результат **не попадают**.\n\nОтсортируй по `user_id`, `updated`, `currency_id`, `money`.\n\n| user_id | currency_id | money | updated | rate_t1 |\n| --- | --- | --- | --- | --- |\n| 101 | 101 | 40.00 | 2022-01-05 10:00:00 | 1.0000 |\n| 101 | 100 | 100.00 | 2022-01-09 04:23:00 | 0.7900 |\n| … | … | … | … | … |\n",
+     "theory": "# Теория: ближайший курс в прошлом\n\n```sql\nSELECT b.user_id, b.money, b.updated,\n       (SELECT c.rate_to_usd\n        FROM currency c\n        WHERE c.id = b.currency_id AND c.updated <= b.updated\n        ORDER BY c.updated DESC\n        LIMIT 1) AS rate_t1\nFROM balance b;\n```\n\nПодзапрос коррелированный: он смотрит на текущую строку `b` и для каждой операции ищет свой курс. `ORDER BY c.updated DESC LIMIT 1` даёт самый свежий из подходящих.\n\nОперации с неизвестной валютой убираются условием `WHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)`.\n\nГраница `<=`: курс, обновлённый ровно в момент операции, считается действующим.\n\nКлючевые слова для примеров: `SUBQUERY`, `LIMIT`, `EXISTS`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Для каждой строки `balance` нужен свой курс: подзапрос в `SELECT`, который смотрит на текущую операцию."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT b.user_id, ..., (SELECT ... ORDER BY ... LIMIT 1) AS rate_t1\nFROM balance b\nWHERE EXISTS (...)\nORDER BY ...;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "В подзапросе: `WHERE c.id = b.currency_id AND c.updated <= b.updated ORDER BY c.updated DESC LIMIT 1`."
+      }
+     ],
+     "solution": "SELECT b.user_id, b.currency_id, b.money, b.updated,\n       (SELECT c.rate_to_usd\n        FROM currency c\n        WHERE c.id = b.currency_id AND c.updated <= b.updated\n        ORDER BY c.updated DESC\n        LIMIT 1) AS rate_t1\nFROM balance b\nWHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\nORDER BY b.user_id, b.updated, b.currency_id, b.money;",
+     "solutionCommented": "-- Для каждой операции ищем последний курс не позже момента операции\nSELECT b.user_id, b.currency_id, b.money, b.updated,\n       (SELECT c.rate_to_usd           -- коррелированный подзапрос: смотрит на текущую операцию b\n        FROM currency c\n        WHERE c.id = b.currency_id AND c.updated <= b.updated\n        ORDER BY c.updated DESC     -- самый свежий из подходящих\n        LIMIT 1) AS rate_t1\nFROM balance b\nWHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\nORDER BY b.user_id, b.updated, b.currency_id, b.money;",
+     "meta": {
+      "title": "Курс из прошлого",
+      "dataset": "dwh",
+      "ordered": true,
+      "setup": "insert into currency values (100, 'EUR', 0.85, '2022-01-01 13:29');\ninsert into currency values (100, 'EUR', 0.79, '2022-01-08 13:29');",
+      "positive": [
+       {
+        "why": "через LATERAL",
+        "sql": "SELECT b.user_id, b.currency_id, b.money, b.updated, t.rate_to_usd AS rate_t1\nFROM balance b\nLEFT JOIN LATERAL (SELECT c.rate_to_usd FROM currency c\n                   WHERE c.id = b.currency_id AND c.updated <= b.updated\n                   ORDER BY c.updated DESC LIMIT 1) t ON true\nWHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\nORDER BY b.user_id, b.updated, b.currency_id, b.money;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "граница строгая (<): курс в тот же момент не учтён",
+        "sql": "SELECT b.user_id, b.currency_id, b.money, b.updated,\n       (SELECT c.rate_to_usd\n        FROM currency c\n        WHERE c.id = b.currency_id AND c.updated < b.updated\n        ORDER BY c.updated DESC\n        LIMIT 1) AS rate_t1\nFROM balance b\nWHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\nORDER BY b.user_id, b.updated, b.currency_id, b.money;"
+       },
+       {
+        "why": "взят самый старый курс вместо ближайшего",
+        "sql": "SELECT b.user_id, b.currency_id, b.money, b.updated,\n       (SELECT c.rate_to_usd\n        FROM currency c\n        WHERE c.id = b.currency_id AND c.updated <= b.updated\n        ORDER BY c.updated ASC\n        LIMIT 1) AS rate_t1\nFROM balance b\nWHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\nORDER BY b.user_id, b.updated, b.currency_id, b.money;"
+       },
+       {
+        "why": "остались операции с неизвестной валютой",
+        "sql": "SELECT b.user_id, b.currency_id, b.money, b.updated,\n       (SELECT c.rate_to_usd\n        FROM currency c\n        WHERE c.id = b.currency_id AND c.updated <= b.updated\n        ORDER BY c.updated DESC\n        LIMIT 1) AS rate_t1\nFROM balance b\nORDER BY b.user_id, b.updated, b.currency_id, b.money;"
+       },
+       {
+        "why": "курс ищется без привязки к валюте",
+        "sql": "SELECT b.user_id, b.currency_id, b.money, b.updated,\n       (SELECT c.rate_to_usd\n        FROM currency c\n        WHERE c.updated <= b.updated\n        ORDER BY c.updated DESC\n        LIMIT 1) AS rate_t1\nFROM balance b\nWHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\nORDER BY b.user_id, b.updated, b.currency_id, b.money;"
+       }
+      ],
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "team01c_role2/ex02",
+     "dir": "ex02_rate_t1_t2",
+     "title": "Курс из будущего",
+     "readme": "# Задание 02. Курс из будущего (t2)\n\n**Разрешено:** SQL\n\nРасширь предыдущий запрос (те же два `INSERT` уже выполнены).\n\nДля каждой операции с известной валютой верни:\n\n- `rate_t1`: ближайший курс в прошлом (`updated <= balance.updated`), иначе `NULL`;\n- `rate_t2`: ближайший курс в **будущем** (`updated > balance.updated`, самый ранний из таких), иначе `NULL`;\n- `rate_used`: итоговый курс: `rate_t1`, а если его нет, то `rate_t2`.\n\nСтолбцы: `user_id`, `currency_id`, `updated`, `rate_t1`, `rate_t2`, `rate_used`.\n\nОтсортируй по `user_id`, `updated`, `currency_id`.\n\n| user_id | currency_id | updated | rate_t1 | rate_t2 | rate_used |\n| --- | --- | --- | --- | --- | --- |\n| 101 | 101 | 2022-01-05 10:00:00 | 1.0000 | NULL | 1.0000 |\n| 101 | 100 | 2022-01-09 04:23:00 | 0.7900 | 0.8700 | 0.7900 |\n| … | … | … | … | … | … |\n",
+     "theory": "# Теория: два кандидата и выбор\n\nВторой курс ищется зеркально первому:\n\n```sql\n(SELECT c.rate_to_usd\n FROM currency c\n WHERE c.id = b.currency_id AND c.updated > b.updated\n ORDER BY c.updated ASC\n LIMIT 1) AS rate_t2\n```\n\nТеперь `ASC`, потому что нужен **ближайший** по времени, то есть самый ранний из будущих.\n\nЧтобы не повторять подзапросы в итоговом столбце, выберите оба в `WITH`, а во внешнем запросе возьмите `COALESCE(rate_t1, rate_t2)`.\n\nВажно: t1 сначала. По правилу курс из будущего нужен только тогда, когда курса из прошлого нет, даже если будущий ближе по времени.\n\nКлючевые слова для примеров: `WITH`, `COALESCE`, `LIMIT`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Два подзапроса: один смотрит назад, другой вперёд. Итог: `COALESCE(t1, t2)`."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nWITH r AS (\n    SELECT ..., (подзапрос t1) AS rate_t1, (подзапрос t2) AS rate_t2\n    FROM balance b WHERE EXISTS (...)\n)\nSELECT ..., COALESCE(rate_t1, rate_t2) AS rate_used FROM r ORDER BY ...;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Для t2: `c.updated > b.updated ORDER BY c.updated ASC LIMIT 1`."
+      }
+     ],
+     "solution": "WITH r AS (\n    SELECT b.user_id, b.currency_id, b.updated,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated <= b.updated\n            ORDER BY c.updated DESC LIMIT 1) AS rate_t1,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated > b.updated\n            ORDER BY c.updated ASC LIMIT 1) AS rate_t2\n    FROM balance b\n    WHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\n)\nSELECT user_id, currency_id, updated, rate_t1, rate_t2, COALESCE(rate_t1, rate_t2) AS rate_used\nFROM r\nORDER BY user_id, updated, currency_id;",
+     "solutionCommented": "-- t1 смотрит назад, t2 вперёд, rate_used берёт t1, а при его отсутствии t2\nWITH r AS (\n    SELECT b.user_id, b.currency_id, b.updated,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated <= b.updated\n            ORDER BY c.updated DESC LIMIT 1) AS rate_t1,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated > b.updated\n            ORDER BY c.updated ASC LIMIT 1) AS rate_t2   -- ASC: ближайший будущий\n    FROM balance b\n    WHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\n)\nSELECT user_id, currency_id, updated, rate_t1, rate_t2, COALESCE(rate_t1, rate_t2) AS rate_used   -- t1 в приоритете\nFROM r\nORDER BY user_id, updated, currency_id;",
+     "meta": {
+      "title": "Курс из будущего",
+      "dataset": "dwh",
+      "ordered": true,
+      "setup": "insert into currency values (100, 'EUR', 0.85, '2022-01-01 13:29');\ninsert into currency values (100, 'EUR', 0.79, '2022-01-08 13:29');",
+      "negative": [
+       {
+        "why": "граница t2 нестрогая (>=)",
+        "sql": "WITH r AS (\n    SELECT b.user_id, b.currency_id, b.updated,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated <= b.updated\n            ORDER BY c.updated DESC LIMIT 1) AS rate_t1,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated >= b.updated\n            ORDER BY c.updated ASC LIMIT 1) AS rate_t2\n    FROM balance b\n    WHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\n)\nSELECT user_id, currency_id, updated, rate_t1, rate_t2, COALESCE(rate_t1, rate_t2) AS rate_used\nFROM r\nORDER BY user_id, updated, currency_id;"
+       },
+       {
+        "why": "t2 — самый дальний будущий курс",
+        "sql": "WITH r AS (\n    SELECT b.user_id, b.currency_id, b.updated,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated <= b.updated\n            ORDER BY c.updated DESC LIMIT 1) AS rate_t1,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated > b.updated\n            ORDER BY c.updated DESC LIMIT 1) AS rate_t2\n    FROM balance b\n    WHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\n)\nSELECT user_id, currency_id, updated, rate_t1, rate_t2, COALESCE(rate_t1, rate_t2) AS rate_used\nFROM r\nORDER BY user_id, updated, currency_id;"
+       },
+       {
+        "why": "приоритет перепутан: сначала t2",
+        "sql": "WITH r AS (\n    SELECT b.user_id, b.currency_id, b.updated,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated <= b.updated\n            ORDER BY c.updated DESC LIMIT 1) AS rate_t1,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated > b.updated\n            ORDER BY c.updated ASC LIMIT 1) AS rate_t2\n    FROM balance b\n    WHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\n)\nSELECT user_id, currency_id, updated, rate_t1, rate_t2, COALESCE(rate_t2, rate_t1) AS rate_used\nFROM r\nORDER BY user_id, updated, currency_id;"
+       },
+       {
+        "why": "граница t1 строгая (<)",
+        "sql": "WITH r AS (\n    SELECT b.user_id, b.currency_id, b.updated,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated < b.updated\n            ORDER BY c.updated DESC LIMIT 1) AS rate_t1,\n           (SELECT c.rate_to_usd FROM currency c\n            WHERE c.id = b.currency_id AND c.updated > b.updated\n            ORDER BY c.updated ASC LIMIT 1) AS rate_t2\n    FROM balance b\n    WHERE EXISTS (SELECT 1 FROM currency c WHERE c.id = b.currency_id)\n)\nSELECT user_id, currency_id, updated, rate_t1, rate_t2, COALESCE(rate_t1, rate_t2) AS rate_used\nFROM r\nORDER BY user_id, updated, currency_id;"
+       }
+      ],
+      "forbidden": [],
+      "required": []
+     }
+    },
+    {
+     "id": "team01c_role2/ex03",
+     "dir": "ex03_detailed_query",
+     "title": "Detailed Query",
+     "readme": "# Задание 03. Detailed Query\n\n**Разрешено:** ANSI SQL\n\nЭто задание 01 проекта. Два `INSERT` из карточки уже выполнены.\n\nВерни все операции по балансу (**валюты, которых нет в `currency`, игнорируем**) с названием валюты и суммой в долларах, пересчитанной по курсу на момент операции.\n\n| Поле | Формула |\n| --- | --- |\n| `name` | `user.name`; если `NULL` (или пользователя нет), то `'not defined'` |\n| `lastname` | `user.lastname`; если `NULL` (или пользователя нет), то `'not defined'` |\n| `currency_name` | `currency.name` |\n| `currency_in_usd` | `balance.money` умножить на курс |\n\nКурс выбирается так:\n\n1. найди ближайший курс валюты **в прошлом** (t1): `currency.updated <= balance.updated`;\n2. если t1 нет, найди ближайший курс **в будущем** (t2): `currency.updated > balance.updated`;\n3. используй курс t1 **ИЛИ** t2.\n\nОдна строка соответствует одной операции. Операции пользователя, которого нет в `\"user\"`, тоже выводим (имя и фамилия `'not defined'`).\n\nОтсортируй по `name` **по убыванию**, затем по `lastname`, `currency_name` и `currency_in_usd` **по возрастанию**.\n\n| name | lastname | currency_name | currency_in_usd |\n| --- | --- | --- | --- |\n| Сергей | Смирнов | EUR | 13.350000 |\n| … | … | … | … |\n",
+     "theory": "# Теория: пересчёт по курсу на момент операции\n\nЭто ex01 и ex02, собранные вместе и дополненные пользователем и суммой.\n\n**Как получить и название, и курс.** Подзапросы из предыдущих заданий возвращают одно значение. Здесь нужна целая строка валюты: найдите **время** подходящего курса и присоедините эту строку по `id` и `updated`:\n\n```sql\nJOIN currency c\n  ON c.id = b.currency_id\n AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2\n        WHERE c2.id = b.currency_id AND c2.updated <= b.updated),   -- t1\n       (SELECT MIN(c3.updated) FROM currency c3\n        WHERE c3.id = b.currency_id AND c3.updated >  b.updated))   -- t2\n```\n\nОбычный `JOIN` сам убирает операции с неизвестной валютой.\n\n**Пользователя** присоединяйте через `LEFT JOIN` и подставляйте `COALESCE(name, 'not defined')`.\n\n**Сумма:** `b.money * c.rate_to_usd`.\n\nТипичные ошибки: взять ближайший курс в любую сторону (а нужно сначала прошлое), взять самый свежий курс вообще, потерять операции без пользователя.\n\nКлючевые слова для примеров: `JOIN`, `LEFT JOIN`, `COALESCE`, `MAX`, `MIN`, `SUBQUERY`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Для каждой операции найдите время нужного курса (прошлое, иначе будущее), потом присоедините строку `currency` по `id` и этому времени."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nSELECT COALESCE(u.name, 'not defined') AS name, ..., c.name AS currency_name, b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON ...\nJOIN currency c ON c.id = b.currency_id AND c.updated = COALESCE(<t1>, <t2>)\nORDER BY ...;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "t1: `SELECT MAX(updated) ... updated <= b.updated`. t2: `SELECT MIN(updated) ... updated > b.updated`."
+      }
+     ],
+     "solution": "SELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated))\nORDER BY name DESC, lastname, currency_name, currency_in_usd;",
+     "solutionCommented": "-- Пересчёт операций в доллары по курсу на момент операции\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(   -- время подходящего курса: сначала t1, иначе t2\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated))\nORDER BY name DESC, lastname, currency_name, currency_in_usd;",
+     "meta": {
+      "title": "Detailed Query",
+      "dataset": "dwh",
+      "ordered": true,
+      "setup": "insert into currency values (100, 'EUR', 0.85, '2022-01-01 13:29');\ninsert into currency values (100, 'EUR', 0.79, '2022-01-08 13:29');",
+      "required": [
+       "JOIN"
+      ],
+      "positive": [
+       {
+        "why": "через LATERAL",
+        "sql": "SELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       r.name AS currency_name,\n       b.money * r.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN LATERAL (\n    SELECT c.name, c.rate_to_usd\n    FROM currency c\n    WHERE c.id = b.currency_id\n    ORDER BY (c.updated > b.updated), ABS(EXTRACT(EPOCH FROM (c.updated - b.updated)))\n    LIMIT 1\n) r ON true\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+       }
+      ],
+      "negative": [
+       {
+        "why": "выбран ближайший курс в любую сторону",
+        "sql": "SELECT COALESCE(u.name, 'not defined') AS name, COALESCE(u.lastname, 'not defined') AS lastname,\n       r.name AS currency_name, b.money * r.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN LATERAL (SELECT c.name, c.rate_to_usd FROM currency c WHERE c.id = b.currency_id\n              ORDER BY ABS(EXTRACT(EPOCH FROM (c.updated - b.updated))) LIMIT 1) r ON true\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+       },
+       {
+        "why": "учтено только прошлое: операции без курса в прошлом потеряны",
+        "sql": "SELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       NULL)\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+       },
+       {
+        "why": "граница строгая (<) для прошлого",
+        "sql": "SELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated < b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated))\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+       },
+       {
+        "why": "взят последний курс вообще",
+        "sql": "SELECT COALESCE(u.name, 'not defined') AS name, COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name, b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n AND c.updated = (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id)\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+       },
+       {
+        "why": "операции без пользователя потеряны (INNER JOIN)",
+        "sql": "SELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nJOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated))\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+       },
+       {
+        "why": "операции с неизвестной валютой остались (LEFT JOIN)",
+        "sql": "SELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated))\nORDER BY name DESC, lastname, currency_name, currency_in_usd;"
+       }
+      ],
+      "forbidden": []
+     }
+    }
+   ]
+  },
+  {
+   "id": "team01d_assembly",
+   "title": "Team 01 · Общая сборка",
+   "tasks": [
+    {
+     "id": "team01d_assembly/ex00",
+     "dir": "ex00_assemble",
+     "title": "Общая сборка",
+     "readme": "# Общая сборка: две оценки в долларах рядом\n\nРоли выполнены. Теперь соберите итоговый скрипт: он сравнивает оценку по **последнему** курсу (Роль 1) и по курсу **на момент операции** (Роль 2).\n\n**Задание.** Напишите единый скрипт, который по порядку:\n\n1. выполняет два `INSERT` в `currency` из карточки Роли 2 (EUR: `0.85` на `2022-01-01 13:29` и `0.79` на `2022-01-08 13:29`);\n2. создаёт представление `v_total_volume` из запроса Роли 1 (задание 00 проекта, без `ORDER BY`);\n3. создаёт представление `v_balance_usd` из запроса Роли 2 (задание 01 проекта, без `ORDER BY`);\n4. завершается запросом-сверкой.\n\n**Сверка.** Для каждого сочетания `name`, `lastname`, `currency_name`, которое есть **в обоих** представлениях, верни:\n\n- `usd_last_rate`: сумма `total_volume_in_usd` из `v_total_volume`;\n- `usd_op_rate`: сумма `currency_in_usd` из `v_balance_usd`;\n- `diff`: `usd_last_rate - usd_op_rate`.\n\nСначала сгруппируйте каждое представление по `name`, `lastname`, `currency_name`, затем соедините.\n\nОтсортируй по `name` по убыванию, затем по `lastname` и `currency_name`.\n\nСтолбцы: `name`, `lastname`, `currency_name`, `usd_last_rate`, `usd_op_rate`, `diff`.\n\nСтроки с валютой `'not defined'` в сверку не попадают: в `v_balance_usd` их нет.\n",
+     "theory": "# Теория: представления поверх сложных запросов\n\nПредставление (`VIEW`) — это сохранённый запрос с именем. Оно позволяет использовать результат сложного запроса, как таблицу:\n\n```sql\nCREATE VIEW v_total_volume AS\nSELECT ... ;      -- без ORDER BY\n```\n\nСортировку лучше оставлять внешнему запросу.\n\n## Как собрать\n\n1. `INSERT` для данных.\n2. `CREATE VIEW` Роли 1 (названия столбцов `name`, `lastname`, `currency_name`, `total_volume_in_usd`).\n3. `CREATE VIEW` Роли 2 (названия столбцов `name`, `lastname`, `currency_name`, `currency_in_usd`).\n4. Итоговый `SELECT`.\n\n## Сверка двух представлений\n\nСтроки представлений разной «зернистости»: в первом одна строка на пользователя, тип и валюту, во втором одна строка на операцию. Чтобы их сравнить, приведите оба к общему виду: сумма по `name`, `lastname`, `currency_name`. Потом `JOIN` по этим трём столбцам.\n\nЕсли у пользователя есть оба представления, но суммы расходятся: это нормально, ведь курсы менялись. Разность `diff` показывает, сколько «выиграл» или «потерял» пользователь из-за изменения курса.\n\nКлючевые слова для примеров: `CREATE VIEW`, `GROUP BY`, `JOIN`, `SUM`.\n",
+     "hints": [
+      {
+       "title": "Идея",
+       "body": "Склейте четыре куска по порядку: два `INSERT`, два `CREATE VIEW`, итоговый запрос."
+      },
+      {
+       "title": "Каркас",
+       "body": "```sql\nINSERT ...;\nCREATE VIEW v_total_volume AS ...;\nCREATE VIEW v_balance_usd AS ...;\nSELECT ... FROM (SELECT ... GROUP BY ...) v JOIN (SELECT ... GROUP BY ...) o ON ... ORDER BY ...;\n```"
+      },
+      {
+       "title": "Почти ответ",
+       "body": "Если скрипт падает: проверьте имена `v_total_volume` и `v_balance_usd`, а также слово `\"user\"` в кавычках."
+      }
+     ],
+     "solution": "insert into currency values (100, 'EUR', 0.85, '2022-01-01 13:29');\ninsert into currency values (100, 'EUR', 0.79, '2022-01-08 13:29');\n\nCREATE VIEW v_total_volume AS\nWITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd;\n\nCREATE VIEW v_balance_usd AS\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated));\n\nSELECT v.name, v.lastname, v.currency_name,\n       v.usd_last_rate, o.usd_op_rate,\n       v.usd_last_rate - o.usd_op_rate AS diff\nFROM (SELECT name, lastname, currency_name, SUM(total_volume_in_usd) AS usd_last_rate\n      FROM v_total_volume GROUP BY name, lastname, currency_name) v\nJOIN (SELECT name, lastname, currency_name, SUM(currency_in_usd) AS usd_op_rate\n      FROM v_balance_usd GROUP BY name, lastname, currency_name) o\n  ON o.name = v.name AND o.lastname = v.lastname AND o.currency_name = v.currency_name\nORDER BY v.name DESC, v.lastname, v.currency_name;",
+     "solutionCommented": "-- Сборка: INSERT (Роль 2) -> две вьюхи (Роли 1 и 2) -> сверка\ninsert into currency values (100, 'EUR', 0.85, '2022-01-01 13:29');\ninsert into currency values (100, 'EUR', 0.79, '2022-01-08 13:29');\n\nCREATE VIEW v_total_volume AS\nWITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd;\n\nCREATE VIEW v_balance_usd AS\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated));\n\nSELECT v.name, v.lastname, v.currency_name,\n       v.usd_last_rate, o.usd_op_rate,\n       v.usd_last_rate - o.usd_op_rate AS diff\nFROM (SELECT name, lastname, currency_name, SUM(total_volume_in_usd) AS usd_last_rate\n      FROM v_total_volume GROUP BY name, lastname, currency_name) v\nJOIN (SELECT name, lastname, currency_name, SUM(currency_in_usd) AS usd_op_rate\n      FROM v_balance_usd GROUP BY name, lastname, currency_name) o\n  ON o.name = v.name AND o.lastname = v.lastname AND o.currency_name = v.currency_name\nORDER BY v.name DESC, v.lastname, v.currency_name;",
+     "meta": {
+      "title": "Общая сборка",
+      "dataset": "dwh",
+      "ordered": true,
+      "required": [
+       "CREATE VIEW"
+      ],
+      "negative": [
+       {
+        "why": "забыты два INSERT: курсы из прошлого другие",
+        "sql": "CREATE VIEW v_total_volume AS\nWITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd;\n\nCREATE VIEW v_balance_usd AS\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated));\n\nSELECT v.name, v.lastname, v.currency_name,\n       v.usd_last_rate, o.usd_op_rate,\n       v.usd_last_rate - o.usd_op_rate AS diff\nFROM (SELECT name, lastname, currency_name, SUM(total_volume_in_usd) AS usd_last_rate\n      FROM v_total_volume GROUP BY name, lastname, currency_name) v\nJOIN (SELECT name, lastname, currency_name, SUM(currency_in_usd) AS usd_op_rate\n      FROM v_balance_usd GROUP BY name, lastname, currency_name) o\n  ON o.name = v.name AND o.lastname = v.lastname AND o.currency_name = v.currency_name\nORDER BY v.name DESC, v.lastname, v.currency_name;"
+       },
+       {
+        "why": "сверка через LEFT JOIN: лишние строки с NULL",
+        "sql": "insert into currency values (100, 'EUR', 0.85, '2022-01-01 13:29');\ninsert into currency values (100, 'EUR', 0.79, '2022-01-08 13:29');\n\nCREATE VIEW v_total_volume AS\nWITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd;\n\nCREATE VIEW v_balance_usd AS\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated));\n\nSELECT v.name, v.lastname, v.currency_name,\n       v.usd_last_rate, o.usd_op_rate,\n       v.usd_last_rate - o.usd_op_rate AS diff\nFROM (SELECT name, lastname, currency_name, SUM(total_volume_in_usd) AS usd_last_rate\n      FROM v_total_volume GROUP BY name, lastname, currency_name) v\nLEFT JOIN (SELECT name, lastname, currency_name, SUM(currency_in_usd) AS usd_op_rate\n      FROM v_balance_usd GROUP BY name, lastname, currency_name) o\n  ON o.name = v.name AND o.lastname = v.lastname AND o.currency_name = v.currency_name\nORDER BY v.name DESC, v.lastname, v.currency_name;"
+       },
+       {
+        "why": "в представлении Роли 1 взят самый старый курс",
+        "sql": "insert into currency values (100, 'EUR', 0.85, '2022-01-01 13:29');\ninsert into currency values (100, 'EUR', 0.79, '2022-01-08 13:29');\n\nCREATE VIEW v_total_volume AS\nWITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd FROM currency ORDER BY id, updated ASC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd;\n\nCREATE VIEW v_balance_usd AS\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated));\n\nSELECT v.name, v.lastname, v.currency_name,\n       v.usd_last_rate, o.usd_op_rate,\n       v.usd_last_rate - o.usd_op_rate AS diff\nFROM (SELECT name, lastname, currency_name, SUM(total_volume_in_usd) AS usd_last_rate\n      FROM v_total_volume GROUP BY name, lastname, currency_name) v\nJOIN (SELECT name, lastname, currency_name, SUM(currency_in_usd) AS usd_op_rate\n      FROM v_balance_usd GROUP BY name, lastname, currency_name) o\n  ON o.name = v.name AND o.lastname = v.lastname AND o.currency_name = v.currency_name\nORDER BY v.name DESC, v.lastname, v.currency_name;"
+       },
+       {
+        "why": "разность посчитана в обратную сторону",
+        "sql": "insert into currency values (100, 'EUR', 0.85, '2022-01-01 13:29');\ninsert into currency values (100, 'EUR', 0.79, '2022-01-08 13:29');\n\nCREATE VIEW v_total_volume AS\nWITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd;\n\nCREATE VIEW v_balance_usd AS\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       c.name AS currency_name,\n       b.money * c.rate_to_usd AS currency_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN currency c ON c.id = b.currency_id\n       AND c.updated = COALESCE(\n       (SELECT MAX(c2.updated) FROM currency c2 WHERE c2.id = b.currency_id AND c2.updated <= b.updated),\n       (SELECT MIN(c3.updated) FROM currency c3 WHERE c3.id = b.currency_id AND c3.updated > b.updated));\n\nSELECT v.name, v.lastname, v.currency_name,\n       v.usd_last_rate, o.usd_op_rate,\n       o.usd_op_rate - v.usd_last_rate AS diff\nFROM (SELECT name, lastname, currency_name, SUM(total_volume_in_usd) AS usd_last_rate\n      FROM v_total_volume GROUP BY name, lastname, currency_name) v\nJOIN (SELECT name, lastname, currency_name, SUM(currency_in_usd) AS usd_op_rate\n      FROM v_balance_usd GROUP BY name, lastname, currency_name) o\n  ON o.name = v.name AND o.lastname = v.lastname AND o.currency_name = v.currency_name\nORDER BY v.name DESC, v.lastname, v.currency_name;"
+       }
+      ],
+      "forbidden": []
      }
     }
    ]

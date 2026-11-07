@@ -1,0 +1,28 @@
+{
+  "title": "Пятый город",
+  "setup": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);\nCREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);",
+  "ordered": true,
+  "required": [
+    "INSERT"
+  ],
+  "negative": [
+    {
+      "why": "только прямые рёбра: вернуться из e нельзя",
+      "sql": "INSERT INTO nodes (point1, point2, cost) VALUES ('a', 'e', 12), ('b', 'e', 14), ('c', 'e', 16), ('d', 'e', 18);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+    },
+    {
+      "why": "неверная стоимость одного из рёбер",
+      "sql": "INSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'e', 12), ('e', 'a', 12),\n    ('b', 'e', 1), ('e', 'b', 1),\n    ('c', 'e', 16), ('e', 'c', 16),\n    ('d', 'e', 18), ('e', 'd', 18);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+    },
+    {
+      "why": "город не добавлен: ответ как для 4 городов",
+      "sql": "SELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MIN(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+    },
+    {
+      "why": "выбраны самые дорогие маршруты",
+      "sql": "INSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'e', 12), ('e', 'a', 12),\n    ('b', 'e', 14), ('e', 'b', 14),\n    ('c', 'e', 16), ('e', 'c', 16),\n    ('d', 'e', 18), ('e', 'd', 18);\n\nSELECT total_cost, tour\nFROM v_all_tours\nWHERE total_cost = (SELECT MAX(total_cost) FROM v_all_tours)\nORDER BY total_cost, tour;"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}

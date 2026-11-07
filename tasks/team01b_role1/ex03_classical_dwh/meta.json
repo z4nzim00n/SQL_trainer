@@ -1,0 +1,49 @@
+{
+  "title": "Classical DWH",
+  "dataset": "dwh",
+  "ordered": true,
+  "required": [
+    "LEFT JOIN"
+  ],
+  "positive": [
+    {
+      "why": "последний курс через ROW_NUMBER",
+      "sql": "WITH last_rate AS (\n    SELECT id, name, rate_to_usd\n    FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY id ORDER BY updated DESC) AS rn FROM currency) t\n    WHERE rn = 1\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+    },
+    {
+      "why": "последний курс через MAX(updated)",
+      "sql": "WITH last_rate AS (\n    SELECT c.id, c.name, c.rate_to_usd\n    FROM currency c\n    WHERE c.updated = (SELECT MAX(updated) FROM currency WHERE id = c.id)\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+    }
+  ],
+  "negative": [
+    {
+      "why": "взят самый старый курс",
+      "sql": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd FROM currency ORDER BY id, updated ASC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+    },
+    {
+      "why": "операции без валюты потеряны (INNER JOIN)",
+      "sql": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nJOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+    },
+    {
+      "why": "операции без пользователя потеряны (INNER JOIN)",
+      "sql": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nJOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+    },
+    {
+      "why": "нет курса по умолчанию: итог NULL",
+      "sql": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       c.rate_to_usd AS last_rate_to_usd,\n       SUM(b.money) * c.rate_to_usd AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+    },
+    {
+      "why": "курс по умолчанию 0",
+      "sql": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 0) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 0) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+    },
+    {
+      "why": "курсы не сведены к последнему: суммы размножены",
+      "sql": "WITH last_rate AS (\n    SELECT id, name, rate_to_usd FROM currency\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name DESC, lastname, type, currency_name;"
+    },
+    {
+      "why": "сортировка по имени по возрастанию",
+      "sql": "WITH last_rate AS (\n    SELECT DISTINCT ON (id) id, name, rate_to_usd\n    FROM currency\n    ORDER BY id, updated DESC\n)\nSELECT COALESCE(u.name, 'not defined') AS name,\n       COALESCE(u.lastname, 'not defined') AS lastname,\n       b.type,\n       SUM(b.money) AS volume,\n       COALESCE(c.name, 'not defined') AS currency_name,\n       COALESCE(c.rate_to_usd, 1) AS last_rate_to_usd,\n       SUM(b.money) * COALESCE(c.rate_to_usd, 1) AS total_volume_in_usd\nFROM balance b\nLEFT JOIN \"user\" u ON u.id = b.user_id\nLEFT JOIN last_rate c ON c.id = b.currency_id\nGROUP BY b.user_id, u.name, u.lastname, b.type, b.currency_id, c.name, c.rate_to_usd\nORDER BY name, lastname, type, currency_name;"
+    }
+  ],
+  "forbidden": []
+}

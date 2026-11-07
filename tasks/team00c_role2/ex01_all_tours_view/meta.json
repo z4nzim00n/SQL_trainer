@@ -1,0 +1,34 @@
+{
+  "title": "Все маршруты (представление)",
+  "setup": "CREATE TABLE nodes (\n    point1 varchar NOT NULL,\n    point2 varchar NOT NULL,\n    cost integer NOT NULL\n);\n\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'b', 10),\n    ('b', 'a', 10),\n    ('a', 'c', 15),\n    ('c', 'a', 15),\n    ('a', 'd', 20),\n    ('d', 'a', 20),\n    ('b', 'c', 35),\n    ('c', 'b', 35),\n    ('b', 'd', 25),\n    ('d', 'b', 25),\n    ('c', 'd', 30),\n    ('d', 'c', 30);",
+  "verify": "CREATE TEMP TABLE t4 AS SELECT total_cost, tour FROM v_all_tours;\nINSERT INTO nodes (point1, point2, cost) VALUES\n    ('a', 'e', 12), ('e', 'a', 12),\n    ('b', 'e', 14), ('e', 'b', 14),\n    ('c', 'e', 16), ('e', 'c', 16),\n    ('d', 'e', 18), ('e', 'd', 18);\nSELECT 'cities4' AS kind, total_cost, tour::text AS tour FROM t4 UNION ALL SELECT 'cities5', total_cost, tour::text FROM v_all_tours ORDER BY 1, 2, 3",
+  "ordered": true,
+  "required": [
+    "RECURSIVE",
+    "CREATE VIEW"
+  ],
+  "negative": [
+    {
+      "why": "число городов вписано числом 4: на пяти городах неверно",
+      "sql": "CREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = 4;"
+    },
+    {
+      "why": "не добавлена стоимость последнего ребра",
+      "sql": "CREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);"
+    },
+    {
+      "why": "маршрут не замкнут: нет возврата в a",
+      "sql": "CREATE VIEW v_all_tours AS WITH RECURSIVE tours AS (SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost FROM nodes WHERE point1 = 'a' UNION ALL SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost FROM tours JOIN nodes ON nodes.point1 = tours.last_point WHERE NOT nodes.point2 = ANY (tours.path)) SELECT total_cost, path AS tour FROM tours WHERE CARDINALITY(path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);"
+    },
+    {
+      "why": "старт не только из a: лишние маршруты",
+      "sql": "CREATE VIEW v_all_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 IN ('a', 'b')\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);"
+    },
+    {
+      "why": "представление названо по-другому",
+      "sql": "CREATE VIEW v_tours AS\nWITH RECURSIVE tours AS (\n    SELECT point2 AS last_point, ARRAY[point1, point2] AS path, cost AS total_cost\n    FROM nodes\n    WHERE point1 = 'a'\n    UNION ALL\n    SELECT nodes.point2, tours.path || nodes.point2, tours.total_cost + nodes.cost\n    FROM tours\n    JOIN nodes ON nodes.point1 = tours.last_point\n    WHERE NOT nodes.point2 = ANY (tours.path)\n)\nSELECT tours.total_cost + nodes.cost AS total_cost, tours.path || nodes.point2 AS tour\nFROM tours\nJOIN nodes ON nodes.point1 = tours.last_point AND nodes.point2 = 'a'\nWHERE CARDINALITY(tours.path) = (SELECT COUNT(*) FROM (SELECT point1 FROM nodes UNION SELECT point2 FROM nodes) AS cities);"
+    }
+  ],
+  "dataset": "pizza",
+  "forbidden": []
+}
