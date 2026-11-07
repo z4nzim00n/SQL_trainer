@@ -1,5 +1,5 @@
 /*
- * Энциклопедия SQL: статьи из docs/*.md (попадают в tasks.json как data.wiki).
+ * Справочник SQL: статьи из docs/*.md (попадают в tasks.json как data.wiki).
  * Слева оглавление с поиском, справа статья. Примеры ```sql-run запускаются кнопкой.
  */
 export function createWiki({ root, contentArea, button, sidebar, renderMd, store, el }) {
@@ -11,8 +11,8 @@ export function createWiki({ root, contentArea, button, sidebar, renderMd, store
     const toc = el('aside', 'wiki-toc');
     const search = el('input', 'wiki-search');
     search.type = 'search';
-    search.placeholder = 'Поиск по энциклопедии…';
-    search.setAttribute('aria-label', 'Поиск по энциклопедии');
+    search.placeholder = 'Поиск по справочнику…';
+    search.setAttribute('aria-label', 'Поиск по справочнику');
     const list = el('nav', 'wiki-list');
     toc.append(search, list);
 
@@ -22,7 +22,7 @@ export function createWiki({ root, contentArea, button, sidebar, renderMd, store
     toggle.type = 'button';
     toggle.title = 'Скрыть/показать меню';
     toggle.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
-    const heading = el('span', 'task-bar-title', '📖 Энциклопедия SQL');
+    const heading = el('span', 'task-bar-title', '📖 Справочник SQL');
     const back = el('button', '', '← К заданиям');
     back.type = 'button';
     back.addEventListener('click', () => close());

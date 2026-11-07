@@ -1,6 +1,6 @@
 {
  "version": "0.004",
- "builtAt": "2026-11-07T10:31:31.815Z",
+ "builtAt": "2026-11-07T10:44:23.467Z",
  "datasets": {
   "blank": {
    "main": "-- Пустая база: таблиц нет, все создаёшь сам.\n",
@@ -9,8 +9,8 @@
    "tables": []
   },
   "demo": {
-   "main": "-- Учебные мини-таблицы для примеров в теории и энциклопедии.\n-- Никак не связаны с пиццериями: маленькие таблицы, чтобы результат примера было видно целиком.\n\n-- Для операторов множеств (UNION, INTERSECT, EXCEPT): есть повторы и пересечение\ncreate table a (id integer, val varchar);\ninsert into a values (1, 'red');\ninsert into a values (2, 'green');\ninsert into a values (3, 'blue');\ninsert into a values (3, 'blue');\n\ncreate table b (id integer, val varchar);\ninsert into b values (2, 'green');\ninsert into b values (3, 'blue');\ninsert into b values (4, 'yellow');\n\n-- Для JOIN: у Eve нет курса (NULL), у курса Art нет студентов\ncreate table courses (id integer primary key, title varchar not null);\ninsert into courses values (1, 'Math');\ninsert into courses values (2, 'Music');\ninsert into courses values (3, 'Art');\n\ncreate table students (\n    id integer primary key,\n    name varchar not null,\n    age integer not null,\n    city varchar,\n    course_id integer references courses (id)\n);\ninsert into students values (1, 'Ann', 20, 'Berlin', 1);\ninsert into students values (2, 'Bob', 22, 'Paris', 1);\ninsert into students values (3, 'Cleo', 19, 'Berlin', 2);\ninsert into students values (4, 'Dan', 25, null, 2);\ninsert into students values (5, 'Eve', 21, 'Rome', null);\n\n-- Для WHERE, типов, CASE, DML: есть NULL в note\ncreate table products (\n    id integer primary key,\n    title varchar not null,\n    category varchar not null,\n    price numeric(8, 2) not null,\n    added date not null,\n    note varchar\n);\ninsert into products values (1, 'Pen', 'office', 1.50, '2024-01-10', 'blue ink');\ninsert into products values (2, 'Notebook', 'office', 4.00, '2024-01-15', null);\ninsert into products values (3, 'Mug', 'home', 7.25, '2024-02-01', 'ceramic');\ninsert into products values (4, 'Lamp', 'home', 19.90, '2024-02-20', null);\ninsert into products values (5, 'Backpack', 'travel', 35.00, '2024-03-05', 'waterproof');\n\n-- Для агрегатов и оконных функций\ncreate table sales (\n    id integer primary key,\n    shop varchar not null,\n    item varchar not null,\n    qty integer not null,\n    price numeric(8, 2) not null,\n    sale_date date not null\n);\ninsert into sales values (1, 'North', 'Pen', 10, 1.50, '2024-05-01');\ninsert into sales values (2, 'North', 'Mug', 2, 7.25, '2024-05-01');\ninsert into sales values (3, 'North', 'Pen', 5, 1.50, '2024-05-02');\ninsert into sales values (4, 'South', 'Lamp', 1, 19.90, '2024-05-01');\ninsert into sales values (5, 'South', 'Pen', 8, 1.50, '2024-05-02');\ninsert into sales values (6, 'South', 'Mug', 3, 7.25, '2024-05-03');\ninsert into sales values (7, 'East', 'Lamp', 2, 19.90, '2024-05-03');\n",
-   "alt": "-- Учебные мини-таблицы для примеров в теории и энциклопедии.\n-- Никак не связаны с пиццериями: маленькие таблицы, чтобы результат примера было видно целиком.\n\n-- Для операторов множеств (UNION, INTERSECT, EXCEPT): есть повторы и пересечение\ncreate table a (id integer, val varchar);\ninsert into a values (1, 'red');\ninsert into a values (2, 'green');\ninsert into a values (3, 'blue');\ninsert into a values (3, 'blue');\n\ncreate table b (id integer, val varchar);\ninsert into b values (2, 'green');\ninsert into b values (3, 'blue');\ninsert into b values (4, 'yellow');\n\n-- Для JOIN: у Eve нет курса (NULL), у курса Art нет студентов\ncreate table courses (id integer primary key, title varchar not null);\ninsert into courses values (1, 'Math');\ninsert into courses values (2, 'Music');\ninsert into courses values (3, 'Art');\n\ncreate table students (\n    id integer primary key,\n    name varchar not null,\n    age integer not null,\n    city varchar,\n    course_id integer references courses (id)\n);\ninsert into students values (1, 'Ann', 20, 'Berlin', 1);\ninsert into students values (2, 'Bob', 22, 'Paris', 1);\ninsert into students values (3, 'Cleo', 19, 'Berlin', 2);\ninsert into students values (4, 'Dan', 25, null, 2);\ninsert into students values (5, 'Eve', 21, 'Rome', null);\n\n-- Для WHERE, типов, CASE, DML: есть NULL в note\ncreate table products (\n    id integer primary key,\n    title varchar not null,\n    category varchar not null,\n    price numeric(8, 2) not null,\n    added date not null,\n    note varchar\n);\ninsert into products values (1, 'Pen', 'office', 1.50, '2024-01-10', 'blue ink');\ninsert into products values (2, 'Notebook', 'office', 4.00, '2024-01-15', null);\ninsert into products values (3, 'Mug', 'home', 7.25, '2024-02-01', 'ceramic');\ninsert into products values (4, 'Lamp', 'home', 19.90, '2024-02-20', null);\ninsert into products values (5, 'Backpack', 'travel', 35.00, '2024-03-05', 'waterproof');\n\n-- Для агрегатов и оконных функций\ncreate table sales (\n    id integer primary key,\n    shop varchar not null,\n    item varchar not null,\n    qty integer not null,\n    price numeric(8, 2) not null,\n    sale_date date not null\n);\ninsert into sales values (1, 'North', 'Pen', 10, 1.50, '2024-05-01');\ninsert into sales values (2, 'North', 'Mug', 2, 7.25, '2024-05-01');\ninsert into sales values (3, 'North', 'Pen', 5, 1.50, '2024-05-02');\ninsert into sales values (4, 'South', 'Lamp', 1, 19.90, '2024-05-01');\ninsert into sales values (5, 'South', 'Pen', 8, 1.50, '2024-05-02');\ninsert into sales values (6, 'South', 'Mug', 3, 7.25, '2024-05-03');\ninsert into sales values (7, 'East', 'Lamp', 2, 19.90, '2024-05-03');\n",
+   "main": "-- Учебные мини-таблицы для примеров в теории и справочнике.\n-- Никак не связаны с пиццериями: маленькие таблицы, чтобы результат примера было видно целиком.\n\n-- Для операторов множеств (UNION, INTERSECT, EXCEPT): есть повторы и пересечение\ncreate table a (id integer, val varchar);\ninsert into a values (1, 'red');\ninsert into a values (2, 'green');\ninsert into a values (3, 'blue');\ninsert into a values (3, 'blue');\n\ncreate table b (id integer, val varchar);\ninsert into b values (2, 'green');\ninsert into b values (3, 'blue');\ninsert into b values (4, 'yellow');\n\n-- Для JOIN: у Eve нет курса (NULL), у курса Art нет студентов\ncreate table courses (id integer primary key, title varchar not null);\ninsert into courses values (1, 'Math');\ninsert into courses values (2, 'Music');\ninsert into courses values (3, 'Art');\n\ncreate table students (\n    id integer primary key,\n    name varchar not null,\n    age integer not null,\n    city varchar,\n    course_id integer references courses (id)\n);\ninsert into students values (1, 'Ann', 20, 'Berlin', 1);\ninsert into students values (2, 'Bob', 22, 'Paris', 1);\ninsert into students values (3, 'Cleo', 19, 'Berlin', 2);\ninsert into students values (4, 'Dan', 25, null, 2);\ninsert into students values (5, 'Eve', 21, 'Rome', null);\n\n-- Для WHERE, типов, CASE, DML: есть NULL в note\ncreate table products (\n    id integer primary key,\n    title varchar not null,\n    category varchar not null,\n    price numeric(8, 2) not null,\n    added date not null,\n    note varchar\n);\ninsert into products values (1, 'Pen', 'office', 1.50, '2024-01-10', 'blue ink');\ninsert into products values (2, 'Notebook', 'office', 4.00, '2024-01-15', null);\ninsert into products values (3, 'Mug', 'home', 7.25, '2024-02-01', 'ceramic');\ninsert into products values (4, 'Lamp', 'home', 19.90, '2024-02-20', null);\ninsert into products values (5, 'Backpack', 'travel', 35.00, '2024-03-05', 'waterproof');\n\n-- Для агрегатов и оконных функций\ncreate table sales (\n    id integer primary key,\n    shop varchar not null,\n    item varchar not null,\n    qty integer not null,\n    price numeric(8, 2) not null,\n    sale_date date not null\n);\ninsert into sales values (1, 'North', 'Pen', 10, 1.50, '2024-05-01');\ninsert into sales values (2, 'North', 'Mug', 2, 7.25, '2024-05-01');\ninsert into sales values (3, 'North', 'Pen', 5, 1.50, '2024-05-02');\ninsert into sales values (4, 'South', 'Lamp', 1, 19.90, '2024-05-01');\ninsert into sales values (5, 'South', 'Pen', 8, 1.50, '2024-05-02');\ninsert into sales values (6, 'South', 'Mug', 3, 7.25, '2024-05-03');\ninsert into sales values (7, 'East', 'Lamp', 2, 19.90, '2024-05-03');\n",
+   "alt": "-- Учебные мини-таблицы для примеров в теории и справочнике.\n-- Никак не связаны с пиццериями: маленькие таблицы, чтобы результат примера было видно целиком.\n\n-- Для операторов множеств (UNION, INTERSECT, EXCEPT): есть повторы и пересечение\ncreate table a (id integer, val varchar);\ninsert into a values (1, 'red');\ninsert into a values (2, 'green');\ninsert into a values (3, 'blue');\ninsert into a values (3, 'blue');\n\ncreate table b (id integer, val varchar);\ninsert into b values (2, 'green');\ninsert into b values (3, 'blue');\ninsert into b values (4, 'yellow');\n\n-- Для JOIN: у Eve нет курса (NULL), у курса Art нет студентов\ncreate table courses (id integer primary key, title varchar not null);\ninsert into courses values (1, 'Math');\ninsert into courses values (2, 'Music');\ninsert into courses values (3, 'Art');\n\ncreate table students (\n    id integer primary key,\n    name varchar not null,\n    age integer not null,\n    city varchar,\n    course_id integer references courses (id)\n);\ninsert into students values (1, 'Ann', 20, 'Berlin', 1);\ninsert into students values (2, 'Bob', 22, 'Paris', 1);\ninsert into students values (3, 'Cleo', 19, 'Berlin', 2);\ninsert into students values (4, 'Dan', 25, null, 2);\ninsert into students values (5, 'Eve', 21, 'Rome', null);\n\n-- Для WHERE, типов, CASE, DML: есть NULL в note\ncreate table products (\n    id integer primary key,\n    title varchar not null,\n    category varchar not null,\n    price numeric(8, 2) not null,\n    added date not null,\n    note varchar\n);\ninsert into products values (1, 'Pen', 'office', 1.50, '2024-01-10', 'blue ink');\ninsert into products values (2, 'Notebook', 'office', 4.00, '2024-01-15', null);\ninsert into products values (3, 'Mug', 'home', 7.25, '2024-02-01', 'ceramic');\ninsert into products values (4, 'Lamp', 'home', 19.90, '2024-02-20', null);\ninsert into products values (5, 'Backpack', 'travel', 35.00, '2024-03-05', 'waterproof');\n\n-- Для агрегатов и оконных функций\ncreate table sales (\n    id integer primary key,\n    shop varchar not null,\n    item varchar not null,\n    qty integer not null,\n    price numeric(8, 2) not null,\n    sale_date date not null\n);\ninsert into sales values (1, 'North', 'Pen', 10, 1.50, '2024-05-01');\ninsert into sales values (2, 'North', 'Mug', 2, 7.25, '2024-05-01');\ninsert into sales values (3, 'North', 'Pen', 5, 1.50, '2024-05-02');\ninsert into sales values (4, 'South', 'Lamp', 1, 19.90, '2024-05-01');\ninsert into sales values (5, 'South', 'Pen', 8, 1.50, '2024-05-02');\ninsert into sales values (6, 'South', 'Mug', 3, 7.25, '2024-05-03');\ninsert into sales values (7, 'East', 'Lamp', 2, 19.90, '2024-05-03');\n",
    "schema": "# Учебные мини-таблицы (для примеров)\n\n`a(id, val)` и `b(id, val)` для операторов множеств, `courses(id, title)` и `students(id, name, age, city, course_id)` для JOIN, `products(id, title, category, price, added, note)` для WHERE, типов и DML, `sales(id, shop, item, qty, price, sale_date)` для агрегатов и оконных функций.\n",
    "tables": [
     "a",
@@ -55,7 +55,7 @@
   {
    "id": "01_select",
    "title": "1. SELECT: основы запроса",
-   "md": "# 1. SELECT: основы запроса\n\nЗапрос `SELECT` только **читает** данные и ничего не меняет. Он отвечает на три вопроса: какие столбцы показать, из какой таблицы и какие строки оставить.\n\nВсе примеры в энциклопедии работают на учебной базе пиццерий: `person`, `pizzeria`, `menu`, `person_visits`, `person_order`. Схему смотри на вкладке «Схема БД» в окне с запросом. Под каждым примером есть кнопка «Показать пример»: она выполняет запрос на настоящем PostgreSQL.\n\n## Минимальный запрос\n\n```sql\nSELECT столбцы\nFROM таблица;\n```\n\n```sql-pizza\nSELECT name, age\nFROM person;\n```\n\nЗвёздочка `*` означает «все столбцы». Для быстрого взгляда на таблицу удобно, в готовых решениях лучше перечислять столбцы явно.\n\n```sql-pizza\nSELECT *\nFROM pizzeria;\n```\n\n## Порядок слов\n\nСлова пишутся строго в таком порядке, хотя не все обязательны:\n\n```sql\nSELECT ...      -- что показать\nFROM ...        -- откуда\nWHERE ...       -- какие строки оставить\nGROUP BY ...    -- сгруппировать\nHAVING ...      -- отфильтровать группы\nORDER BY ...    -- отсортировать\nLIMIT ...;      -- ограничить число строк\n```\n\nА **выполняет** база их в другом порядке: `FROM` → `WHERE` → `GROUP BY` → `HAVING` → `SELECT` → `ORDER BY` → `LIMIT`. Отсюда два важных следствия:\n\n- в `WHERE` нельзя использовать новое имя столбца, придуманное в `SELECT` через `AS` (оно ещё не существует);\n- в `ORDER BY` новое имя использовать можно (к этому моменту `SELECT` уже выполнен).\n\n## AS: новые имена\n\n`AS` переименовывает столбец в результате. Исходная таблица не меняется.\n\n```sql-pizza\nSELECT name AS person_name, age AS years\nFROM person;\n```\n\nЕсли имя содержит пробелы или заглавные буквы, берут двойные кавычки: `AS \"Person Name\"`. Слово `AS` можно опустить (`name person_name`), но с ним читается понятнее.\n\n**Псевдонимы таблиц** укорачивают запись, особенно в `JOIN`. Они обязательны, когда одну таблицу нужно взять дважды:\n\n```sql-pizza\nSELECT p.name, p.age\nFROM person AS p;\n```\n\nЕсли псевдоним задан, то писать полное имя таблицы (`person.name`) уже нельзя: только `p.name`.\n\n## Выражения в SELECT\n\nВ `SELECT` можно считать:\n\n```sql-pizza\nSELECT pizza_name, price, price * 0.9 AS price_with_discount, price + 50 AS price_plus_50\nFROM menu;\n```\n\nЕсть арифметика `+ - * /` и остаток `%`. Целочисленное деление округляет вниз: `7 / 2` даёт `3`, а `7 / 2.0` даёт `3.5`.\n\n```sql-pizza\nSELECT 7 / 2 AS int_division, 7 / 2.0 AS decimal_division, 7 % 2 AS remainder;\n```\n\n`SELECT` можно использовать и без `FROM`, чтобы просто вычислить значение.\n\n## DISTINCT: убрать повторы\n\n`DISTINCT` оставляет только уникальные строки результата. Уникальность считается по **всей строке** (по всем выбранным столбцам вместе).\n\n```sql-pizza\nSELECT DISTINCT pizza_name\nFROM menu;\n```\n\n```sql-pizza\nSELECT DISTINCT pizzeria_id, pizza_name\nFROM menu;\n```\n\nВо втором примере повтором считается совпадение пары «пиццерия + название», а не одного столбца. Сравни с количеством строк в `SELECT pizza_name FROM menu`.\n\n## ORDER BY: сортировка\n\nБез `ORDER BY` порядок строк **не гарантирован**: база вправе вернуть их как угодно. Если порядок важен, пиши `ORDER BY`.\n\n```sql-pizza\nSELECT name, age\nFROM person\nORDER BY age DESC;\n```\n\n- `ASC` по возрастанию (по умолчанию), `DESC` по убыванию.\n- Столбцов может быть несколько: сначала сортировка по первому, при равенстве по второму и так далее. У каждого столбца свой `ASC/DESC`.\n- Можно сортировать по номеру столбца в `SELECT`: `ORDER BY 2`.\n- Можно сортировать по выражению: `ORDER BY price * 2`.\n\n```sql-pizza\nSELECT name, age, address\nFROM person\nORDER BY address ASC, age DESC;\n```\n\n**Регистр букв.** Порядок текста зависит от правил сортировки (collation) базы. В одной базе заглавные идут раньше строчных, в другой нет. Не рассчитывай на конкретный порядок разных регистров.\n\n**NULL при сортировке.** В `ASC` значения `NULL` идут в конце, в `DESC` в начале. Это можно поменять: `ORDER BY address NULLS FIRST` или `NULLS LAST`.\n\n## LIMIT и OFFSET\n\n`LIMIT n` берёт первые `n` строк, `OFFSET m` пропускает `m` строк сначала. Пара часто нужна для «топ-3» и постраничного вывода. Без `ORDER BY` они бессмысленны: непонятно, какие строки «первые».\n\n```sql-pizza\nSELECT name, age\nFROM person\nORDER BY age DESC\nLIMIT 3;\n```\n\n```sql-pizza\nSELECT name, age\nFROM person\nORDER BY age DESC\nLIMIT 3 OFFSET 3;\n```\n\nВ стандарте SQL то же пишется `FETCH FIRST 3 ROWS ONLY`, и PostgreSQL это понимает.\n\n## Комментарии\n\n```sql\n-- комментарий до конца строки\n/* комментарий\n   на несколько строк */\n```\n\n## Типичные ошибки\n\n- Забытая запятая между столбцами или лишняя запятая перед `FROM`.\n- Двойные кавычки вместо одинарных вокруг текста (`\"Moscow\"` это имя столбца, а текст пишется `'Moscow'`).\n- Алиас из `SELECT` в `WHERE`.\n- Точка с запятой пропущена между двумя запросами.\n"
+   "md": "# 1. SELECT: основы запроса\n\nЗапрос `SELECT` только **читает** данные и ничего не меняет. Он отвечает на три вопроса: какие столбцы показать, из какой таблицы и какие строки оставить.\n\nВсе примеры в справочнике работают на учебной базе пиццерий: `person`, `pizzeria`, `menu`, `person_visits`, `person_order`. Схему смотри на вкладке «Схема БД» в окне с запросом. Под каждым примером есть кнопка «Показать пример»: она выполняет запрос на настоящем PostgreSQL.\n\n## Минимальный запрос\n\n```sql\nSELECT столбцы\nFROM таблица;\n```\n\n```sql-pizza\nSELECT name, age\nFROM person;\n```\n\nЗвёздочка `*` означает «все столбцы». Для быстрого взгляда на таблицу удобно, в готовых решениях лучше перечислять столбцы явно.\n\n```sql-pizza\nSELECT *\nFROM pizzeria;\n```\n\n## Порядок слов\n\nСлова пишутся строго в таком порядке, хотя не все обязательны:\n\n```sql\nSELECT ...      -- что показать\nFROM ...        -- откуда\nWHERE ...       -- какие строки оставить\nGROUP BY ...    -- сгруппировать\nHAVING ...      -- отфильтровать группы\nORDER BY ...    -- отсортировать\nLIMIT ...;      -- ограничить число строк\n```\n\nА **выполняет** база их в другом порядке: `FROM` → `WHERE` → `GROUP BY` → `HAVING` → `SELECT` → `ORDER BY` → `LIMIT`. Отсюда два важных следствия:\n\n- в `WHERE` нельзя использовать новое имя столбца, придуманное в `SELECT` через `AS` (оно ещё не существует);\n- в `ORDER BY` новое имя использовать можно (к этому моменту `SELECT` уже выполнен).\n\n## AS: новые имена\n\n`AS` переименовывает столбец в результате. Исходная таблица не меняется.\n\n```sql-pizza\nSELECT name AS person_name, age AS years\nFROM person;\n```\n\nЕсли имя содержит пробелы или заглавные буквы, берут двойные кавычки: `AS \"Person Name\"`. Слово `AS` можно опустить (`name person_name`), но с ним читается понятнее.\n\n**Псевдонимы таблиц** укорачивают запись, особенно в `JOIN`. Они обязательны, когда одну таблицу нужно взять дважды:\n\n```sql-pizza\nSELECT p.name, p.age\nFROM person AS p;\n```\n\nЕсли псевдоним задан, то писать полное имя таблицы (`person.name`) уже нельзя: только `p.name`.\n\n## Выражения в SELECT\n\nВ `SELECT` можно считать:\n\n```sql-pizza\nSELECT pizza_name, price, price * 0.9 AS price_with_discount, price + 50 AS price_plus_50\nFROM menu;\n```\n\nЕсть арифметика `+ - * /` и остаток `%`. Целочисленное деление округляет вниз: `7 / 2` даёт `3`, а `7 / 2.0` даёт `3.5`.\n\n```sql-pizza\nSELECT 7 / 2 AS int_division, 7 / 2.0 AS decimal_division, 7 % 2 AS remainder;\n```\n\n`SELECT` можно использовать и без `FROM`, чтобы просто вычислить значение.\n\n## DISTINCT: убрать повторы\n\n`DISTINCT` оставляет только уникальные строки результата. Уникальность считается по **всей строке** (по всем выбранным столбцам вместе).\n\n```sql-pizza\nSELECT DISTINCT pizza_name\nFROM menu;\n```\n\n```sql-pizza\nSELECT DISTINCT pizzeria_id, pizza_name\nFROM menu;\n```\n\nВо втором примере повтором считается совпадение пары «пиццерия + название», а не одного столбца. Сравни с количеством строк в `SELECT pizza_name FROM menu`.\n\n## ORDER BY: сортировка\n\nБез `ORDER BY` порядок строк **не гарантирован**: база вправе вернуть их как угодно. Если порядок важен, пиши `ORDER BY`.\n\n```sql-pizza\nSELECT name, age\nFROM person\nORDER BY age DESC;\n```\n\n- `ASC` по возрастанию (по умолчанию), `DESC` по убыванию.\n- Столбцов может быть несколько: сначала сортировка по первому, при равенстве по второму и так далее. У каждого столбца свой `ASC/DESC`.\n- Можно сортировать по номеру столбца в `SELECT`: `ORDER BY 2`.\n- Можно сортировать по выражению: `ORDER BY price * 2`.\n\n```sql-pizza\nSELECT name, age, address\nFROM person\nORDER BY address ASC, age DESC;\n```\n\n**Регистр букв.** Порядок текста зависит от правил сортировки (collation) базы. В одной базе заглавные идут раньше строчных, в другой нет. Не рассчитывай на конкретный порядок разных регистров.\n\n**NULL при сортировке.** В `ASC` значения `NULL` идут в конце, в `DESC` в начале. Это можно поменять: `ORDER BY address NULLS FIRST` или `NULLS LAST`.\n\n## LIMIT и OFFSET\n\n`LIMIT n` берёт первые `n` строк, `OFFSET m` пропускает `m` строк сначала. Пара часто нужна для «топ-3» и постраничного вывода. Без `ORDER BY` они бессмысленны: непонятно, какие строки «первые».\n\n```sql-pizza\nSELECT name, age\nFROM person\nORDER BY age DESC\nLIMIT 3;\n```\n\n```sql-pizza\nSELECT name, age\nFROM person\nORDER BY age DESC\nLIMIT 3 OFFSET 3;\n```\n\nВ стандарте SQL то же пишется `FETCH FIRST 3 ROWS ONLY`, и PostgreSQL это понимает.\n\n## Комментарии\n\n```sql\n-- комментарий до конца строки\n/* комментарий\n   на несколько строк */\n```\n\n## Типичные ошибки\n\n- Забытая запятая между столбцами или лишняя запятая перед `FROM`.\n- Двойные кавычки вместо одинарных вокруг текста (`\"Moscow\"` это имя столбца, а текст пишется `'Moscow'`).\n- Алиас из `SELECT` в `WHERE`.\n- Точка с запятой пропущена между двумя запросами.\n"
   },
   {
    "id": "02_where",
@@ -654,6 +654,7 @@
   {
    "id": "day00",
    "title": "Day 00. Основы SELECT (Basics)",
+   "group": "",
    "tasks": [
     {
      "id": "day00/ex00",
@@ -1223,6 +1224,7 @@
   {
    "id": "day01",
    "title": "Day 01. Множества и JOIN",
+   "group": "",
    "tasks": [
     {
      "id": "day01/ex00",
@@ -1833,6 +1835,7 @@
   {
    "id": "day02",
    "title": "Day 02. Углублённая выборка данных (JOIN, CTE)",
+   "group": "",
    "tasks": [
     {
      "id": "day02/ex00",
@@ -2465,6 +2468,7 @@
   {
    "id": "day03",
    "title": "Day 03. Работа с данными: DML (INSERT, UPDATE, DELETE)",
+   "group": "",
    "tasks": [
     {
      "id": "day03/ex00",
@@ -3209,6 +3213,7 @@
   {
    "id": "day04",
    "title": "Day 04. Представления и снимки данных (VIEW, MATERIALIZED VIEW)",
+   "group": "",
    "tasks": [
     {
      "id": "day04/ex00",
@@ -3703,6 +3708,7 @@
   {
    "id": "day05",
    "title": "Day 05. Индексы (B-Tree, EXPLAIN)",
+   "group": "",
    "tasks": [
     {
      "id": "day05/ex00",
@@ -4087,6 +4093,7 @@
   {
    "id": "day06",
    "title": "Day 06. Новая возможность в модели данных (DDL + DML)",
+   "group": "",
    "tasks": [
     {
      "id": "day06/ex00",
@@ -4505,6 +4512,7 @@
   {
    "id": "day07",
    "title": "Day 07. Агрегация данных (GROUP BY, HAVING, агрегатные функции)",
+   "group": "",
    "tasks": [
     {
      "id": "day07/ex00",
@@ -5042,6 +5050,7 @@
   {
    "id": "day08",
    "title": "Day 08. Транзакции и уровни изоляции (две сессии)",
+   "group": "",
    "tasks": [
     {
      "id": "day08/ex00",
@@ -5288,6 +5297,7 @@
   {
    "id": "day09",
    "title": "Day 09. Функции, процедуры и триггеры",
+   "group": "",
    "tasks": [
     {
      "id": "day09/ex00",
@@ -5799,7 +5809,8 @@
   },
   {
    "id": "team00a_start",
-   "title": "Team 00 · Старт: задача коммивояжёра (для двоих)",
+   "title": "Старт",
+   "group": "(групповое) SALESMAN",
    "tasks": [
     {
      "id": "team00a_start/ex00",
@@ -5835,7 +5846,8 @@
   },
   {
    "id": "team00b_role1",
-   "title": "Team 00 · Роль 1 «Архитектор графа»",
+   "title": "Роль 1 «Архитектор графа»",
+   "group": "(групповое) SALESMAN",
    "tasks": [
     {
      "id": "team00b_role1/ex00",
@@ -6035,7 +6047,8 @@
   },
   {
    "id": "team00c_role2",
-   "title": "Team 00 · Роль 2 «Навигатор»",
+   "title": "Роль 2 «Навигатор»",
+   "group": "(групповое) SALESMAN",
    "tasks": [
     {
      "id": "team00c_role2/ex00",
@@ -6236,7 +6249,8 @@
   },
   {
    "id": "team00d_assembly",
-   "title": "Team 00 · Общая сборка",
+   "title": "Общая сборка",
+   "group": "(групповое) SALESMAN",
    "tasks": [
     {
      "id": "team00d_assembly/ex00",
@@ -6290,7 +6304,8 @@
   },
   {
    "id": "team01a_start",
-   "title": "Team 01 · Старт: хранилище данных (для двоих)",
+   "title": "Старт",
+   "group": "(групповое) WAREHOUSE",
    "tasks": [
     {
      "id": "team01a_start/ex00",
@@ -6326,7 +6341,8 @@
   },
   {
    "id": "team01b_role1",
-   "title": "Team 01 · Роль 1 «Аналитик хранилища»",
+   "title": "Роль 1 «Аналитик хранилища»",
+   "group": "(групповое) WAREHOUSE",
    "tasks": [
     {
      "id": "team01b_role1/ex00",
@@ -6538,7 +6554,8 @@
   },
   {
    "id": "team01c_role2",
-   "title": "Team 01 · Роль 2 «Инженер курсов»",
+   "title": "Роль 2 «Инженер курсов»",
+   "group": "(групповое) WAREHOUSE",
    "tasks": [
     {
      "id": "team01c_role2/ex00",
@@ -6743,7 +6760,8 @@
   },
   {
    "id": "team01d_assembly",
-   "title": "Team 01 · Общая сборка",
+   "title": "Общая сборка",
+   "group": "(групповое) WAREHOUSE",
    "tasks": [
     {
      "id": "team01d_assembly/ex00",

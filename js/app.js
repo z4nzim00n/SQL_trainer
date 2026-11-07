@@ -47,6 +47,7 @@ const TABS = [
     { id: 'theory', label: '💡 Теория' },
     { id: 'hints', label: '🧭 Подсказки' },
     { id: 'solution', label: '✅ Решение' },
+    { id: 'wiki', label: '📖 Справочник' },
 ];
 
 /* ============================================
@@ -82,6 +83,18 @@ const panelRight = $('panelRight');
 const resizer = $('resizer');
 let isVertical = false;
 let isResizing = false;
+
+/* окно запроса можно спрятать (например, в групповых заданиях или если запросы пишут в другой программе) */
+const queryToggle = $('queryToggle');
+let queryHidden = store.get('sql-query-hidden', false) === true;
+function applyQueryHidden() {
+    $('panelRight').hidden = queryHidden;
+    $('resizer').hidden = queryHidden;
+    queryToggle.textContent = queryHidden ? '⌨ Показать запрос' : '⌨ Скрыть запрос';
+    store.set('sql-query-hidden', queryHidden);
+}
+queryToggle.addEventListener('click', () => { queryHidden = !queryHidden; applyQueryHidden(); });
+applyQueryHidden();
 
 $('sidebarToggle').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
 
@@ -232,7 +245,8 @@ function exampleBlock(sql, dataset, withTables, autoRun) {
     const out = el('div', 'example-out');
     out.hidden = true;
     bar.append(run, copy);
-    ex.append(pre, bar, out);
+    ex.append(pre, out);
+    if (!autoRun) ex.insertBefore(bar, out);   /* в окне слова пример выполняется сам, кнопки не нужны */
 
     const doRun = async () => {
         out.hidden = false;
@@ -278,19 +292,29 @@ function taskLabel(task) {
 
 function buildTree() {
     treeEl.replaceChildren();
-    data.days.forEach((day, di) => {
-        const sec = el('div', 'tree-section' + (di === 0 ? ' open' : ''));
-        const title = el('div', 'tree-section-title', day.title);
+    /* соседние разделы с одинаковым group (командные проекты) складываются в одну папку */
+    const groups = [];
+    data.days.forEach((day) => {
+        const last = groups[groups.length - 1];
+        if (day.group && last && last.group === day.group) last.days.push(day);
+        else groups.push({ group: day.group || '', title: day.group || day.title, days: [day] });
+    });
+    groups.forEach((g, gi) => {
+        const sec = el('div', 'tree-section' + (gi === 0 ? ' open' : ''));
+        const title = el('div', 'tree-section-title', g.title);
         title.addEventListener('click', () => sec.classList.toggle('open'));
         const body = el('div', 'tree-section-body');
 
-        day.tasks.forEach((task) => {
-            const row = el('div', 'tree-task');
-            const icon = el('span', 'tree-task-icon', solved[task.id] ? '✅' : '📄');
-            row.append(icon, el('span', '', taskLabel(task)));
-            row.dataset.id = task.id;
-            row.addEventListener('click', () => selectTask(task, row));
-            body.appendChild(row);
+        g.days.forEach((day) => {
+            if (g.group) body.appendChild(el('div', 'tree-subtitle', day.title));
+            day.tasks.forEach((task) => {
+                const row = el('div', 'tree-task');
+                const icon = el('span', 'tree-task-icon', solved[task.id] ? '✅' : '📄');
+                row.append(icon, el('span', '', taskLabel(task)));
+                row.dataset.id = task.id;
+                row.addEventListener('click', () => selectTask(task, row));
+                body.appendChild(row);
+            });
         });
 
         sec.append(title, body);
@@ -413,12 +437,13 @@ function renderPane(p, keepScroll) {
     const body = p.bodyEl;
     const top = keepScroll ? body.scrollTop : 0;
     body.replaceChildren();
-    if (!activeTask) return;
+    const tab = p.tab;
+    if (!activeTask && tab !== 'wiki') return;
     const task = activeTask;
     const wrap = el('div');
-    const tab = p.tab;
 
-    if (tab === 'readme') wrap.appendChild(renderMd(task.readme, task.meta.dataset));
+    if (tab === 'wiki') renderWikiPane(wrap);
+    else if (tab === 'readme') wrap.appendChild(renderMd(task.readme, task.meta.dataset));
     else if (tab === 'theory') {
         const doc = renderMd(task.theory, task.meta.dataset);
         const terms = [...new Set([...doc.querySelectorAll('code.term')].map((c) => c.textContent.trim().toUpperCase()))];
@@ -440,6 +465,30 @@ function renderPane(p, keepScroll) {
 
     body.appendChild(wrap);
     body.scrollTop = top;
+}
+
+function renderWikiPane(wrap) {
+    const articles = (data && data.wiki) || [];
+    if (!articles.length) { wrap.appendChild(el('p', 'lead', 'Справочник пуст.')); return; }
+    let id = store.get('sql-wiki-current', articles[0].id);
+    if (!articles.some((a) => a.id === id)) id = articles[0].id;
+    const bar = el('div', 'wiki-pane-bar');
+    const sel = el('select', 'wiki-pane-select');
+    articles.forEach((a) => {
+        const o = el('option', '', a.title.replace(/^\d+\.\s*/, ''));
+        o.value = a.id;
+        if (a.id === id) o.selected = true;
+        sel.appendChild(o);
+    });
+    bar.appendChild(sel);
+    const art = el('div', 'wiki-pane-article');
+    const show = (aid) => {
+        store.set('sql-wiki-current', aid);
+        art.replaceChildren(renderMd(articles.find((a) => a.id === aid).md, defaultDataset()));
+    };
+    sel.addEventListener('change', () => { show(sel.value); const pb = sel.closest('.panel-body'); if (pb) pb.scrollTop = 0; });
+    show(id);
+    wrap.append(bar, art);
 }
 
 function renderHints(wrap, task) {
@@ -687,7 +736,6 @@ const wiki = createWiki({
     el,
 });
 
-$('wikiBtnTop').addEventListener('click', () => $('wikiBtn').click());
 
 /* ============================================
    SELECT TASK
@@ -776,7 +824,6 @@ async function start() {
         const res = await fetch('tasks.json', { cache: 'no-cache' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         data = await res.json();
-        $('wikiBtnTop').hidden = !(data.wiki && data.wiki.length);
     } catch (e) {
         setNav('Не удалось загрузить tasks.json: ' + e.message +
             '. Открой страницу через http (например, python3 -m http.server), а не двойным кликом по файлу.', 'error');

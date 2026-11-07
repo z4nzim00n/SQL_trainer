@@ -227,7 +227,7 @@
 /* на вкладке «Схема БД» редактору отдаём меньше места */
 .right-body:has(.schema-view:not([hidden])) .editor-wrap { flex-basis: 26%; }
 
-/* ---------- прогресс и кнопка энциклопедии ---------- */
+/* ---------- прогресс и кнопка справочника ---------- */
 .wiki-btn {
     margin: 10px 12px 0;
     padding: 8px 12px;
@@ -443,3 +443,13 @@
 .example-tables { background: var(--panel-alt); }
 .example pre { margin: 0; border-radius: 0; border: 0; padding: 10px 12px; }
 .example-table-name { margin-top: 4px; }
+
+/* группы в дереве (командные проекты) */
+.tree-subtitle { margin: 8px 0 2px 14px; padding: 0 10px; color: var(--muted); font-size: calc(var(--fs-ui) - 2px); font-weight: 700; letter-spacing: .02em; }
+/* вкладка «Справочник» в панели */
+.wiki-pane-bar { margin-bottom: 14px; }
+.wiki-pane-select { width: 100%; padding: 7px 10px; background: var(--panel-alt); color: var(--text-strong); border: 1px solid var(--border); border-radius: var(--radius-md); font: inherit; }
+
+/* кнопка скрытия окна запроса */
+.query-toggle { margin-left: auto; padding: 5px 12px; white-space: nowrap; }
+.panel[hidden], .resizer[hidden] { display: none !important; }

@@ -91,7 +91,7 @@ function venn(kind) {
 }
 const expand = (md) => md.replace(/\{\{venn:([a-z_]+)\}\}/g, (_, k) => venn(k));
 
-/* Энциклопедия: docs/NN_name.md, заголовок статьи = первая строка "# ..." */
+/* Справочник: docs/NN_name.md, заголовок статьи = первая строка "# ..." */
 const wiki = [];
 if (existsSync(join(root, 'docs'))) {
     for (const f of readdirSync(join(root, 'docs')).filter((n) => n.endsWith('.md')).sort()) {
@@ -129,10 +129,10 @@ for (const dayDir of dirs('tasks')) {
             meta,
         });
     }
-    days.push({ id: dayDir, title: dayMeta.title, tasks });
+    days.push({ id: dayDir, title: dayMeta.title, group: dayMeta.group || '', tasks });
 }
 
 const out = { version: '0.004', builtAt: new Date().toISOString(), datasets, wiki, glossary, days };
 writeFileSync(join(root, 'tasks.json'), JSON.stringify(out, null, 1));
 const count = days.reduce((n, d) => n + d.tasks.length, 0);
-console.log(`tasks.json: дней ${days.length}, заданий ${count}, статей энциклопедии ${wiki.length}`);
+console.log(`tasks.json: дней ${days.length}, заданий ${count}, статей справочника ${wiki.length}`);
