@@ -403,18 +403,31 @@ splitBtn.addEventListener('click', () => {
 });
 $('unsplitBtn').addEventListener('click', () => { split = false; applySplit(); });
 
+/* панели друг под другом или рядом */
+let sideBySide = store.get('sql-side', false) === true;
+function applyOrient() {
+    panelLeft.classList.toggle('side', sideBySide);
+    $('orientBtn').textContent = sideBySide ? '⇅' : '⇆';
+    $('orientBtn').title = sideBySide ? 'Расположить панели друг под другом' : 'Расположить панели рядом';
+    panes[0].paneEl.style.flex = '1 1 0%';
+    panes[1].paneEl.style.flex = '1 1 0%';
+    store.set('sql-side', sideBySide);
+}
+$('orientBtn').addEventListener('click', () => { sideBySide = !sideBySide; applyOrient(); });
+
+
 let paneResizing = false;
 paneResizer.addEventListener('mousedown', (e) => {
     paneResizing = true;
     paneResizer.classList.add('dragging');
-    document.body.style.cursor = 'row-resize';
+    document.body.style.cursor = sideBySide ? 'col-resize' : 'row-resize';
     document.body.style.userSelect = 'none';
     e.preventDefault();
 });
 window.addEventListener('mousemove', (e) => {
     if (!paneResizing) return;
     const rect = panelLeft.getBoundingClientRect();
-    const share = ((e.clientY - rect.top) / rect.height) * 100;
+    const share = sideBySide ? ((e.clientX - rect.left) / rect.width) * 100 : ((e.clientY - rect.top) / rect.height) * 100;
     if (share > 15 && share < 85) {
         panes[0].paneEl.style.flex = `0 0 calc(${share}% - 8px)`;
         panes[1].paneEl.style.flex = '1 1 0%';
@@ -818,6 +831,7 @@ async function runSelfTest() {
    ============================================ */
 async function start() {
     buildTabs();
+    applyOrient();
     applySplit();
 
     try {
