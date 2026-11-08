@@ -9,11 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="css/base.css?v=20261107">
-    <link rel="stylesheet" href="css/app.css?v=20261107">
+    <link rel="stylesheet" href="css/base.css?v=20261108k">
+    <link rel="stylesheet" href="css/app.css?v=20261108k">
 </head>
 <body>
 <div class="app">
+
+    <div class="nav-veil" id="navVeil"></div>
 
     <aside class="nav" id="sidebar">
         <div class="nav-header">
@@ -30,6 +32,7 @@
                         <option value="catppuccin">🐈 Catppuccin</option>
                         <option value="kanagawa">🌊 Kanagawa</option>
                         <option value="nord">❄️ Nord</option>
+                        <option value="nightfox">🦊 NightFox</option>
                         <option value="dracula">🧛 Dracula</option>
                         <option value="dark">🌙 GitHub Dark</option>
                         <option value="light">☀️ GitHub Light</option>
@@ -75,7 +78,7 @@
                     <div class="panel-body" id="bodyA">
                         <div class="panel-empty">
                             <div class="panel-empty-icon">📋</div>
-                            <div class="panel-empty-text">Выбери задание.<br>Условие появится здесь.<br><br>Справочник по SQL: кнопка «📖 Справочник SQL» слева или вкладка «📖 Справочник» в этой панели.</div>
+                            <div class="panel-empty-text">Выбери задание.<br>Условие появится здесь.<br><br>Справочник по SQL: кнопка «📖 Справочник SQL» слева или вкладка «📖 Справка» в этой панели.</div>
                         </div>
                     </div>
                 </div>
@@ -102,7 +105,7 @@
                     <div class="editor-wrap" id="editorWrap">
                         <pre id="editorHl" aria-hidden="true"></pre>
                         <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off"
-                                  placeholder="-- Напиши запрос здесь. Ctrl+Enter выполняет его." disabled></textarea>
+                                  placeholder="-- Напиши запрос здесь (Ctrl+Enter)" disabled></textarea>
                     </div>
                     <div class="out-tabs" id="outTabs">
                         <button class="tab active" type="button" data-out="output">▤ Вывод</button>
@@ -119,6 +122,6 @@
     </div>
 </div>
 
-<script type="module" src="js/app.js?v=20261107"></script>
+<script type="module" src="js/app.js?v=20261108k"></script>
 </body>
 </html>

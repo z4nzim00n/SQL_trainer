@@ -47,7 +47,7 @@ const TABS = [
     { id: 'theory', label: '💡 Теория' },
     { id: 'hints', label: '🧭 Подсказки' },
     { id: 'solution', label: '✅ Решение' },
-    { id: 'wiki', label: '📖 Справочник' },
+    { id: 'wiki', label: '📖 Справка' },
 ];
 
 /* ============================================
@@ -77,6 +77,9 @@ setFont(store.get('sql-font', 15));
    LAYOUT: сайдбар, раскладка, разделитель
    ============================================ */
 const sidebar = $('sidebar');
+const narrowScreen = window.matchMedia('(max-width: 900px)');
+if (narrowScreen.matches) sidebar.classList.add('collapsed');
+narrowScreen.addEventListener('change', (e) => { if (e.matches) sidebar.classList.add('collapsed'); });
 const panelsContainer = $('panelsContainer');
 const panelLeft = $('panelLeft');
 const panelRight = $('panelRight');
@@ -97,6 +100,7 @@ queryToggle.addEventListener('click', () => { queryHidden = !queryHidden; applyQ
 applyQueryHidden();
 
 $('sidebarToggle').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+$('navVeil').addEventListener('click', () => sidebar.classList.add('collapsed'));
 
 resizer.addEventListener('mousedown', (e) => {
     isResizing = true;
@@ -750,12 +754,17 @@ const wiki = createWiki({
     el,
 });
 
+$('wikiBtn').addEventListener('click', () => {
+    if (narrowScreen.matches) sidebar.classList.add('collapsed');
+});
+
 
 /* ============================================
    SELECT TASK
    ============================================ */
 function selectTask(task, row) {
     wiki.close();
+    if (narrowScreen.matches) sidebar.classList.add('collapsed');
     if (activeTaskEl) activeTaskEl.classList.remove('active');
     row.classList.add('active');
     activeTaskEl = row;

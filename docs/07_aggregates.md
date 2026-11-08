@@ -70,23 +70,23 @@ ORDER BY avg_price DESC;
 
 ## Группировка с JOIN
 
-Часто имя нужно из другой таблицы: сначала `JOIN`, потом `GROUP BY` по столбцам этой таблицы.
+Часто имя нужно из другой таблицы: сначала `JOIN`, потом `GROUP BY` по столбцам этой таблицы. Группируй по `id`, а не только по `name`: одноимённые пиццерии иначе склеятся в одну группу.
 
 ```sql-pizza
-SELECT pizzeria.name, COUNT(*) AS visits
+SELECT pizzeria.id, pizzeria.name, COUNT(*) AS visits
 FROM person_visits
 JOIN pizzeria ON person_visits.pizzeria_id = pizzeria.id
-GROUP BY pizzeria.name
+GROUP BY pizzeria.id, pizzeria.name
 ORDER BY visits DESC, pizzeria.name;
 ```
 
 Чтобы в результате остались и группы с нулём (пиццерии без визитов), нужен `LEFT JOIN`, а считать надо столбец правой таблицы:
 
 ```sql-pizza
-SELECT pizzeria.name, COUNT(person_visits.id) AS visits
+SELECT pizzeria.id, pizzeria.name, COUNT(person_visits.id) AS visits
 FROM pizzeria
 LEFT JOIN person_visits ON person_visits.pizzeria_id = pizzeria.id
-GROUP BY pizzeria.name
+GROUP BY pizzeria.id, pizzeria.name
 ORDER BY visits DESC, pizzeria.name;
 ```
 

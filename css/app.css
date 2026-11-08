@@ -409,9 +409,9 @@
 .document .table-wrap { max-width: 100%; }
 
 /* вкладки: одна строка */
-.tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 4px; }
+.tabs { flex-wrap: wrap; overflow-x: visible; gap: 2px; }
 .tabs::-webkit-scrollbar { display: none; }
-.tab { white-space: nowrap; padding: 5px 10px; flex: 0 0 auto; }
+.tab { white-space: nowrap; padding: 5px 6px; flex: 0 0 auto; }
 .split-btn { padding: 5px 9px; flex: 0 0 auto; white-space: nowrap; }
 
 /* окно примера слова */
@@ -438,11 +438,16 @@
 }
 .split-btn#splitBtn { font-size: 0; padding: 5px 9px; }
 .split-btn#splitBtn::before { content: "⬒"; font-size: calc(var(--fs-ui)); }
-.tab { padding: 5px 8px; }
+.tab { padding: 5px 6px; }
 .example .result-table-wrap { border: 1px solid var(--border); background: var(--bg); }
 .example-tables { background: var(--panel-alt); }
 .example pre { margin: 0; border-radius: 0; border: 0; padding: 10px 12px; }
 .example-table-name { margin-top: 4px; }
+
+/* справочник: длинные таблицы переносятся, а не уезжают за край */
+.wiki-article .document .table-wrap table { width: 100%; min-width: 0; }
+.wiki-article .document th,
+.wiki-article .document td { white-space: normal; overflow-wrap: break-word; }
 
 /* группы в дереве (командные проекты) */
 .tree-subtitle { margin: 8px 0 2px 14px; padding: 0 10px; color: var(--muted); font-size: calc(var(--fs-ui) - 2px); font-weight: 700; letter-spacing: .02em; }
@@ -459,3 +464,19 @@
 #panelLeft.side .pane + .pane { border-top: 0; border-left: 1px solid var(--border); }
 #panelLeft.side .pane-resizer { cursor: col-resize; border-top: 0; border-left: 1px solid var(--border); }
 #panelLeft.side .pane-resizer::after { top: 50%; left: 3px; width: 4px; height: 40px; margin: -20px 0 0 0; }
+
+/* на телефоне кнопка запроса — только иконка, чтобы шапка оставалась в одну строку */
+@media (max-width: 700px) {
+    .query-toggle { font-size: 0; padding: 5px 9px; }
+    .query-toggle::before { content: "⌨"; font-size: calc(var(--fs-ui)); }
+}
+
+/* узкая панель (режим разделения): вкладки и кнопки чуть компактнее */
+.panel-topbar { container-type: inline-size; }
+@container (max-width: 620px) {
+    .panel-topbar .tab { padding: 5px 4px; }
+    .panel-topbar .split-btn { padding: 5px 6px; }
+}
+@container (max-width: 620px) {
+    .panel-topbar .tabs { gap: 1px; }
+}

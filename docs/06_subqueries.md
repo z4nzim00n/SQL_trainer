@@ -63,7 +63,7 @@ WHERE NOT EXISTS (
 );
 ```
 
-Это пиццерии, где никто не был. Тот же результат даёт `NOT IN`:
+Это пиццерии, где никто не был. При условии, что `pizzeria_id` в `person_visits` не бывает `NULL`, тот же результат даёт `NOT IN`:
 
 ```sql-pizza
 SELECT name
